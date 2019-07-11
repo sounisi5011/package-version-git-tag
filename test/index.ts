@@ -237,3 +237,31 @@ test('CLI should read version and add tag', async t => {
         `Git tag v${version} should be added`,
     );
 });
+
+test('CLI should add and push Git tag', async t => {
+    const { exec } = await initGit('push-git-tag');
+
+    await t.throwsAsync(
+        exec(['git', 'push', '--dry-run', 'origin', 'HEAD']),
+        {
+            name: 'CommandFailedError',
+            message: /'origin' does not appear to be a git repository/,
+        },
+        'Git push should fail',
+    );
+
+    await t.throwsAsync(
+        exec([CLI_PATH, '--push']),
+        {
+            name: 'CommandFailedError',
+            message: /'origin' does not appear to be a git repository/,
+        },
+        'CLI should try git push and should fail',
+    );
+
+    t.regex(
+        (await exec(['git', 'tag', '-l'])).stdout,
+        /^v0\.0\.0$/m,
+        'Git tag v0.0.0 should be added',
+    );
+});
