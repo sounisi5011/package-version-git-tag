@@ -40,7 +40,7 @@
     "lint:eslint": "eslint --ext .ts ./",
     "lint:tsc-src": "tsc --noEmit",
     "lint:tsc-test": "tsc -p ./test/ --noEmit",
-    "test": "run-s test:peer-deps lint test:ava",
+    "test": "run-s test:peer-deps lint build test:ava",
     "test:ava": "ava",
     "test:peer-deps": "check-peer-deps"
   },
