@@ -29,7 +29,19 @@
     "test": "test"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc",
+    "clean": "del ./dist/*",
+    "fmt-pkg": "run-s fmt-pkg:prettier fmt-pkg:sort",
+    "fmt-pkg:prettier": "prettier-package-json --write ./package.json",
+    "fmt-pkg:sort": "sort-package-json ./package.json",
+    "fmt-ts": "eslint --fix --ext .ts ./",
+    "lint": "run-p lint:*",
+    "lint:eslint": "eslint --ext .ts ./",
+    "lint:tsc-src": "tsc --noEmit",
+    "lint:tsc-test": "tsc -p ./test/ --noEmit",
+    "test": "run-s test:peer-deps lint test:ava",
+    "test:ava": "ava",
+    "test:peer-deps": "check-peer-deps"
   },
   "husky": {
     "hooks": {
