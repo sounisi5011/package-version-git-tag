@@ -17,6 +17,7 @@ plugins:
   - simple-import-sort
 rules:
   no-console: off
+  no-dupe-class-members: off
   node/no-unsupported-features/es-syntax:
     - error
     - ignores:
@@ -26,3 +27,8 @@ rules:
     - allowExpressions: true
   simple-import-sort/sort: error
   prettier/prettier: error
+overrides:
+  - files:
+      - "*.d.ts"
+    rules:
+      no-useless-constructor: off
