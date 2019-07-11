@@ -16,6 +16,7 @@ plugins:
   - "@typescript-eslint"
   - simple-import-sort
 rules:
+  no-console: off
   node/no-unsupported-features/es-syntax:
     - error
     - ignores:
