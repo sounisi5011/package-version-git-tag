@@ -92,6 +92,9 @@
     "ts-node": "8.3.0",
     "typescript": "3.5.3"
   },
+  "engines": {
+    "node": ">=8.3.0"
+  },
   "ava": {
     "files": [
       "./test/**/*.ts"
