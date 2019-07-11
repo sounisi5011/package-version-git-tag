@@ -1,0 +1,27 @@
+env:
+  es6: true
+  node: true
+extends:
+  - eslint:recommended
+  - standard
+  - plugin:@typescript-eslint/recommended
+  - plugin:import/typescript
+  - plugin:prettier/recommended
+  - prettier/@typescript-eslint
+parser: "@typescript-eslint/parser"
+parserOptions:
+  sourceType: module
+  project: ./tsconfig.json
+plugins:
+  - "@typescript-eslint"
+  - simple-import-sort
+rules:
+  node/no-unsupported-features/es-syntax:
+    - error
+    - ignores:
+        - modules
+  "@typescript-eslint/explicit-function-return-type":
+    - warn
+    - allowExpressions: true
+  simple-import-sort/sort: error
+  prettier/prettier: error
