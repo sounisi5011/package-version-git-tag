@@ -25,8 +25,9 @@
   ],
   "main": "dist/index",
   "types": "dist/index.d.ts",
-  "bin": "dist/bin.js",
+  "bin": "bin/cli.js",
   "directories": {
+    "bin": "bin",
     "test": "test"
   },
   "scripts": {
