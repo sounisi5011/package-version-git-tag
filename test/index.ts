@@ -13,6 +13,12 @@ const CLI_PATH = path.resolve(__dirname, '..', PKG_DATA.bin);
 
 const writeFile = promisify(fs.writeFile);
 
+function getRandomInt(min: number, max: number): number {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min)) + min;
+}
+
 interface ExecFunc {
     (cmd: readonly string[], options?: childProcess.ExecFileOptions): Promise<{
         stdout: string;
@@ -75,7 +81,12 @@ function execGenerator(gitDirpath: string): ExecFunc {
     };
 }
 
-async function initGit(dirName: string): Promise<ExecFunc> {
+async function initGit(
+    dirName: string,
+): Promise<{
+    exec: ExecFunc;
+    gitDirpath: string;
+}> {
     const gitDirpath = path.join(GIT_ROOT_DIR, dirName);
     const exec = execGenerator(gitDirpath);
 
@@ -91,11 +102,11 @@ async function initGit(dirName: string): Promise<ExecFunc> {
     await exec(['git', 'add', '--all']);
     await exec(['git', 'commit', '-m', 'Initial commit']);
 
-    return exec;
+    return { exec, gitDirpath };
 }
 
 test.serial('CLI should add Git tag', async t => {
-    const exec = await initGit('not-exists-git-tag');
+    const { exec } = await initGit('not-exists-git-tag');
 
     t.regex(
         (await exec(['git', 'tag', '-l'])).stdout,
@@ -123,7 +134,7 @@ test.serial('CLI should add Git tag', async t => {
 test.serial(
     'CLI should complete successfully if Git tag has been added',
     async t => {
-        const exec = await initGit('exists-git-tag-in-same-commit');
+        const { exec } = await initGit('exists-git-tag-in-same-commit');
         await exec(['git', 'tag', 'v0.0.0']);
 
         const gitTags = (await exec(['git', 'tag', '-l'])).stdout;
@@ -159,7 +170,7 @@ test.serial(
 test.serial(
     'CLI should fail if Git tag exists on different commits',
     async t => {
-        const exec = await initGit('exists-git-tag-in-other-commit');
+        const { exec } = await initGit('exists-git-tag-in-other-commit');
 
         await exec(['git', 'tag', 'v0.0.0']);
         await exec(['git', 'commit', '--allow-empty', '-m', 'Second commit']);
@@ -183,3 +194,46 @@ test.serial(
         );
     },
 );
+
+test('CLI should read version and add tag', async t => {
+    const { exec, gitDirpath } = await initGit('add-random-git-tag');
+    const major = getRandomInt(0, 99);
+    const minor = getRandomInt(1, 23);
+    const patch = getRandomInt(0, 9);
+    const version = [major, minor, patch].join('.');
+    const versionTagRegExp = new RegExp(
+        `^v${major}\\.${minor}\\.${patch}$`,
+        'm',
+    );
+
+    await exec(['git', 'tag', 'v0.0.0']);
+
+    await writeFile(
+        path.join(gitDirpath, 'package.json'),
+        JSON.stringify({ version }),
+    );
+    await exec(['git', 'add', '--all']);
+    await exec(['git', 'commit', '-m', 'Update version']);
+
+    t.notRegex(
+        (await exec(['git', 'tag', '-l'])).stdout,
+        versionTagRegExp,
+        `Git tag v${version} should not exist yet`,
+    );
+
+    await t.notThrowsAsync(
+        async () =>
+            t.deepEqual(
+                await exec([CLI_PATH]),
+                { stdout: '', stderr: '' },
+                'CLI should not output anything',
+            ),
+        'CLI should exits successfully',
+    );
+
+    t.regex(
+        (await exec(['git', 'tag', '-l'])).stdout,
+        versionTagRegExp,
+        `Git tag v${version} should be added`,
+    );
+});
