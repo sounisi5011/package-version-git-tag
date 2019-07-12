@@ -1,6 +1,6 @@
 {
   "name": "package-version-git-tag",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Add Git tag corresponding to the version field of package.json",
   "keywords": [
     "cli",
@@ -21,6 +21,7 @@
   "license": "MIT",
   "author": "sounisi5011",
   "files": [
+    "bin/",
     "dist/"
   ],
   "main": "dist/index",
@@ -41,6 +42,16 @@
     "lint:eslint": "eslint --ext .ts ./",
     "lint:tsc-src": "tsc --noEmit",
     "lint:tsc-test": "tsc -p ./test/ --noEmit",
+    "release": "run-s release:validation release:build release:publish",
+    "release:build": "run-s clean build",
+    "release:publish": "run-s release:publish:git release:publish:npm",
+    "release:publish:git": "run-s release:publish:git:add-tag release:publish:git:push-tag",
+    "release:publish:git:add-tag": "./bin/cli.js --push",
+    "release:publish:npm": "npm publish --access=public",
+    "release:validation": "run-p release:validation:* test",
+    "release:validation:git-branch": "git-branch-is master",
+    "release:validation:git-work-dir": "is-git-status-clean",
+    "release:validation:publishable": "can-npm-publish --verbose",
     "test": "run-s test:peer-deps lint build test:ava",
     "test:ava": "ava",
     "test:peer-deps": "check-peer-deps"
