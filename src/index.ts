@@ -33,6 +33,6 @@ export default async function(opts: Options = {}): Promise<void> {
     }
 
     if (opts.push) {
-        await push('--tags');
+        await push(versionTagName);
     }
 }
