@@ -6,15 +6,50 @@
 
 [github-license]: https://github.com/sounisi5011/package-version-git-tag/blob/master/LICENSE
 
-Add Git tag corresponding to the version field of `package.json`.
+Add Git tag corresponding to the `version` field of `package.json`.
 
 ## Install
 
-WIP
+```sh
+npm install package-version-git-tag
+```
 
 ## Usage
 
-TODO
+For example, suppose that `package.json` exists in the current directory, and version is `1.2.3`:
+
+```json
+{
+    "name": "my-awesome-package",
+    "version": "1.2.3",
+    ...
+}
+```
+
+In this case, this command is:
+
+```sh
+package-version-git-tag
+```
+
+Equivalent to this operation:
+
+```console
+$ git tag v1.2.3
+```
+
+If you add the `--push` flag, it will also run `git push`. That is, this command is:
+
+```sh
+package-version-git-tag --push
+```
+
+Equivalent to this operation:
+
+```console
+$ git tag v1.2.3
+$ git push origin v1.2.3
+```
 
 ## Tests
 
