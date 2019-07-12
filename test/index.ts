@@ -148,7 +148,7 @@ async function initGit(
     return { exec, gitDirpath, remote };
 }
 
-test.serial('CLI should add Git tag', async t => {
+test('CLI should add Git tag', async t => {
     const { exec } = await initGit('not-exists-git-tag');
 
     t.regex(
@@ -174,69 +174,63 @@ test.serial('CLI should add Git tag', async t => {
     );
 });
 
-test.serial(
-    'CLI should complete successfully if Git tag has been added',
-    async t => {
-        const { exec } = await initGit('exists-git-tag-in-same-commit');
-        await exec(['git', 'tag', 'v0.0.0']);
+test('CLI should complete successfully if Git tag has been added', async t => {
+    const { exec } = await initGit('exists-git-tag-in-same-commit');
+    await exec(['git', 'tag', 'v0.0.0']);
 
-        const gitTags = (await exec(['git', 'tag', '-l'])).stdout;
-        t.regex(gitTags, /^v0\.0\.0$/m, 'Git tag v0.0.0 should exist');
+    const gitTags = (await exec(['git', 'tag', '-l'])).stdout;
+    t.regex(gitTags, /^v0\.0\.0$/m, 'Git tag v0.0.0 should exist');
 
-        await t.throwsAsync(
-            exec(['git', 'tag', 'v0.0.0']),
-            {
-                name: 'CommandFailedError',
-                message: /tag 'v0\.0\.0' already exists/,
-            },
-            'Overwriting tags with git cli should fail',
-        );
+    await t.throwsAsync(
+        exec(['git', 'tag', 'v0.0.0']),
+        {
+            name: 'CommandFailedError',
+            message: /tag 'v0\.0\.0' already exists/,
+        },
+        'Overwriting tags with git cli should fail',
+    );
 
-        await t.notThrowsAsync(
-            async () =>
-                t.deepEqual(
-                    await exec([CLI_PATH]),
-                    { stdout: '', stderr: '' },
-                    'CLI should not output anything',
-                ),
-            'CLI should exits successfully',
-        );
+    await t.notThrowsAsync(
+        async () =>
+            t.deepEqual(
+                await exec([CLI_PATH]),
+                { stdout: '', stderr: '' },
+                'CLI should not output anything',
+            ),
+        'CLI should exits successfully',
+    );
 
-        t.is(
-            (await exec(['git', 'tag', '-l'])).stdout,
-            gitTags,
-            'Git tag should not change',
-        );
-    },
-);
+    t.is(
+        (await exec(['git', 'tag', '-l'])).stdout,
+        gitTags,
+        'Git tag should not change',
+    );
+});
 
-test.serial(
-    'CLI should fail if Git tag exists on different commits',
-    async t => {
-        const { exec } = await initGit('exists-git-tag-in-other-commit');
+test('CLI should fail if Git tag exists on different commits', async t => {
+    const { exec } = await initGit('exists-git-tag-in-other-commit');
 
-        await exec(['git', 'tag', 'v0.0.0']);
-        await exec(['git', 'commit', '--allow-empty', '-m', 'Second commit']);
+    await exec(['git', 'tag', 'v0.0.0']);
+    await exec(['git', 'commit', '--allow-empty', '-m', 'Second commit']);
 
-        await t.throwsAsync(
-            exec(['git', 'tag', 'v0.0.0']),
-            {
-                name: 'CommandFailedError',
-                message: /tag 'v0\.0\.0' already exists/,
-            },
-            'Overwriting tags with git cli should fail',
-        );
+    await t.throwsAsync(
+        exec(['git', 'tag', 'v0.0.0']),
+        {
+            name: 'CommandFailedError',
+            message: /tag 'v0\.0\.0' already exists/,
+        },
+        'Overwriting tags with git cli should fail',
+    );
 
-        await t.throwsAsync(
-            exec([CLI_PATH]),
-            {
-                name: 'CommandFailedError',
-                message: /tag 'v0\.0\.0' already exists/,
-            },
-            'CLI should fail',
-        );
-    },
-);
+    await t.throwsAsync(
+        exec([CLI_PATH]),
+        {
+            name: 'CommandFailedError',
+            message: /tag 'v0\.0\.0' already exists/,
+        },
+        'CLI should fail',
+    );
+});
 
 test('CLI should read version and add tag', async t => {
     const { exec, gitDirpath } = await initGit('add-random-git-tag');
