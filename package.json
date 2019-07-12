@@ -21,6 +21,7 @@
   "license": "MIT",
   "author": "sounisi5011",
   "files": [
+    "bin/",
     "dist/"
   ],
   "main": "dist/index",
