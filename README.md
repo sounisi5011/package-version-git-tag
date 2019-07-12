@@ -1,9 +1,11 @@
 # package-version-git-tag
 
+[![npm package](https://img.shields.io/npm/v/package-version-git-tag.svg)][npm]
 [![GitHub License](https://img.shields.io/github/license/sounisi5011/package-version-git-tag.svg)][github-license]
 [![Build Status](https://travis-ci.com/sounisi5011/package-version-git-tag.svg?branch=master)](https://travis-ci.com/sounisi5011/package-version-git-tag)
 [![Maintainability Status](https://api.codeclimate.com/v1/badges/ac675a219746d53b79bc/maintainability)](https://codeclimate.com/github/sounisi5011/package-version-git-tag/maintainability)
 
+[npm]: https://www.npmjs.com/package/package-version-git-tag
 [github-license]: https://github.com/sounisi5011/package-version-git-tag/blob/master/LICENSE
 
 Add Git tag corresponding to the `version` field of `package.json`.
