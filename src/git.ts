@@ -34,3 +34,14 @@ export async function setTag(tagName: string): Promise<void> {
         throw new Error(`setTag() Error: ${error}`);
     }
 }
+
+export async function push(
+    src: string,
+    repository: string = 'origin',
+): Promise<void> {
+    try {
+        await execFileAsync('git', ['push', repository, src]);
+    } catch (error) {
+        throw new Error(`push() Error: ${error}`);
+    }
+}

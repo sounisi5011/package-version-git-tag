@@ -2,6 +2,10 @@
   "compilerOptions": {
     "target": "ES5",
     "types": ["node"],
+    "baseUrl": ".",
+    "paths": {
+      "*": ["node_modules.types/*"]
+    },
     "module": "CommonJS",
     "moduleResolution": "Node",
     "declaration": true,
