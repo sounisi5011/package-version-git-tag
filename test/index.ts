@@ -7,6 +7,8 @@ import path from 'path';
 import { promisify } from 'util';
 
 import * as PKG_DATA from '../package.json';
+import initGitServer from './helpers/git-server';
+import { PromiseValue } from './helpers/types';
 
 const GIT_ROOT_DIR = path.resolve(__dirname, 'tmp');
 const CLI_PATH = path.resolve(__dirname, '..', PKG_DATA.bin);
@@ -83,26 +85,67 @@ function execGenerator(gitDirpath: string): ExecFunc {
 
 async function initGit(
     dirName: string,
+    useRemoteRepo: true,
 ): Promise<{
     exec: ExecFunc;
     gitDirpath: string;
+    remote: PromiseValue<ReturnType<typeof initGitServer>>;
+}>;
+async function initGit(
+    dirName: string,
+    useRemoteRepo: false,
+): Promise<{
+    exec: ExecFunc;
+    gitDirpath: string;
+    remote: null;
+}>;
+async function initGit(
+    dirName: string,
+): Promise<{
+    exec: ExecFunc;
+    gitDirpath: string;
+    remote: null;
+}>;
+async function initGit(
+    dirName: string,
+    useRemoteRepo: boolean = false,
+): Promise<{
+    exec: ExecFunc;
+    gitDirpath: string;
+    remote: null | PromiseValue<ReturnType<typeof initGitServer>>;
 }> {
     const gitDirpath = path.join(GIT_ROOT_DIR, dirName);
     const exec = execGenerator(gitDirpath);
 
-    await del(path.join(gitDirpath, '*'), { dot: true });
-    await makeDir(gitDirpath);
+    const [, remote] = await Promise.all([
+        (async () => {
+            await del(path.join(gitDirpath, '*'), { dot: true });
+            await makeDir(gitDirpath);
 
-    await exec(['git', 'init']);
+            await exec(['git', 'init']);
 
-    await writeFile(
-        path.join(gitDirpath, 'package.json'),
-        JSON.stringify({ version: '0.0.0' }),
-    );
-    await exec(['git', 'add', '--all']);
-    await exec(['git', 'commit', '-m', 'Initial commit']);
+            await writeFile(
+                path.join(gitDirpath, 'package.json'),
+                JSON.stringify({ version: '0.0.0' }),
+            );
+            await exec(['git', 'add', '--all']);
+            await exec(['git', 'commit', '-m', 'Initial commit']);
+        })(),
+        (async () => {
+            if (!useRemoteRepo) {
+                return null;
+            }
+            return initGitServer(
+                path.join(GIT_ROOT_DIR, `${gitDirpath}.remote`),
+            );
+        })(),
+    ]);
 
-    return { exec, gitDirpath };
+    if (remote) {
+        await exec(['git', 'remote', 'add', 'origin', `${remote.remoteURL}/x`]);
+    }
+
+    return { exec, gitDirpath, remote };
 }
 
 test.serial('CLI should add Git tag', async t => {
@@ -238,8 +281,8 @@ test('CLI should read version and add tag', async t => {
     );
 });
 
-test('CLI should add and push Git tag', async t => {
-    const { exec } = await initGit('push-git-tag');
+test('CLI push flag should fail if there is no remote repository', async t => {
+    const { exec } = await initGit('push-fail-git-tag');
 
     await t.throwsAsync(
         exec(['git', 'push', '--dry-run', 'origin', 'HEAD']),
@@ -264,4 +307,68 @@ test('CLI should add and push Git tag', async t => {
         /^v0\.0\.0$/m,
         'Git tag v0.0.0 should be added',
     );
+});
+
+test('CLI should add and push Git tag', async t => {
+    const {
+        exec,
+        remote: { tagList },
+    } = await initGit('push-success-git-tag', true);
+
+    await t.notThrowsAsync(
+        exec(['git', 'push', '--dry-run', 'origin', 'HEAD']),
+        'Git push should success',
+    );
+
+    await t.notThrowsAsync(
+        async () =>
+            t.deepEqual(
+                await exec([CLI_PATH, '--push']),
+                { stdout: '', stderr: '' },
+                'CLI should not output anything',
+            ),
+        'CLI should exits successfully',
+    );
+
+    t.regex(
+        (await exec(['git', 'tag', '-l'])).stdout,
+        /^v0\.0\.0$/m,
+        'Git tag v0.0.0 should be added',
+    );
+
+    t.deepEqual(tagList, ['v0.0.0'], 'Git tag v0.0.0 should have been pushed');
+});
+
+test('CLI should add and push single Git tag', async t => {
+    const {
+        exec,
+        remote: { tagList },
+    } = await initGit('push-single-git-tag', true);
+
+    await exec(['git', 'tag', 'v0.0.0-pre']);
+    await exec(['git', 'commit', '--allow-empty', '-m', 'Second commit']);
+    await exec(['git', 'tag', 'hoge']);
+
+    await t.notThrowsAsync(
+        exec(['git', 'push', '--dry-run', 'origin', 'HEAD']),
+        'Git push should success',
+    );
+
+    await t.notThrowsAsync(
+        async () =>
+            t.deepEqual(
+                await exec([CLI_PATH, '--push']),
+                { stdout: '', stderr: '' },
+                'CLI should not output anything',
+            ),
+        'CLI should exits successfully',
+    );
+
+    t.regex(
+        (await exec(['git', 'tag', '-l'])).stdout,
+        /^v0\.0\.0$/m,
+        'Git tag v0.0.0 should be added',
+    );
+
+    t.deepEqual(tagList, ['v0.0.0'], 'Git tag needs to push only one');
 });
