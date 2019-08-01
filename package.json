@@ -21,14 +21,12 @@
   "license": "MIT",
   "author": "sounisi5011",
   "files": [
-    "bin/",
     "dist/"
   ],
   "main": "dist/index",
   "types": "dist/index.d.ts",
   "bin": "dist/bin.js",
   "directories": {
-    "bin": "bin",
     "test": "test"
   },
   "scripts": {
