@@ -8,7 +8,13 @@ import * as PKG_DATA from '../package.json';
 import { getRandomInt, writeFile } from './helpers';
 import { initGit } from './helpers/git';
 
-const CLI_PATH = path.resolve(__dirname, 'node_modules', '.bin', PKG_DATA.name);
+const FIXTURES_DIR = path.resolve(__dirname, 'fixtures');
+const CLI_PATH = path.resolve(
+    FIXTURES_DIR,
+    'node_modules',
+    '.bin',
+    PKG_DATA.name,
+);
 
 const execFileAsync = promisify(execFile);
 function tmpDir(dirname: string): string {
@@ -16,7 +22,7 @@ function tmpDir(dirname: string): string {
 }
 
 test.before(async () => {
-    await execFileAsync('npm', ['install'], { cwd: __dirname });
+    await execFileAsync('npm', ['install'], { cwd: FIXTURES_DIR });
 });
 
 test('CLI should add Git tag', async t => {
