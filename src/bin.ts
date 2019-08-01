@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 
 import program from 'commander';
+import path from 'path';
 import readPkg from 'read-pkg';
 
 import main from './';
 
 (async () => {
-    const PKG = await readPkg();
+    const PKG = await readPkg({ cwd: path.join(__dirname, '..') });
 
     program
         .version(PKG.version, '-v, --version')
