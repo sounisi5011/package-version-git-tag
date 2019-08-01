@@ -1,5 +1,6 @@
 import test from 'ava';
 import { execFile } from 'child_process';
+import del from 'del';
 import escapeRegExp from 'escape-string-regexp';
 import path from 'path';
 import { promisify } from 'util';
@@ -25,6 +26,7 @@ test.before(async () => {
     await execFileAsync('npm', ['run', 'build'], {
         cwd: path.resolve(__dirname, '..'),
     });
+    await del(path.resolve(FIXTURES_DIR, '{package-lock.json,node_modules}'));
     await execFileAsync('npm', ['install'], { cwd: FIXTURES_DIR });
 });
 
