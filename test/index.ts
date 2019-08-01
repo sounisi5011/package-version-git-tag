@@ -6,7 +6,7 @@ import * as PKG_DATA from '../package.json';
 import { getRandomInt, writeFile } from './helpers';
 import { initGit } from './helpers/git';
 
-const CLI_PATH = path.resolve(__dirname, '..', PKG_DATA.bin);
+const CLI_PATH = path.resolve(__dirname, 'node_modules', '.bin', PKG_DATA.name);
 
 function tmpDir(dirname: string): string {
     return path.resolve(__dirname, 'tmp', dirname);
