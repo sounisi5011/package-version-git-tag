@@ -239,7 +239,7 @@ test('CLI should add and push single Git tag', async t => {
 });
 
 test('CLI should to display help', async t => {
-    const { exec } = await initGit(tmpDir('display-help'), true);
+    const { exec } = await initGit(tmpDir('display-help'));
 
     const gitTags = (await exec(['git', 'tag', '-l'])).stdout;
 
