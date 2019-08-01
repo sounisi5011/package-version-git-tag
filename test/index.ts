@@ -255,3 +255,24 @@ test('CLI should to display help', async t => {
         'Git tag should not change',
     );
 });
+
+test('CLI should not work with unknown options', async t => {
+    const { exec } = await initGit(tmpDir('unknown-option'));
+
+    const gitTags = (await exec(['git', 'tag', '-l'])).stdout;
+
+    await t.throwsAsync(
+        exec([CLI_PATH, '--lololololololololololololololol']),
+        {
+            name: 'CommandFailedError',
+            message: /^e (.+ )?unknown option/m,
+        },
+        'CLI should fail',
+    );
+
+    t.is(
+        (await exec(['git', 'tag', '-l'])).stdout,
+        gitTags,
+        'Git tag should not change',
+    );
+});
