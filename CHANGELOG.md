@@ -2,6 +2,10 @@
 
 ## [1.x]
 
+### Features
+
+* [#20] - Add `--help` option
+
 ### Updated Dependencies
 
 #### devDependencies
@@ -15,6 +19,12 @@
 * `lint-staged`
     * [#18] - `9.2.0` -> `9.2.1`
 
+### Added Dependencies
+
+#### dependencies
+
+* [#20] - `commander@2.20.0`
+
 ### Others
 
 * [#19] - Setting Renovate to follow Emoji Prefix
@@ -24,6 +34,7 @@
 [#13]: https://github.com/sounisi5011/package-version-git-tag/pull/13
 [#18]: https://github.com/sounisi5011/package-version-git-tag/pull/18
 [#19]: https://github.com/sounisi5011/package-version-git-tag/pull/19
+[#20]: https://github.com/sounisi5011/package-version-git-tag/pull/20
 
 ## [1.0.0] (2019/07/12)
 

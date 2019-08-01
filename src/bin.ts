@@ -1,11 +1,15 @@
 #!/usr/bin/env node
 
+import program from 'commander';
+
 import main from './';
 
-const [, , ...args] = process.argv;
+program
+    .option('--push', '`git push` the added tag to the remote repository')
+    .parse(process.argv);
 
 main({
-    push: args.includes('--push'),
+    push: program.push,
 }).catch(error => {
     process.exitCode = 1;
     console.error(error instanceof Error ? error.message : error);
