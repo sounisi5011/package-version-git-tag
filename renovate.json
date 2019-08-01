@@ -1,4 +1,14 @@
 {
   "extends": ["config:base"],
-  "commitMessagePrefix": "⬆️"
+  "commitMessagePrefix": "⬆️",
+  "packageRules": [
+    {
+      "updateTypes": ["pin"],
+      "commitMessagePrefix": "📌"
+    },
+    {
+      "updateTypes": ["rollback"],
+      "commitMessagePrefix": "⬇️"
+    }
+  ]
 }
