@@ -75,6 +75,9 @@
       "git add"
     ]
   },
+  "dependencies": {
+    "commander": "2.20.0"
+  },
   "devDependencies": {
     "@sounisi5011/check-peer-deps": "github:sounisi5011/check-peer-deps",
     "@types/node": "12.6.8",
