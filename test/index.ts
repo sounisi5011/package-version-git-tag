@@ -237,3 +237,21 @@ test('CLI should add and push single Git tag', async t => {
 
     t.deepEqual(tagList, ['v0.0.0'], 'Git tag needs to push only one');
 });
+
+test('CLI should to display help', async t => {
+    const { exec } = await initGit(tmpDir('display-help'), true);
+
+    const gitTags = (await exec(['git', 'tag', '-l'])).stdout;
+
+    await t.notThrowsAsync(async () => {
+        const { stdout, stderr } = await exec([CLI_PATH, '--help']);
+        t.regex(stdout, /^Usage: /, 'CLI should output help in stdout');
+        t.is(stderr, '', 'CLI should not output anything in stderr');
+    }, 'CLI should exits successfully');
+
+    t.is(
+        (await exec(['git', 'tag', '-l'])).stdout,
+        gitTags,
+        'Git tag should not change',
+    );
+});
