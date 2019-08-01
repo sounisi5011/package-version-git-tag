@@ -5,6 +5,7 @@
 ### Features
 
 * [#20] - Add `--help` option
+* [#21] - Add `--version` option and add CLI description in help
 
 ### Updated Dependencies
 
@@ -24,6 +25,11 @@
 #### dependencies
 
 * [#20] - `commander@2.20.0`
+* [#21] - `read-pkg@5.2.0`
+
+#### devDependencies
+
+* [#21] - `escape-string-regexp@2.0.0`
 
 ### Others
 
@@ -35,6 +41,7 @@
 [#18]: https://github.com/sounisi5011/package-version-git-tag/pull/18
 [#19]: https://github.com/sounisi5011/package-version-git-tag/pull/19
 [#20]: https://github.com/sounisi5011/package-version-git-tag/pull/20
+[#21]: https://github.com/sounisi5011/package-version-git-tag/pull/21
 
 ## [1.0.0] (2019/07/12)
 
