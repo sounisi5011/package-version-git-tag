@@ -1,6 +1,8 @@
 import test from 'ava';
+import { execFile } from 'child_process';
 import escapeRegExp from 'escape-string-regexp';
 import path from 'path';
+import { promisify } from 'util';
 
 import * as PKG_DATA from '../package.json';
 import { getRandomInt, writeFile } from './helpers';
@@ -8,9 +10,14 @@ import { initGit } from './helpers/git';
 
 const CLI_PATH = path.resolve(__dirname, 'node_modules', '.bin', PKG_DATA.name);
 
+const execFileAsync = promisify(execFile);
 function tmpDir(dirname: string): string {
     return path.resolve(__dirname, 'tmp', dirname);
 }
+
+test.before(async () => {
+    await execFileAsync('npm', ['install'], { cwd: __dirname });
+});
 
 test('CLI should add Git tag', async t => {
     const { exec } = await initGit(tmpDir('not-exists-git-tag'));
