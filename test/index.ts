@@ -1,16 +1,34 @@
 import test from 'ava';
+import { execFile } from 'child_process';
+import del from 'del';
 import escapeRegExp from 'escape-string-regexp';
 import path from 'path';
+import { promisify } from 'util';
 
 import * as PKG_DATA from '../package.json';
 import { getRandomInt, writeFile } from './helpers';
 import { initGit } from './helpers/git';
 
-const CLI_PATH = path.resolve(__dirname, '..', PKG_DATA.bin);
+const FIXTURES_DIR = path.resolve(__dirname, 'fixtures');
+const CLI_PATH = path.resolve(
+    FIXTURES_DIR,
+    'node_modules',
+    '.bin',
+    PKG_DATA.name,
+);
 
+const execFileAsync = promisify(execFile);
 function tmpDir(dirname: string): string {
     return path.resolve(__dirname, 'tmp', dirname);
 }
+
+test.before(async () => {
+    await execFileAsync('npm', ['run', 'build'], {
+        cwd: path.resolve(__dirname, '..'),
+    });
+    await del(path.resolve(FIXTURES_DIR, '{package-lock.json,node_modules}'));
+    await execFileAsync('npm', ['install'], { cwd: FIXTURES_DIR });
+});
 
 test('CLI should add Git tag', async t => {
     const { exec } = await initGit(tmpDir('not-exists-git-tag'));

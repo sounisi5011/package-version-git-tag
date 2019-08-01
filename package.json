@@ -21,14 +21,12 @@
   "license": "MIT",
   "author": "sounisi5011",
   "files": [
-    "bin/",
     "dist/"
   ],
   "main": "dist/index",
   "types": "dist/index.d.ts",
-  "bin": "bin/cli.js",
+  "bin": "dist/bin.js",
   "directories": {
-    "bin": "bin",
     "test": "test"
   },
   "scripts": {
@@ -51,7 +49,7 @@
     "release:validation:git-branch": "git-branch-is master",
     "release:validation:git-work-dir": "is-git-status-clean",
     "release:validation:publishable": "can-npm-publish --verbose",
-    "test": "run-s test:peer-deps lint build test:ava",
+    "test": "run-s test:peer-deps lint test:ava",
     "test:ava": "ava",
     "test:peer-deps": "check-peer-deps"
   },

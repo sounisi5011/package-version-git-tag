@@ -31,9 +31,14 @@
 
 * [#21] - `escape-string-regexp@2.0.0`
 
+### Tests
+
+* [#23] - Use npm's local install for testing
+
 ### Others
 
 * [#19] - Setting Renovate to follow Emoji Prefix
+* [#23] - Change bin file path: `bin/cli.js` -> `dist/bin.js`
 
 [1.x]: https://github.com/sounisi5011/package-version-git-tag/compare/v1.0.0...HEAD
 [#11]: https://github.com/sounisi5011/package-version-git-tag/pull/11
@@ -42,6 +47,7 @@
 [#19]: https://github.com/sounisi5011/package-version-git-tag/pull/19
 [#20]: https://github.com/sounisi5011/package-version-git-tag/pull/20
 [#21]: https://github.com/sounisi5011/package-version-git-tag/pull/21
+[#23]: https://github.com/sounisi5011/package-version-git-tag/pull/23
 
 ## [1.0.0] (2019/07/12)
 
