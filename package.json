@@ -51,7 +51,7 @@
     "release:validation:git-branch": "git-branch-is master",
     "release:validation:git-work-dir": "is-git-status-clean",
     "release:validation:publishable": "can-npm-publish --verbose",
-    "test": "run-s test:peer-deps lint build test:ava",
+    "test": "run-s test:peer-deps lint test:ava",
     "test:ava": "ava",
     "test:peer-deps": "check-peer-deps"
   },

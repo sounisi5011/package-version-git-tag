@@ -22,6 +22,9 @@ function tmpDir(dirname: string): string {
 }
 
 test.before(async () => {
+    await execFileAsync('npm', ['run', 'build'], {
+        cwd: path.resolve(__dirname, '..'),
+    });
     await execFileAsync('npm', ['install'], { cwd: FIXTURES_DIR });
 });
 
