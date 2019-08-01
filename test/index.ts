@@ -1,4 +1,5 @@
 import test from 'ava';
+import escapeRegExp from 'escape-string-regexp';
 import path from 'path';
 
 import * as PKG_DATA from '../package.json';
@@ -238,6 +239,20 @@ test('CLI should add and push single Git tag', async t => {
     t.deepEqual(tagList, ['v0.0.0'], 'Git tag needs to push only one');
 });
 
+test('CLI should support "--version" option', async t => {
+    const { exec } = await initGit(tmpDir('display-version'));
+
+    await t.notThrowsAsync(async () => {
+        const { stdout, stderr } = await exec([CLI_PATH, '--version']);
+        t.regex(
+            stdout,
+            new RegExp(`^${escapeRegExp(PKG_DATA.version)}$`, 'm'),
+            'CLI should output version number in stdout',
+        );
+        t.is(stderr, '', 'CLI should not output anything in stderr');
+    }, 'CLI should exits successfully');
+});
+
 test('CLI should to display help', async t => {
     const { exec } = await initGit(tmpDir('display-help'));
 
@@ -246,6 +261,11 @@ test('CLI should to display help', async t => {
     await t.notThrowsAsync(async () => {
         const { stdout, stderr } = await exec([CLI_PATH, '--help']);
         t.regex(stdout, /^Usage: /, 'CLI should output help in stdout');
+        t.regex(
+            stdout,
+            new RegExp(`^${escapeRegExp(PKG_DATA.description)}$`, 'm'),
+            'CLI should include description in help',
+        );
         t.is(stderr, '', 'CLI should not output anything in stderr');
     }, 'CLI should exits successfully');
 
