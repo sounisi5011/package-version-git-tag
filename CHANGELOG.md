@@ -1,6 +1,6 @@
 # Change Log
 
-## [1.x]
+## [1.1.0] (2019/08/02)
 
 ### Features
 
@@ -12,11 +12,16 @@
 #### devDependencies
 
 * `@types/node`
+    * [#12] - `12.6.2` -> `12.6.8`
     * [#22] - `12.6.8` -> `12.6.9`
 * `@typescript-eslint/eslint-plugin`
     * [#11] - `1.11.0` -> `1.12.0`
+    * [#16] - `1.12.0` -> `1.13.0`
 * `@typescript-eslint/parser`
     * [#11] - `1.11.0` -> `1.12.0`
+    * [#16] - `1.12.0` -> `1.13.0`
+* `eslint-plugin-import`
+    * [#14] - `2.18.0` -> `2.18.2`
 * `husky`
     * [#13] - `3.0.0` -> `3.0.2`
 * `lint-staged`
@@ -39,12 +44,17 @@
 
 ### Others
 
+* [#17] - Setting Renovate to follow Emoji Prefix
 * [#19] - Setting Renovate to follow Emoji Prefix
 * [#23] - Change bin file path: `bin/cli.js` -> `dist/bin.js`
 
-[1.x]: https://github.com/sounisi5011/package-version-git-tag/compare/v1.0.0...HEAD
+[1.1.0]: https://github.com/sounisi5011/package-version-git-tag/compare/v1.0.0...v1.1.0
 [#11]: https://github.com/sounisi5011/package-version-git-tag/pull/11
+[#12]: https://github.com/sounisi5011/package-version-git-tag/pull/12
 [#13]: https://github.com/sounisi5011/package-version-git-tag/pull/13
+[#14]: https://github.com/sounisi5011/package-version-git-tag/pull/14
+[#16]: https://github.com/sounisi5011/package-version-git-tag/pull/16
+[#17]: https://github.com/sounisi5011/package-version-git-tag/pull/17
 [#18]: https://github.com/sounisi5011/package-version-git-tag/pull/18
 [#19]: https://github.com/sounisi5011/package-version-git-tag/pull/19
 [#20]: https://github.com/sounisi5011/package-version-git-tag/pull/20
