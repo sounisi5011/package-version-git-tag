@@ -1,6 +1,6 @@
 {
   "name": "package-version-git-tag",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Add Git tag corresponding to the version field of package.json",
   "keywords": [
     "cli",
@@ -45,7 +45,7 @@
     "release:publish": "run-s release:publish:git release:publish:npm",
     "release:publish:git": "./bin/cli.js --push",
     "release:publish:npm": "npm publish --access=public",
-    "release:validation": "run-p release:validation:* test",
+    "release:validation": "npm-run-all release:validation:publishable -p release:validation:{git-work-dir,git-branch} test",
     "release:validation:git-branch": "git-branch-is master",
     "release:validation:git-work-dir": "is-git-status-clean",
     "release:validation:publishable": "can-npm-publish --verbose",
