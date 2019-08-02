@@ -3,6 +3,7 @@
 [![npm package](https://img.shields.io/npm/v/package-version-git-tag.svg)][npm]
 [![GitHub License](https://img.shields.io/github/license/sounisi5011/package-version-git-tag.svg)][github-license]
 ![](https://img.shields.io/node/v/package-version-git-tag.svg)
+[![Dependencies Status](https://david-dm.org/sounisi5011/package-version-git-tag/status.svg)](https://david-dm.org/sounisi5011/package-version-git-tag)
 [![Build Status](https://travis-ci.com/sounisi5011/package-version-git-tag.svg?branch=master)](https://travis-ci.com/sounisi5011/package-version-git-tag)
 [![Maintainability Status](https://api.codeclimate.com/v1/badges/ac675a219746d53b79bc/maintainability)](https://codeclimate.com/github/sounisi5011/package-version-git-tag/maintainability)
 
