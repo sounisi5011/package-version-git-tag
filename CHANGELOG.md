@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+[Unreleased]: https://github.com/sounisi5011/package-version-git-tag/compare/v1.1.1...HEAD
+
+## [1.1.1] (2019/09/02 UTC / 2019/09/03 UTC+09)
+
 ### Updated Dependencies
 
 #### dependencies
@@ -46,7 +50,7 @@
 
 * [#43] - `read-pkg`
 
-[Unreleased]: https://github.com/sounisi5011/package-version-git-tag/compare/v1.1.0...HEAD
+[1.1.1]: https://github.com/sounisi5011/package-version-git-tag/compare/v1.1.0...v1.1.1
 [#4]:  https://github.com/sounisi5011/package-version-git-tag/pull/4
 [#26]: https://github.com/sounisi5011/package-version-git-tag/pull/26
 [#27]: https://github.com/sounisi5011/package-version-git-tag/pull/27
