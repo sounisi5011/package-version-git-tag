@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+[Unreleased]: https://github.com/sounisi5011/package-version-git-tag/compare/v1.1.1...HEAD
+
+## [1.1.1] (2019-09-02 UTC)
+
 ### Updated Dependencies
 
 #### dependencies
@@ -46,7 +50,11 @@
 
 * [#43] - `read-pkg`
 
-[Unreleased]: https://github.com/sounisi5011/package-version-git-tag/compare/v1.1.0...HEAD
+### Others
+
+* [#41] - Exclude branches that update packages that cannot be tested with CI
+
+[1.1.1]: https://github.com/sounisi5011/package-version-git-tag/compare/v1.1.0...v1.1.1
 [#4]:  https://github.com/sounisi5011/package-version-git-tag/pull/4
 [#26]: https://github.com/sounisi5011/package-version-git-tag/pull/26
 [#27]: https://github.com/sounisi5011/package-version-git-tag/pull/27
@@ -60,10 +68,11 @@
 [#35]: https://github.com/sounisi5011/package-version-git-tag/pull/35
 [#36]: https://github.com/sounisi5011/package-version-git-tag/pull/36
 [#39]: https://github.com/sounisi5011/package-version-git-tag/pull/39
+[#41]: https://github.com/sounisi5011/package-version-git-tag/pull/41
 [#42]: https://github.com/sounisi5011/package-version-git-tag/pull/42
 [#43]: https://github.com/sounisi5011/package-version-git-tag/pull/43
 
-## [1.1.0] (2019/08/02)
+## [1.1.0] (2019-08-02 UTC)
 
 ### Features
 
@@ -125,6 +134,6 @@
 [#22]: https://github.com/sounisi5011/package-version-git-tag/pull/22
 [#23]: https://github.com/sounisi5011/package-version-git-tag/pull/23
 
-## [1.0.0] (2019/07/12)
+## [1.0.0] (2019-07-12 UTC)
 
 [1.0.0]: https://github.com/sounisi5011/package-version-git-tag/compare/v0.0.0...v1.0.0
