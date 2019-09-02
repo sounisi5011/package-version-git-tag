@@ -6,6 +6,7 @@ const readFileAsync = promisify(fs.readFile);
 
 export interface PkgDataInterface {
     version: string;
+    [index: string]: unknown;
 }
 
 export function isObject(value: unknown): value is Record<string, unknown> {
