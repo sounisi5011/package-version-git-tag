@@ -4,7 +4,7 @@
 
 [Unreleased]: https://github.com/sounisi5011/package-version-git-tag/compare/v1.1.1...HEAD
 
-## [1.1.1] (2019/09/02 UTC / 2019/09/03 UTC+09)
+## [1.1.1] (2019-09-02 UTC)
 
 ### Updated Dependencies
 
@@ -67,7 +67,7 @@
 [#42]: https://github.com/sounisi5011/package-version-git-tag/pull/42
 [#43]: https://github.com/sounisi5011/package-version-git-tag/pull/43
 
-## [1.1.0] (2019/08/02)
+## [1.1.0] (2019-08-02 UTC)
 
 ### Features
 
@@ -129,6 +129,6 @@
 [#22]: https://github.com/sounisi5011/package-version-git-tag/pull/22
 [#23]: https://github.com/sounisi5011/package-version-git-tag/pull/23
 
-## [1.0.0] (2019/07/12)
+## [1.0.0] (2019-07-12 UTC)
 
 [1.0.0]: https://github.com/sounisi5011/package-version-git-tag/compare/v0.0.0...v1.0.0
