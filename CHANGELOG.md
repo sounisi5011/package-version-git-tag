@@ -50,6 +50,10 @@
 
 * [#43] - `read-pkg`
 
+### Others
+
+* [#41] - Exclude branches that update packages that cannot be tested with CI
+
 [1.1.1]: https://github.com/sounisi5011/package-version-git-tag/compare/v1.1.0...v1.1.1
 [#4]:  https://github.com/sounisi5011/package-version-git-tag/pull/4
 [#26]: https://github.com/sounisi5011/package-version-git-tag/pull/26
@@ -64,6 +68,7 @@
 [#35]: https://github.com/sounisi5011/package-version-git-tag/pull/35
 [#36]: https://github.com/sounisi5011/package-version-git-tag/pull/36
 [#39]: https://github.com/sounisi5011/package-version-git-tag/pull/39
+[#41]: https://github.com/sounisi5011/package-version-git-tag/pull/41
 [#42]: https://github.com/sounisi5011/package-version-git-tag/pull/42
 [#43]: https://github.com/sounisi5011/package-version-git-tag/pull/43
 
