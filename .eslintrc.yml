@@ -11,7 +11,9 @@ extends:
 parser: "@typescript-eslint/parser"
 parserOptions:
   sourceType: module
-  project: ./tsconfig.json
+  project:
+    - ./tsconfig.json
+    - ./test/tsconfig.json
 plugins:
   - "@typescript-eslint"
   - simple-import-sort
@@ -25,6 +27,7 @@ rules:
   "@typescript-eslint/explicit-function-return-type":
     - warn
     - allowExpressions: true
+  "@typescript-eslint/no-inferrable-types": off
   simple-import-sort/sort: error
   prettier/prettier: error
 overrides:
