@@ -12,6 +12,8 @@
     * [#30] - `1.13.0` -> `2.0.0`
 * `@typescript-eslint/parser`
     * [#30] - `1.13.0` -> `2.0.0`
+* `ava`
+    * [#32] - `2.2.0` -> `2.3.0`
 * `eslint`
     * [#4] - `5.16.0` -> `6.3.0`
 * `eslint-config-prettier`
@@ -27,6 +29,7 @@
 [#4]:  https://github.com/sounisi5011/package-version-git-tag/pull/4
 [#26]: https://github.com/sounisi5011/package-version-git-tag/pull/26
 [#30]: https://github.com/sounisi5011/package-version-git-tag/pull/30
+[#32]: https://github.com/sounisi5011/package-version-git-tag/pull/32
 [#33]: https://github.com/sounisi5011/package-version-git-tag/pull/33
 [#34]: https://github.com/sounisi5011/package-version-git-tag/pull/34
 [#35]: https://github.com/sounisi5011/package-version-git-tag/pull/35
