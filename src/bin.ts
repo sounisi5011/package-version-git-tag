@@ -10,9 +10,11 @@ import { isPkgData, readJSONFile } from './utils';
     const PKG = await readJSONFile(path.join(__dirname, '..', 'package.json'));
 
     if (isPkgData(PKG)) {
-        program
-            .version(PKG.version, '-v, --version')
-            .description(PKG.description || '');
+        program.version(PKG.version, '-v, --version');
+
+        if (typeof PKG.description === 'string') {
+            program.description(PKG.description);
+        }
     }
 
     program
