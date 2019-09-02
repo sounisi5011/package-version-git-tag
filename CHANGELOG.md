@@ -12,6 +12,8 @@
     * [#30] - `1.13.0` -> `2.0.0`
 * `eslint`
     * [#4] - `5.16.0` -> `6.3.0`
+* `eslint-config-prettier`
+    * [#33] - `6.0.0` -> `6.1.0`
 * `eslint-config-standard`
     * [#34] - `12.0.0` -> `14.1.0`
 * `eslint-plugin-node`
@@ -22,6 +24,7 @@
 [Unreleased]: https://github.com/sounisi5011/package-version-git-tag/compare/v1.1.0...HEAD
 [#4]:  https://github.com/sounisi5011/package-version-git-tag/pull/4
 [#30]: https://github.com/sounisi5011/package-version-git-tag/pull/30
+[#33]: https://github.com/sounisi5011/package-version-git-tag/pull/33
 [#34]: https://github.com/sounisi5011/package-version-git-tag/pull/34
 [#35]: https://github.com/sounisi5011/package-version-git-tag/pull/35
 [#39]: https://github.com/sounisi5011/package-version-git-tag/pull/39
