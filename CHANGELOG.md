@@ -31,11 +31,14 @@
     * [#39] - `9.1.0` -> `9.2.0`
 * `eslint-plugin-standard`
     * [#35] - `4.0.0` -> `4.0.1`
+* `git-branch-is`
+    * [#29] - `2.1.0` -> `3.0.0`
 
 [Unreleased]: https://github.com/sounisi5011/package-version-git-tag/compare/v1.1.0...HEAD
 [#4]:  https://github.com/sounisi5011/package-version-git-tag/pull/4
 [#26]: https://github.com/sounisi5011/package-version-git-tag/pull/26
 [#28]: https://github.com/sounisi5011/package-version-git-tag/pull/28
+[#29]: https://github.com/sounisi5011/package-version-git-tag/pull/29
 [#30]: https://github.com/sounisi5011/package-version-git-tag/pull/30
 [#32]: https://github.com/sounisi5011/package-version-git-tag/pull/32
 [#33]: https://github.com/sounisi5011/package-version-git-tag/pull/33
