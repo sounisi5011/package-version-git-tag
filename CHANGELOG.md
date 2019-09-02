@@ -1,5 +1,19 @@
 # Change Log
 
+## [Unreleased]
+
+### Updated Dependencies
+
+#### devDependencies
+
+* `@typescript-eslint/eslint-plugin`
+    * [#30] - `1.13.0` -> `2.0.0`
+* `@typescript-eslint/parser`
+    * [#30] - `1.13.0` -> `2.0.0`
+
+[Unreleased]: https://github.com/sounisi5011/package-version-git-tag/compare/v1.1.0...HEAD
+[#30]: https://github.com/sounisi5011/package-version-git-tag/pull/30
+
 ## [1.1.0] (2019/08/02)
 
 ### Features
