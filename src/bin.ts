@@ -4,13 +4,15 @@ import program from 'commander';
 import path from 'path';
 
 import main from './';
-import { isPkgData, readJSONFile } from './utils';
+import { isObject, readJSONFile } from './utils';
 
 (async () => {
     const PKG = await readJSONFile(path.join(__dirname, '..', 'package.json'));
 
-    if (isPkgData(PKG)) {
-        program.version(PKG.version, '-v, --version');
+    if (isObject(PKG)) {
+        if (typeof PKG.version === 'string') {
+            program.version(PKG.version, '-v, --version');
+        }
 
         if (typeof PKG.description === 'string') {
             program.description(PKG.description);
