@@ -31,7 +31,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "clean": "del ./dist/*",
+    "clean": "del ./dist/ ./test/fixtures/{node_modules/,package-lock.json} ./test/tmp/",
     "fmt-pkg": "run-s fmt-pkg:prettier fmt-pkg:sort",
     "fmt-pkg:prettier": "prettier-package-json --write ./package.json",
     "fmt-pkg:sort": "sort-package-json ./package.json",
