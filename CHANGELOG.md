@@ -35,6 +35,8 @@
     * [#29] - `2.1.0` -> `3.0.0`
 * `husky`
     * [#27] - `3.0.2` -> `3.0.5`
+* `lint-staged`
+    * [#31] - `9.2.1` -> `9.2.5`
 
 [Unreleased]: https://github.com/sounisi5011/package-version-git-tag/compare/v1.1.0...HEAD
 [#4]:  https://github.com/sounisi5011/package-version-git-tag/pull/4
@@ -43,6 +45,7 @@
 [#28]: https://github.com/sounisi5011/package-version-git-tag/pull/28
 [#29]: https://github.com/sounisi5011/package-version-git-tag/pull/29
 [#30]: https://github.com/sounisi5011/package-version-git-tag/pull/30
+[#31]: https://github.com/sounisi5011/package-version-git-tag/pull/31
 [#32]: https://github.com/sounisi5011/package-version-git-tag/pull/32
 [#33]: https://github.com/sounisi5011/package-version-git-tag/pull/33
 [#34]: https://github.com/sounisi5011/package-version-git-tag/pull/34
