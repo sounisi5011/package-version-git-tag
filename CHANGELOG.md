@@ -14,6 +14,8 @@
     * [#30] - `1.13.0` -> `2.0.0`
 * `ava`
     * [#32] - `2.2.0` -> `2.3.0`
+* `del`
+    * [#36] - `5.0.0` -> `5.1.0`
 * `eslint`
     * [#4] - `5.16.0` -> `6.3.0`
 * `eslint-config-prettier`
@@ -33,6 +35,7 @@
 [#33]: https://github.com/sounisi5011/package-version-git-tag/pull/33
 [#34]: https://github.com/sounisi5011/package-version-git-tag/pull/34
 [#35]: https://github.com/sounisi5011/package-version-git-tag/pull/35
+[#36]: https://github.com/sounisi5011/package-version-git-tag/pull/36
 [#39]: https://github.com/sounisi5011/package-version-git-tag/pull/39
 
 ## [1.1.0] (2019/08/02)
