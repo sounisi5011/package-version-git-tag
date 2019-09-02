@@ -4,6 +4,11 @@
 
 ### Updated Dependencies
 
+#### dependencies
+
+* `commander`
+    * [#28] - `2.20.0` -> `3.0.1`
+
 #### devDependencies
 
 * `@types/node`
@@ -30,6 +35,7 @@
 [Unreleased]: https://github.com/sounisi5011/package-version-git-tag/compare/v1.1.0...HEAD
 [#4]:  https://github.com/sounisi5011/package-version-git-tag/pull/4
 [#26]: https://github.com/sounisi5011/package-version-git-tag/pull/26
+[#28]: https://github.com/sounisi5011/package-version-git-tag/pull/28
 [#30]: https://github.com/sounisi5011/package-version-git-tag/pull/30
 [#32]: https://github.com/sounisi5011/package-version-git-tag/pull/32
 [#33]: https://github.com/sounisi5011/package-version-git-tag/pull/33

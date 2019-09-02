@@ -74,7 +74,7 @@
     ]
   },
   "dependencies": {
-    "commander": "2.20.0",
+    "commander": "3.0.1",
     "read-pkg": "5.2.0"
   },
   "devDependencies": {
