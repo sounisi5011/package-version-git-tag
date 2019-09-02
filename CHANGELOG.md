@@ -15,8 +15,10 @@
     * [#26] - `12.6.9` -> `12.7.3`
 * `@typescript-eslint/eslint-plugin`
     * [#30] - `1.13.0` -> `2.0.0`
+    * [#42] - `2.0.0` -> `2.1.0`
 * `@typescript-eslint/parser`
     * [#30] - `1.13.0` -> `2.0.0`
+    * [#42] - `2.0.0` -> `2.1.0`
 * `ava`
     * [#32] - `2.2.0` -> `2.3.0`
 * `del`
@@ -58,6 +60,7 @@
 [#35]: https://github.com/sounisi5011/package-version-git-tag/pull/35
 [#36]: https://github.com/sounisi5011/package-version-git-tag/pull/36
 [#39]: https://github.com/sounisi5011/package-version-git-tag/pull/39
+[#42]: https://github.com/sounisi5011/package-version-git-tag/pull/42
 [#43]: https://github.com/sounisi5011/package-version-git-tag/pull/43
 
 ## [1.1.0] (2019/08/02)
