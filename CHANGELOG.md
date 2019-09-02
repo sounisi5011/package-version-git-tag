@@ -12,10 +12,13 @@
     * [#30] - `1.13.0` -> `2.0.0`
 * `eslint`
     * [#4] - `5.16.0` -> `6.3.0`
+* `eslint-plugin-node`
+    * [#39] - `9.1.0` -> `9.2.0`
 
 [Unreleased]: https://github.com/sounisi5011/package-version-git-tag/compare/v1.1.0...HEAD
 [#4]:  https://github.com/sounisi5011/package-version-git-tag/pull/4
 [#30]: https://github.com/sounisi5011/package-version-git-tag/pull/30
+[#39]: https://github.com/sounisi5011/package-version-git-tag/pull/39
 
 ## [1.1.0] (2019/08/02)
 
