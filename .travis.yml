@@ -14,6 +14,6 @@ node_js:
   - 8.3.0
 branches:
   except:
-    # テストコードやLinterに影響しないパッケージは、CIでテストできないため除外する
+    # Packages not used in Linter and / or test code cannot be tested with CI, so exclude branches of update such packages
     - /^renovate\/(?:can-npm-publish|del-cli|git-branch-is|husky|is-git-status-clean|lint-staged|prettier-package-json|sort-package-json)-[0-9]+(?:\.[0-9])?\.x(?:-lockfile)?$/
 cache: npm
