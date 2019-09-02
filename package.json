@@ -74,8 +74,7 @@
     ]
   },
   "dependencies": {
-    "commander": "3.0.1",
-    "read-pkg": "5.2.0"
+    "commander": "3.0.1"
   },
   "devDependencies": {
     "@sounisi5011/check-peer-deps": "github:sounisi5011/check-peer-deps",

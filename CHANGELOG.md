@@ -38,6 +38,12 @@
 * `lint-staged`
     * [#31] - `9.2.1` -> `9.2.5`
 
+### Removed Dependencies
+
+#### dependencies
+
+* [#43] - `read-pkg`
+
 [Unreleased]: https://github.com/sounisi5011/package-version-git-tag/compare/v1.1.0...HEAD
 [#4]:  https://github.com/sounisi5011/package-version-git-tag/pull/4
 [#26]: https://github.com/sounisi5011/package-version-git-tag/pull/26
@@ -52,6 +58,7 @@
 [#35]: https://github.com/sounisi5011/package-version-git-tag/pull/35
 [#36]: https://github.com/sounisi5011/package-version-git-tag/pull/36
 [#39]: https://github.com/sounisi5011/package-version-git-tag/pull/39
+[#43]: https://github.com/sounisi5011/package-version-git-tag/pull/43
 
 ## [1.1.0] (2019/08/02)
 

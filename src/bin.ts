@@ -2,16 +2,24 @@
 
 import program from 'commander';
 import path from 'path';
-import readPkg from 'read-pkg';
 
 import main from './';
+import { isObject, readJSONFile } from './utils';
 
 (async () => {
-    const PKG = await readPkg({ cwd: path.join(__dirname, '..') });
+    const PKG = await readJSONFile(path.join(__dirname, '..', 'package.json'));
+
+    if (isObject(PKG)) {
+        if (typeof PKG.version === 'string') {
+            program.version(PKG.version, '-v, --version');
+        }
+
+        if (typeof PKG.description === 'string') {
+            program.description(PKG.description);
+        }
+    }
 
     program
-        .version(PKG.version, '-v, --version')
-        .description(PKG.description || '')
         .option('--push', '`git push` the added tag to the remote repository')
         .parse(process.argv);
 
