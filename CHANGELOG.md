@@ -2,7 +2,12 @@
 
 ## [Unreleased]
 
+### Others
+
+* [#50] - Replace reading of `package.json` in this package with `require()` from `readJSONFile()` function
+
 [Unreleased]: https://github.com/sounisi5011/package-version-git-tag/compare/v1.1.1...HEAD
+[#50]: https://github.com/sounisi5011/package-version-git-tag/pull/50
 
 ## [1.1.1] (2019-09-02 UTC)
 
