@@ -25,6 +25,7 @@
 
 * [#50] - Replace reading of `package.json` in this package with `require()` from `readJSONFile()` function
 * [#51] - Change TypeScript output from ES2015 to ES2017
+* [#52] - Exclude branches of Git tag indicating package version from CI
 
 [Unreleased]: https://github.com/sounisi5011/package-version-git-tag/compare/v1.1.1...HEAD
 [#38]: https://github.com/sounisi5011/package-version-git-tag/pull/38
@@ -35,6 +36,7 @@
 [#49]: https://github.com/sounisi5011/package-version-git-tag/pull/49
 [#50]: https://github.com/sounisi5011/package-version-git-tag/pull/50
 [#51]: https://github.com/sounisi5011/package-version-git-tag/pull/51
+[#52]: https://github.com/sounisi5011/package-version-git-tag/pull/52
 
 ## [1.1.1] (2019-09-02 UTC)
 
