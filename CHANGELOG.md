@@ -14,6 +14,8 @@
     * [#49] - `2.1.0` -> `2.2.0`
 * `del-cli`
     * [#48] - `2.0.0` -> `3.0.0`
+* `eslint-plugin-node`
+    * [#47] - `9.2.0` -> `10.0.0`
 * `typescript`
     * [#38] - `3.5.3` -> `3.6.2`
 
@@ -25,6 +27,7 @@
 [Unreleased]: https://github.com/sounisi5011/package-version-git-tag/compare/v1.1.1...HEAD
 [#38]: https://github.com/sounisi5011/package-version-git-tag/pull/38
 [#46]: https://github.com/sounisi5011/package-version-git-tag/pull/46
+[#47]: https://github.com/sounisi5011/package-version-git-tag/pull/47
 [#48]: https://github.com/sounisi5011/package-version-git-tag/pull/48
 [#49]: https://github.com/sounisi5011/package-version-git-tag/pull/49
 [#50]: https://github.com/sounisi5011/package-version-git-tag/pull/50
