@@ -2,12 +2,20 @@
 
 ## [Unreleased]
 
+### Updated Dependencies
+
+#### devDependencies
+
+* `del-cli`
+    * [#48] - `2.0.0` -> `3.0.0`
+
 ### Others
 
 * [#50] - Replace reading of `package.json` in this package with `require()` from `readJSONFile()` function
 * [#51] - Change TypeScript output from ES2015 to ES2017
 
 [Unreleased]: https://github.com/sounisi5011/package-version-git-tag/compare/v1.1.1...HEAD
+[#48]: https://github.com/sounisi5011/package-version-git-tag/pull/48
 [#50]: https://github.com/sounisi5011/package-version-git-tag/pull/50
 [#51]: https://github.com/sounisi5011/package-version-git-tag/pull/51
 
