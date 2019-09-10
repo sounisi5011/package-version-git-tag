@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+[Unreleased]: https://github.com/sounisi5011/package-version-git-tag/compare/v1.1.2...HEAD
+
+## [1.1.2] (2019-09-10 UTC)
+
+Code minifying update: The code included in the package has been minified.
+
 ### Updated Dependencies
 
 #### devDependencies
@@ -27,7 +33,7 @@
 * [#51] - Change TypeScript output from ES2015 to ES2017
 * [#52] - Exclude branches of Git tag indicating package version from CI
 
-[Unreleased]: https://github.com/sounisi5011/package-version-git-tag/compare/v1.1.1...HEAD
+[1.1.2]: https://github.com/sounisi5011/package-version-git-tag/compare/v1.1.1...v1.1.2
 [#38]: https://github.com/sounisi5011/package-version-git-tag/pull/38
 [#45]: https://github.com/sounisi5011/package-version-git-tag/pull/45
 [#46]: https://github.com/sounisi5011/package-version-git-tag/pull/46
