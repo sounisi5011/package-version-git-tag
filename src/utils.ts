@@ -44,7 +44,7 @@ let isPrintedVerbose = false;
 
 export function printVerbose(message: string): void {
     if (!isPrintedVerbose) {
-        console.error(`\n\n${message}`);
+        console.error(`\n${message}`);
         isPrintedVerbose = true;
     } else {
         console.error(message);
