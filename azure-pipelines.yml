@@ -52,7 +52,7 @@ steps:
 
   # see https://docs.microsoft.com/en-us/azure/devops/pipelines/scripts/cross-platform-scripting?tabs=yaml&view=azure-devops#switch-based-on-platform
   - bash: |
-      export BranchName=$(git symbolic-ref --short HEAD)
+      export BranchName=$(git name-rev --name-only HEAD | grep -v '~')
       echo "##vso[task.setvariable variable=BranchName]$BranchName"
     displayName: Set Git branch name
 
