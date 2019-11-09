@@ -50,6 +50,8 @@ export async function initGit(
             await makeDir(gitDirpath);
 
             await exec(['git', 'init']);
+            await exec(['git', 'config', 'user.email', 'foo@example.com']);
+            await exec(['git', 'config', 'user.name', 'bar']);
 
             await writeFile(
                 path.join(gitDirpath, 'package.json'),

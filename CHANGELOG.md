@@ -16,10 +16,15 @@
 * `eslint-plugin-prettier`
     * [#61] - `3.1.0` -> `3.1.1`
 
+### Others
+
+* [#73] - Migrate from Travis CI to Azure Pipelines
+
 [Unreleased]: https://github.com/sounisi5011/package-version-git-tag/compare/v1.1.2...HEAD
 [#54]: https://github.com/sounisi5011/package-version-git-tag/pull/54
 [#61]: https://github.com/sounisi5011/package-version-git-tag/pull/61
 [#70]: https://github.com/sounisi5011/package-version-git-tag/pull/70
+[#73]: https://github.com/sounisi5011/package-version-git-tag/pull/73
 
 ## [1.1.2] (2019-09-10 UTC)
 

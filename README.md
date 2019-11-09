@@ -4,7 +4,7 @@
 [![GitHub License](https://img.shields.io/github/license/sounisi5011/package-version-git-tag.svg)][github-license]
 ![](https://img.shields.io/node/v/package-version-git-tag.svg)
 [![Dependencies Status](https://david-dm.org/sounisi5011/package-version-git-tag/status.svg)](https://david-dm.org/sounisi5011/package-version-git-tag)
-[![Build Status](https://travis-ci.com/sounisi5011/package-version-git-tag.svg?branch=master)](https://travis-ci.com/sounisi5011/package-version-git-tag)
+[![Build Status](https://dev.azure.com/sounisi5011/npm%20projects/_apis/build/status/sounisi5011.package-version-git-tag?branchName=master)](https://dev.azure.com/sounisi5011/npm%20projects/_build/latest?definitionId=2&branchName=master)
 [![Maintainability Status](https://api.codeclimate.com/v1/badges/ac675a219746d53b79bc/maintainability)](https://codeclimate.com/github/sounisi5011/package-version-git-tag/maintainability)
 
 [npm]: https://www.npmjs.com/package/package-version-git-tag
