@@ -34,7 +34,7 @@ async function gitTagAlreadyExists(
 
     if (opts.verbose) {
         printVerbose(
-            `> # git tag ${versionTagName}\n> # tag '${versionTagName}' already exists`,
+            `> #git tag ${versionTagName}\n  # tag '${versionTagName}' already exists`,
         );
     }
 }

@@ -136,7 +136,7 @@ test('CLI should complete successfully if Git tag has been added with verbose ou
         t.is(stdout, '');
         t.is(
             stderr,
-            '\n> # git tag v0.0.0\n' + "> # tag 'v0.0.0' already exists\n\n",
+            `\n> #git tag v0.0.0\n  # tag 'v0.0.0' already exists\n\n`,
         );
     }, 'CLI should exits successfully');
 
