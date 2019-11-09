@@ -21,6 +21,8 @@
     * [#67] - `3.0.5` -> `3.0.9`
 * `lint-staged`
     * [#65] - `9.2.5` -> `9.4.2`
+* `sort-package-json`
+    * [#71] - `1.22.1` -> `1.23.1`
 
 ### Others
 
@@ -33,6 +35,7 @@
 [#67]: https://github.com/sounisi5011/package-version-git-tag/pull/67
 [#68]: https://github.com/sounisi5011/package-version-git-tag/pull/68
 [#70]: https://github.com/sounisi5011/package-version-git-tag/pull/70
+[#71]: https://github.com/sounisi5011/package-version-git-tag/pull/71
 [#73]: https://github.com/sounisi5011/package-version-git-tag/pull/73
 
 ## [1.1.2] (2019-09-10 UTC)
