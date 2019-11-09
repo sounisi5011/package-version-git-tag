@@ -50,6 +50,10 @@ steps:
   - script: npm ci || npm install
     displayName: Install dependencies
 
+  - script: |
+      echo "variables['Build.SourceBranch'] / {{ variables['Build.SourceBranch'] }}"
+    displayName: Show variables['Build.SourceBranch']
+
   - script: npm test
     displayName: Run test
     # Packages not used in Linter and / or test code cannot be tested with CI, so exclude branches of update such packages
