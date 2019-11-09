@@ -69,7 +69,7 @@ test('CLI should add Git tag with verbose output', async t => {
         const { stdout, stderr } = await exec([CLI_PATH, '--verbose']);
 
         t.is(stdout, '');
-        t.regex(stderr, /^[\r\n]+> git tag v0\.0\.0[\r\n]+$/);
+        t.is(stderr, '\n> git tag v0.0.0\n\n');
     }, 'CLI should exits successfully');
 
     t.regex(
@@ -134,9 +134,9 @@ test('CLI should complete successfully if Git tag has been added with verbose ou
         const { stdout, stderr } = await exec([CLI_PATH, '--verbose']);
 
         t.is(stdout, '');
-        t.regex(
+        t.is(
             stderr,
-            /^[\r\n]+> # git tag v0\.0\.0[\r\n]+> # tag 'v0\.0\.0' already exists[\r\n]+$/,
+            '\n> # git tag v0.0.0\n' + "> # tag 'v0.0.0' already exists\n\n",
         );
     }, 'CLI should exits successfully');
 
@@ -303,9 +303,9 @@ test('CLI should add and push Git tag with verbose output', async t => {
             ]);
 
             t.is(stdout, '');
-            t.regex(
+            t.is(
                 stderr,
-                /^[\r\n]+> git tag v0\.0\.0[\r\n]+> git push origin v0\.0\.0[\r\n]+$/,
+                '\n> git tag v0.0.0\n' + '> git push origin v0.0.0\n\n',
             );
         }, 'CLI should exits successfully');
 
