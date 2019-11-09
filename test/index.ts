@@ -56,6 +56,29 @@ test('CLI should add Git tag', async t => {
     );
 });
 
+test('CLI should add Git tag with verbose output', async t => {
+    const { exec } = await initGit(tmpDir('not-exists-git-tag-with-verbose'));
+
+    t.regex(
+        (await exec(['git', 'tag', '-l'])).stdout,
+        /^[\r\n]*$/,
+        'Git tag should not exist yet',
+    );
+
+    await t.notThrowsAsync(async () => {
+        const { stdout, stderr } = await exec([CLI_PATH, '--verbose']);
+
+        t.is(stdout, '');
+        t.regex(stderr, /^[\r\n]+> git tag v0\.0\.0[\r\n]+$/);
+    }, 'CLI should exits successfully');
+
+    t.regex(
+        (await exec(['git', 'tag', '-l'])).stdout,
+        /^v0\.0\.0$/m,
+        'Git tag v0.0.0 should be added',
+    );
+});
+
 test('CLI should complete successfully if Git tag has been added', async t => {
     const { exec } = await initGit(tmpDir('exists-git-tag-in-same-commit'));
     await exec(['git', 'tag', 'v0.0.0']);
@@ -81,6 +104,41 @@ test('CLI should complete successfully if Git tag has been added', async t => {
             ),
         'CLI should exits successfully',
     );
+
+    t.is(
+        (await exec(['git', 'tag', '-l'])).stdout,
+        gitTags,
+        'Git tag should not change',
+    );
+});
+
+test('CLI should complete successfully if Git tag has been added with verbose output', async t => {
+    const { exec } = await initGit(
+        tmpDir('exists-git-tag-in-same-commit-with-verbose'),
+    );
+    await exec(['git', 'tag', 'v0.0.0']);
+
+    const gitTags = (await exec(['git', 'tag', '-l'])).stdout;
+    t.regex(gitTags, /^v0\.0\.0$/m, 'Git tag v0.0.0 should exist');
+
+    await t.throwsAsync(
+        exec(['git', 'tag', 'v0.0.0']),
+        {
+            name: 'CommandFailedError',
+            message: /tag 'v0\.0\.0' already exists/,
+        },
+        'Overwriting tags with git cli should fail',
+    );
+
+    await t.notThrowsAsync(async () => {
+        const { stdout, stderr } = await exec([CLI_PATH, '--verbose']);
+
+        t.is(stdout, '');
+        t.regex(
+            stderr,
+            /^[\r\n]+> # git tag v0\.0\.0[\r\n]+> # tag 'v0\.0\.0' already exists[\r\n]+$/,
+        );
+    }, 'CLI should exits successfully');
 
     t.is(
         (await exec(['git', 'tag', '-l'])).stdout,
@@ -208,6 +266,48 @@ test('CLI should add and push Git tag', async t => {
                 ),
             'CLI should exits successfully',
         );
+
+        t.regex(
+            (await exec(['git', 'tag', '-l'])).stdout,
+            /^v0\.0\.0$/m,
+            'Git tag v0.0.0 should be added',
+        );
+
+        t.deepEqual(
+            tagList,
+            ['v0.0.0'],
+            'Git tag v0.0.0 should have been pushed',
+        );
+    }
+});
+
+test('CLI should add and push Git tag with verbose output', async t => {
+    const { exec, remote } = await initGit(
+        tmpDir('push-success-git-tag-with-verbose'),
+        true,
+    );
+
+    if (remote) {
+        const { tagList } = remote;
+
+        await t.notThrowsAsync(
+            exec(['git', 'push', '--dry-run', 'origin', 'HEAD']),
+            'Git push should success',
+        );
+
+        await t.notThrowsAsync(async () => {
+            const { stdout, stderr } = await exec([
+                CLI_PATH,
+                '--push',
+                '--verbose',
+            ]);
+
+            t.is(stdout, '');
+            t.regex(
+                stderr,
+                /^[\r\n]+> git tag v0\.0\.0[\r\n]+> git push origin v0\.0\.0[\r\n]+$/,
+            );
+        }, 'CLI should exits successfully');
 
         t.regex(
             (await exec(['git', 'tag', '-l'])).stdout,
