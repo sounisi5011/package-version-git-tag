@@ -1,0 +1,54 @@
+# Node.js
+# Build a general Node.js project with npm.
+# Add steps that analyze code, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
+
+trigger:
+  - master
+
+pool:
+  vmImage: ubuntu-latest
+
+strategy:
+  matrix:
+    Node.js 8.3.0:
+      node_version: 8.3.0
+    Node.js 8.x:
+      node_version: 8.x
+    Node.js 9.0.0:
+      node_version: 9.0.0
+    Node.js 9.x:
+      node_version: 9.x
+    Node.js 10.0.0:
+      node_version: 10.0.0
+    Node.js 10.x:
+      node_version: 10.x
+    Node.js 11.0.0:
+      node_version: 11.0.0
+    Node.js 11.x:
+      node_version: 11.x
+    Node.js 12.0.0:
+      node_version: 12.0.0
+    Node.js 12.x:
+      node_version: 12.x
+    Node.js 13.0.0:
+      node_version: 13.0.0
+    Node.js 13.x:
+      node_version: 13.x
+
+steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: $(node_version)
+    displayName: Install Node.js
+
+  - script: |
+      echo node $(node --version)
+      echo npm $(npm --version)
+    displayName: Show node and npm version
+
+  - script: npm ci || npm install
+    displayName: Install dependencies
+
+  - script: npm test
+    displayName: Run test
