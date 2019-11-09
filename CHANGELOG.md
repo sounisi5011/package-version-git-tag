@@ -27,6 +27,8 @@
     * [#65] - `9.2.5` -> `9.4.2`
 * `sort-package-json`
     * [#71] - `1.22.1` -> `1.23.1`
+* `ts-node`
+    * [#58] - `8.3.0` -> `8.4.1`
 
 ### Others
 
@@ -34,6 +36,7 @@
 
 [Unreleased]: https://github.com/sounisi5011/package-version-git-tag/compare/v1.1.2...HEAD
 [#54]: https://github.com/sounisi5011/package-version-git-tag/pull/54
+[#58]: https://github.com/sounisi5011/package-version-git-tag/pull/58
 [#60]: https://github.com/sounisi5011/package-version-git-tag/pull/60
 [#61]: https://github.com/sounisi5011/package-version-git-tag/pull/61
 [#65]: https://github.com/sounisi5011/package-version-git-tag/pull/65
