@@ -39,3 +39,20 @@ export async function readJSONFile(filepath: string): Promise<unknown> {
         throw new Error(`Could not read file: ${relativePath(filepath)}`);
     }
 }
+
+let isPrintedVerbose = false;
+
+export function printVerbose(message: string): void {
+    if (!isPrintedVerbose) {
+        console.error(`\n\n${message}`);
+        isPrintedVerbose = true;
+    } else {
+        console.error(message);
+    }
+}
+
+export function endPrintVerbose(): void {
+    if (isPrintedVerbose) {
+        console.error();
+    }
+}

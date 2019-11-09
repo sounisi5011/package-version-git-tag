@@ -1,6 +1,8 @@
 import { execFile } from 'child_process';
 import { promisify } from 'util';
 
+import { printVerbose } from './utils';
+
 const execFileAsync = promisify(execFile);
 
 export async function tagExists(tagName: string): Promise<boolean> {
@@ -27,8 +29,14 @@ export async function isHeadTag(tagName: string): Promise<boolean> {
     }
 }
 
-export async function setTag(tagName: string): Promise<void> {
+export async function setTag(
+    tagName: string,
+    { debug = false }: { debug?: boolean } = {},
+): Promise<void> {
     try {
+        if (debug) {
+            printVerbose(`> git tag ${tagName}`);
+        }
         await execFileAsync('git', ['tag', tagName]);
     } catch (error) {
         throw new Error(`setTag() Error: ${error}`);
@@ -37,9 +45,15 @@ export async function setTag(tagName: string): Promise<void> {
 
 export async function push(
     src: string,
-    repository: string = 'origin',
+    {
+        repository = 'origin',
+        debug = false,
+    }: { repository?: string; debug?: boolean } = {},
 ): Promise<void> {
     try {
+        if (debug) {
+            printVerbose(`> git push ${repository} ${src}`);
+        }
         await execFileAsync('git', ['push', repository, src]);
     } catch (error) {
         throw new Error(`push() Error: ${error}`);

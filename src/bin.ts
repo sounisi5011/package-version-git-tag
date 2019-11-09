@@ -25,6 +25,7 @@ program
 
 main({
     push: program.push,
+    verbose: program.verbose,
 }).catch(error => {
     process.exitCode = 1;
     console.error(error instanceof Error ? error.message : error);
