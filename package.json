@@ -106,7 +106,7 @@
     "prettier-package-json": "2.1.0",
     "sort-package-json": "1.23.1",
     "ts-node": "8.4.1",
-    "typescript": "3.6.2"
+    "typescript": "3.7.2"
   },
   "engines": {
     "node": ">=8.3.0"
