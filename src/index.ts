@@ -26,9 +26,8 @@ async function getTagVersionName(): Promise<string> {
 
 async function main(opts: Options): Promise<void> {
     const versionTagName = await getTagVersionName();
-    const exists = await tagExists(versionTagName);
 
-    if (exists) {
+    if (await tagExists(versionTagName)) {
         if (!(await isHeadTag(versionTagName))) {
             throw new Error(`Git tag '${versionTagName}' already exists`);
         }
