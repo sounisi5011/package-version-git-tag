@@ -3,6 +3,7 @@
 [![npm package](https://img.shields.io/npm/v/package-version-git-tag.svg)][npm]
 [![GitHub License](https://img.shields.io/github/license/sounisi5011/package-version-git-tag.svg)][github-license]
 ![](https://img.shields.io/node/v/package-version-git-tag.svg)
+[![bundle size](https://img.shields.io/bundlephobia/min/package-version-git-tag/1.2.0)](https://bundlephobia.com/result?p=package-version-git-tag@1.2.0)
 [![Dependencies Status](https://david-dm.org/sounisi5011/package-version-git-tag/status.svg)](https://david-dm.org/sounisi5011/package-version-git-tag)
 [![Build Status](https://dev.azure.com/sounisi5011/npm%20projects/_apis/build/status/sounisi5011.package-version-git-tag?branchName=master)](https://dev.azure.com/sounisi5011/npm%20projects/_build/latest?definitionId=2&branchName=master)
 [![Maintainability Status](https://api.codeclimate.com/v1/badges/ac675a219746d53b79bc/maintainability)](https://codeclimate.com/github/sounisi5011/package-version-git-tag/maintainability)
