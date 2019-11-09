@@ -20,10 +20,12 @@ if (isObject(PKG)) {
 
 program
     .option('--push', '`git push` the added tag to the remote repository')
+    .option('--verbose', 'show details of executed git commands')
     .parse(process.argv);
 
 main({
     push: program.push,
+    verbose: program.verbose,
 }).catch(error => {
     process.exitCode = 1;
     console.error(error instanceof Error ? error.message : error);

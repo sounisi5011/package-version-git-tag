@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Features
+
+* [#77] - Add `--verbose` option
+
 ### Updated Dependencies
 
 #### dependencies
@@ -54,6 +58,7 @@
 [#71]: https://github.com/sounisi5011/package-version-git-tag/pull/71
 [#73]: https://github.com/sounisi5011/package-version-git-tag/pull/73
 [#76]: https://github.com/sounisi5011/package-version-git-tag/pull/76
+[#77]: https://github.com/sounisi5011/package-version-git-tag/pull/77
 
 ## [1.1.2] (2019-09-10 UTC)
 

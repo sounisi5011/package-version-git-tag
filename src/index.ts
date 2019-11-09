@@ -1,10 +1,16 @@
 import path from 'path';
 
 import { isHeadTag, push, setTag, tagExists } from './git';
-import { isPkgData, readJSONFile } from './utils';
+import {
+    endPrintVerbose,
+    isPkgData,
+    printVerbose,
+    readJSONFile,
+} from './utils';
 
 export interface Options {
     push?: boolean;
+    verbose?: boolean;
 }
 
 async function getTagVersionName(): Promise<string> {
@@ -18,21 +24,39 @@ async function getTagVersionName(): Promise<string> {
     throw new Error('Failed to find version tag name.');
 }
 
-export default async function(opts: Options = {}): Promise<void> {
-    const versionTagName = await getTagVersionName();
-    const exists = await tagExists(versionTagName);
-
-    if (exists) {
-        if (!(await isHeadTag(versionTagName))) {
-            throw new Error(`Git tag '${versionTagName}' already exists`);
-        }
+async function gitTagAlreadyExists(
+    versionTagName: string,
+    opts: Options,
+): Promise<void> {
+    if (!(await isHeadTag(versionTagName))) {
+        throw new Error(`Git tag '${versionTagName}' already exists`);
     }
 
-    if (!exists) {
-        await setTag(versionTagName);
+    if (opts.verbose) {
+        printVerbose(
+            `> #git tag ${versionTagName}\n  # tag '${versionTagName}' already exists`,
+        );
+    }
+}
+
+async function main(opts: Options): Promise<void> {
+    const versionTagName = await getTagVersionName();
+
+    if (await tagExists(versionTagName)) {
+        await gitTagAlreadyExists(versionTagName, opts);
+    } else {
+        await setTag(versionTagName, { debug: opts.verbose });
     }
 
     if (opts.push) {
-        await push(versionTagName);
+        await push(versionTagName, { debug: opts.verbose });
+    }
+}
+
+export default async function(opts: Options = {}): Promise<void> {
+    try {
+        await main(opts);
+    } finally {
+        endPrintVerbose();
     }
 }
