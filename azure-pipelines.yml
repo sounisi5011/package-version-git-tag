@@ -52,3 +52,19 @@ steps:
 
   - script: npm test
     displayName: Run test
+    # Packages not used in Linter and / or test code cannot be tested with CI, so exclude branches of update such packages
+    condition: |
+      and(
+        succeeded(),
+        not(or(
+          startsWith(variables['Build.SourceBranch'], 'refs/heads/renovate/can-npm-publish-'),
+          startsWith(variables['Build.SourceBranch'], 'refs/heads/renovate/del-cli-'),
+          startsWith(variables['Build.SourceBranch'], 'refs/heads/renovate/git-branch-is-'),
+          startsWith(variables['Build.SourceBranch'], 'refs/heads/renovate/husky-'),
+          startsWith(variables['Build.SourceBranch'], 'refs/heads/migrate-travis-ci-to-azure-'),
+          startsWith(variables['Build.SourceBranch'], 'refs/heads/renovate/is-git-status-clean-'),
+          startsWith(variables['Build.SourceBranch'], 'refs/heads/renovate/lint-staged-'),
+          startsWith(variables['Build.SourceBranch'], 'refs/heads/renovate/prettier-package-json-'),
+          startsWith(variables['Build.SourceBranch'], 'refs/heads/renovate/sort-package-json-')
+        ))
+      )
