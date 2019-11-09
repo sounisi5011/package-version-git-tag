@@ -15,6 +15,8 @@
     * [#60] - `2.2.0` -> `2.6.1`
 * `@typescript-eslint/parser`
     * [#60] - `2.2.0` -> `2.6.1`
+* `ava`
+    * [#59] - `2.3.0` -> `2.4.0`
 * `can-npm-publish`
     * [#68] - `1.3.1` -> `1.3.2`
 * `eslint-config-prettier`
@@ -37,6 +39,7 @@
 [Unreleased]: https://github.com/sounisi5011/package-version-git-tag/compare/v1.1.2...HEAD
 [#54]: https://github.com/sounisi5011/package-version-git-tag/pull/54
 [#58]: https://github.com/sounisi5011/package-version-git-tag/pull/58
+[#59]: https://github.com/sounisi5011/package-version-git-tag/pull/59
 [#60]: https://github.com/sounisi5011/package-version-git-tag/pull/60
 [#61]: https://github.com/sounisi5011/package-version-git-tag/pull/61
 [#65]: https://github.com/sounisi5011/package-version-git-tag/pull/65
