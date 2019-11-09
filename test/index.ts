@@ -79,6 +79,26 @@ test('CLI should add Git tag with verbose output', async t => {
     );
 });
 
+test('CLI should not add Git tag with dry-run', async t => {
+    const { exec } = await initGit(tmpDir('not-exists-git-tag-with-dry-run'));
+
+    const gitTags = (await exec(['git', 'tag', '-l'])).stdout;
+    t.regex(gitTags, /^[\r\n]*$/, 'Git tag should not exist yet');
+
+    await t.notThrowsAsync(async () => {
+        const { stdout, stderr } = await exec([CLI_PATH, '--dry-run']);
+
+        t.is(stdout, '');
+        t.is(stderr, 'Dry Run enabled\n\n> git tag v0.0.0\n\n');
+    }, 'CLI should exits successfully');
+
+    t.is(
+        (await exec(['git', 'tag', '-l'])).stdout,
+        gitTags,
+        'Git tag should not change',
+    );
+});
+
 test('CLI should complete successfully if Git tag has been added', async t => {
     const { exec } = await initGit(tmpDir('exists-git-tag-in-same-commit'));
     await exec(['git', 'tag', 'v0.0.0']);
@@ -137,6 +157,41 @@ test('CLI should complete successfully if Git tag has been added with verbose ou
         t.is(
             stderr,
             `\n> #git tag v0.0.0\n  # tag 'v0.0.0' already exists\n\n`,
+        );
+    }, 'CLI should exits successfully');
+
+    t.is(
+        (await exec(['git', 'tag', '-l'])).stdout,
+        gitTags,
+        'Git tag should not change',
+    );
+});
+
+test('CLI should complete successfully if Git tag has been added with dry-run', async t => {
+    const { exec } = await initGit(
+        tmpDir('exists-git-tag-in-same-commit-with-dry-run'),
+    );
+    await exec(['git', 'tag', 'v0.0.0']);
+
+    const gitTags = (await exec(['git', 'tag', '-l'])).stdout;
+    t.regex(gitTags, /^v0\.0\.0$/m, 'Git tag v0.0.0 should exist');
+
+    await t.throwsAsync(
+        exec(['git', 'tag', 'v0.0.0']),
+        {
+            name: 'CommandFailedError',
+            message: /tag 'v0\.0\.0' already exists/,
+        },
+        'Overwriting tags with git cli should fail',
+    );
+
+    await t.notThrowsAsync(async () => {
+        const { stdout, stderr } = await exec([CLI_PATH, '--dry-run']);
+
+        t.is(stdout, '');
+        t.is(
+            stderr,
+            `Dry Run enabled\n\n> #git tag v0.0.0\n  # tag 'v0.0.0' already exists\n\n`,
         );
     }, 'CLI should exits successfully');
 
@@ -321,6 +376,40 @@ test('CLI should add and push Git tag with verbose output', async t => {
             'Git tag v0.0.0 should have been pushed',
         );
     }
+});
+
+test('CLI should not add and not push Git tag with dry-run', async t => {
+    const {
+        exec,
+        remote: { tagList },
+    } = await initGit(tmpDir('push-success-git-tag-with-dry-run'), true);
+
+    const gitTags = (await exec(['git', 'tag', '-l'])).stdout;
+    await t.notThrowsAsync(
+        exec(['git', 'push', '--dry-run', 'origin', 'HEAD']),
+        'Git push should success',
+    );
+
+    await t.notThrowsAsync(async () => {
+        const { stdout, stderr } = await exec([
+            CLI_PATH,
+            '--push',
+            '--dry-run',
+        ]);
+
+        t.is(stdout, '');
+        t.is(
+            stderr,
+            'Dry Run enabled\n\n> git tag v0.0.0\n> git push origin v0.0.0\n\n',
+        );
+    }, 'CLI should exits successfully');
+
+    t.is(
+        (await exec(['git', 'tag', '-l'])).stdout,
+        gitTags,
+        'Git tag should not change',
+    );
+    t.deepEqual(tagList, [], 'Git tag should not been pushed');
 });
 
 test('CLI should add and push single Git tag', async t => {

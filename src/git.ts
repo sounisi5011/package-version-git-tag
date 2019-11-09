@@ -31,13 +31,18 @@ export async function isHeadTag(tagName: string): Promise<boolean> {
 
 export async function setTag(
     tagName: string,
-    { debug = false }: { debug?: boolean } = {},
+    {
+        debug = false,
+        dryRun = false,
+    }: { debug?: boolean; dryRun?: boolean } = {},
 ): Promise<void> {
     try {
         if (debug) {
             printVerbose(`> git tag ${tagName}`);
         }
-        await execFileAsync('git', ['tag', tagName]);
+        if (!dryRun) {
+            await execFileAsync('git', ['tag', tagName]);
+        }
     } catch (error) {
         throw new Error(`setTag() Error: ${error}`);
     }
@@ -48,13 +53,16 @@ export async function push(
     {
         repository = 'origin',
         debug = false,
-    }: { repository?: string; debug?: boolean } = {},
+        dryRun = false,
+    }: { repository?: string; debug?: boolean; dryRun?: boolean } = {},
 ): Promise<void> {
     try {
         if (debug) {
             printVerbose(`> git push ${repository} ${src}`);
         }
-        await execFileAsync('git', ['push', repository, src]);
+        if (!dryRun) {
+            await execFileAsync('git', ['push', repository, src]);
+        }
     } catch (error) {
         throw new Error(`push() Error: ${error}`);
     }
