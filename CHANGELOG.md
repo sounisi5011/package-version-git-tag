@@ -33,6 +33,8 @@
     * [#71] - `1.22.1` -> `1.23.1`
 * `ts-node`
     * [#58] - `8.3.0` -> `8.4.1`
+* `typescript`
+    * [#55] - `3.6.2` -> `3.7.2`
 
 ### Others
 
@@ -40,6 +42,7 @@
 
 [Unreleased]: https://github.com/sounisi5011/package-version-git-tag/compare/v1.1.2...HEAD
 [#54]: https://github.com/sounisi5011/package-version-git-tag/pull/54
+[#55]: https://github.com/sounisi5011/package-version-git-tag/pull/55
 [#58]: https://github.com/sounisi5011/package-version-git-tag/pull/58
 [#59]: https://github.com/sounisi5011/package-version-git-tag/pull/59
 [#60]: https://github.com/sounisi5011/package-version-git-tag/pull/60
