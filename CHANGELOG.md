@@ -2,7 +2,15 @@
 
 ## [Unreleased]
 
+### Updated Dependencies
+
+#### dependencies
+
+* `commander`
+    * [#70] - `3.0.1` -> `4.0.0`
+
 [Unreleased]: https://github.com/sounisi5011/package-version-git-tag/compare/v1.1.2...HEAD
+[#70]: https://github.com/sounisi5011/package-version-git-tag/pull/70
 
 ## [1.1.2] (2019-09-10 UTC)
 
