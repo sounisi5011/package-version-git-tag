@@ -27,6 +27,8 @@
     * [#67] - `3.0.5` -> `3.0.9`
 * `lint-staged`
     * [#65] - `9.2.5` -> `9.4.2`
+* `prettier`
+    * [#76] - `1.19.0` -> `1.19.1`
 * `sort-package-json`
     * [#71] - `1.22.1` -> `1.23.1`
 * `ts-node`
@@ -48,6 +50,7 @@
 [#70]: https://github.com/sounisi5011/package-version-git-tag/pull/70
 [#71]: https://github.com/sounisi5011/package-version-git-tag/pull/71
 [#73]: https://github.com/sounisi5011/package-version-git-tag/pull/73
+[#76]: https://github.com/sounisi5011/package-version-git-tag/pull/76
 
 ## [1.1.2] (2019-09-10 UTC)
 
