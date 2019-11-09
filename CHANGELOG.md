@@ -2,7 +2,21 @@
 
 ## [Unreleased]
 
+### Supported Node version
+
+`>=8.3.0` -> `>=8.10.0`
+
+* [#57] - Update dependency eslint to v6.6.0
+
+### Updated Dependencies
+
+#### devDependencies
+
+* `eslint`
+    * [#57] - `6.3.0` -> `6.6.0`
+
 [Unreleased]: https://github.com/sounisi5011/package-version-git-tag/compare/v1.2.0...master
+[#57]: https://github.com/sounisi5011/package-version-git-tag/pull/57
 
 ## [1.2.0] (2019-11-09 UTC)
 
