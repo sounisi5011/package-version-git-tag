@@ -50,6 +50,9 @@ steps:
   - script: npm ci || npm install
     displayName: Install dependencies
 
+  - bash: git branch -a
+    displayName: Show Git branch list
+
   # see https://docs.microsoft.com/en-us/azure/devops/pipelines/scripts/cross-platform-scripting?tabs=yaml&view=azure-devops#switch-based-on-platform
   - bash: |
       export BranchName=$(git name-rev --name-only HEAD)
