@@ -21,11 +21,13 @@ if (isObject(PKG)) {
 program
     .option('--push', '`git push` the added tag to the remote repository')
     .option('--verbose', 'show details of executed git commands')
+    .option('-n, --dry-run', 'perform a trial run with no changes made')
     .parse(process.argv);
 
 main({
     push: program.push,
     verbose: program.verbose,
+    dryRun: program.dryRun,
 }).catch(error => {
     process.exitCode = 1;
     console.error(error instanceof Error ? error.message : error);

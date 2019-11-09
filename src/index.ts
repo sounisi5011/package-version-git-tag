@@ -11,6 +11,7 @@ import {
 export interface Options {
     push?: boolean;
     verbose?: boolean;
+    dryRun?: boolean;
 }
 
 async function getTagVersionName(): Promise<string> {
@@ -40,16 +41,27 @@ async function gitTagAlreadyExists(
 }
 
 async function main(opts: Options): Promise<void> {
+    if (opts.dryRun) {
+        console.error('Dry Run enabled');
+        opts.verbose = true;
+    }
+
     const versionTagName = await getTagVersionName();
 
     if (await tagExists(versionTagName)) {
         await gitTagAlreadyExists(versionTagName, opts);
     } else {
-        await setTag(versionTagName, { debug: opts.verbose });
+        await setTag(versionTagName, {
+            debug: opts.verbose,
+            dryRun: opts.dryRun,
+        });
     }
 
     if (opts.push) {
-        await push(versionTagName, { debug: opts.verbose });
+        await push(versionTagName, {
+            debug: opts.verbose,
+            dryRun: opts.dryRun,
+        });
     }
 }
 
