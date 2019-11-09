@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+[Unreleased]: https://github.com/sounisi5011/package-version-git-tag/compare/v1.2.0...master
+
+## [1.2.0] (2019-11-09 UTC)
+
 ### Features
 
 * [#77] - Add `--verbose` option
@@ -16,6 +20,8 @@
 
 #### devDependencies
 
+* `@types/node`
+    * [#74], [#75] - `12.7.4` -> `*`
 * `@typescript-eslint/eslint-plugin`
     * [#60] - `2.2.0` -> `2.6.1`
 * `@typescript-eslint/parser`
@@ -33,6 +39,7 @@
 * `lint-staged`
     * [#65] - `9.2.5` -> `9.4.2`
 * `prettier`
+    * [#72] - `1.18.2` -> `1.19.0`
     * [#76] - `1.19.0` -> `1.19.1`
 * `sort-package-json`
     * [#71] - `1.22.1` -> `1.23.1`
@@ -45,7 +52,7 @@
 
 * [#73] - Migrate from Travis CI to Azure Pipelines
 
-[Unreleased]: https://github.com/sounisi5011/package-version-git-tag/compare/v1.1.2...HEAD
+[1.2.0]: https://github.com/sounisi5011/package-version-git-tag/compare/v1.1.2...v1.2.0
 [#54]: https://github.com/sounisi5011/package-version-git-tag/pull/54
 [#55]: https://github.com/sounisi5011/package-version-git-tag/pull/55
 [#58]: https://github.com/sounisi5011/package-version-git-tag/pull/58
@@ -57,7 +64,10 @@
 [#68]: https://github.com/sounisi5011/package-version-git-tag/pull/68
 [#70]: https://github.com/sounisi5011/package-version-git-tag/pull/70
 [#71]: https://github.com/sounisi5011/package-version-git-tag/pull/71
+[#72]: https://github.com/sounisi5011/package-version-git-tag/pull/72
 [#73]: https://github.com/sounisi5011/package-version-git-tag/pull/73
+[#74]: https://github.com/sounisi5011/package-version-git-tag/pull/74
+[#75]: https://github.com/sounisi5011/package-version-git-tag/pull/75
 [#76]: https://github.com/sounisi5011/package-version-git-tag/pull/76
 [#77]: https://github.com/sounisi5011/package-version-git-tag/pull/77
 [#78]: https://github.com/sounisi5011/package-version-git-tag/pull/78
