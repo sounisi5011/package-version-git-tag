@@ -5,6 +5,7 @@
 ### Features
 
 * [#77] - Add `--verbose` option
+* [#78] - Add `--dry-run` option
 
 ### Updated Dependencies
 
@@ -59,6 +60,7 @@
 [#73]: https://github.com/sounisi5011/package-version-git-tag/pull/73
 [#76]: https://github.com/sounisi5011/package-version-git-tag/pull/76
 [#77]: https://github.com/sounisi5011/package-version-git-tag/pull/77
+[#78]: https://github.com/sounisi5011/package-version-git-tag/pull/78
 
 ## [1.1.2] (2019-09-10 UTC)
 
