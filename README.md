@@ -21,6 +21,20 @@ npm install package-version-git-tag
 
 ## Usage
 
+```console
+$ package-version-git-tag --help
+Usage: package-version-git-tag [options]
+
+Add Git tag corresponding to the version field of package.json
+
+Options:
+  -v, --version  output the version number
+  --push         `git push` the added tag to the remote repository
+  --verbose      show details of executed git commands
+  -n, --dry-run  perform a trial run with no changes made
+  -h, --help     output usage information
+```
+
 For example, suppose that `package.json` exists in the current directory, and version is `1.2.3`:
 
 ```json
