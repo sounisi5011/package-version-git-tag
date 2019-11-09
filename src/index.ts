@@ -24,7 +24,10 @@ async function getTagVersionName(): Promise<string> {
     throw new Error('Failed to find version tag name.');
 }
 
-async function main(opts: Options): Promise<void> {
+async function main({
+    push: doPush,
+    verbose: isVerbose,
+}: Options): Promise<void> {
     const versionTagName = await getTagVersionName();
     const exists = await tagExists(versionTagName);
 
@@ -33,17 +36,17 @@ async function main(opts: Options): Promise<void> {
             throw new Error(`Git tag '${versionTagName}' already exists`);
         }
 
-        if (opts.verbose) {
+        if (isVerbose) {
             printVerbose(
                 `> # git tag ${versionTagName}\n> # tag '${versionTagName}' already exists`,
             );
         }
     } else {
-        await setTag(versionTagName, { debug: opts.verbose });
+        await setTag(versionTagName, { debug: isVerbose });
     }
 
-    if (opts.push) {
-        await push(versionTagName, { debug: opts.verbose });
+    if (doPush) {
+        await push(versionTagName, { debug: isVerbose });
     }
 }
 
