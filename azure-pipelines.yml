@@ -52,11 +52,8 @@ steps:
 
   # see https://docs.microsoft.com/en-us/azure/devops/pipelines/build/variables?tabs=yaml&view=azure-devops
   - script: |
-      echo "variables['Build.SourceBranch'] / ${{ variables['Build.SourceBranch'] }}"
-      echo "variables['Build.SourceBranchName'] / ${{ variables['Build.SourceBranchName'] }}"
-      echo "variables['System.PullRequest.SourceBranch'] / ${{ variables['System.PullRequest.SourceBranch'] }}"
-      echo "variables['System.PullRequest.TargetBranch'] / ${{ variables['System.PullRequest.TargetBranch'] }}"
-    displayName: Show variables['*Build*']
+      echo "variables / ${{ variables }}"
+    displayName: Show variables['*']
 
   - script: npm test
     displayName: Run test
