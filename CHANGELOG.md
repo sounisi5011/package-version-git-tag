@@ -11,6 +11,10 @@
 
 #### devDependencies
 
+* `@typescript-eslint/eslint-plugin`
+    * [#60] - `2.2.0` -> `2.6.1`
+* `@typescript-eslint/parser`
+    * [#60] - `2.2.0` -> `2.6.1`
 * `can-npm-publish`
     * [#68] - `1.3.1` -> `1.3.2`
 * `eslint-config-prettier`
@@ -30,6 +34,7 @@
 
 [Unreleased]: https://github.com/sounisi5011/package-version-git-tag/compare/v1.1.2...HEAD
 [#54]: https://github.com/sounisi5011/package-version-git-tag/pull/54
+[#60]: https://github.com/sounisi5011/package-version-git-tag/pull/60
 [#61]: https://github.com/sounisi5011/package-version-git-tag/pull/61
 [#65]: https://github.com/sounisi5011/package-version-git-tag/pull/65
 [#67]: https://github.com/sounisi5011/package-version-git-tag/pull/67
