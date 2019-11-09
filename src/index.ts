@@ -24,19 +24,26 @@ async function getTagVersionName(): Promise<string> {
     throw new Error('Failed to find version tag name.');
 }
 
+async function gitTagAlreadyExists(
+    versionTagName: string,
+    opts: Options,
+): Promise<void> {
+    if (!(await isHeadTag(versionTagName))) {
+        throw new Error(`Git tag '${versionTagName}' already exists`);
+    }
+
+    if (opts.verbose) {
+        printVerbose(
+            `> # git tag ${versionTagName}\n> # tag '${versionTagName}' already exists`,
+        );
+    }
+}
+
 async function main(opts: Options): Promise<void> {
     const versionTagName = await getTagVersionName();
 
     if (await tagExists(versionTagName)) {
-        if (!(await isHeadTag(versionTagName))) {
-            throw new Error(`Git tag '${versionTagName}' already exists`);
-        }
-
-        if (opts.verbose) {
-            printVerbose(
-                `> # git tag ${versionTagName}\n> # tag '${versionTagName}' already exists`,
-            );
-        }
+        await gitTagAlreadyExists(versionTagName, opts);
     } else {
         await setTag(versionTagName, { debug: opts.verbose });
     }
