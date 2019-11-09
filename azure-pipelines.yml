@@ -11,8 +11,8 @@ pool:
 
 strategy:
   matrix:
-    Node.js 8.3.0:
-      node_version: 8.3.0
+    Node.js 8.10.0:
+      node_version: 8.10.0
     Node.js 8.x:
       node_version: 8.x
     Node.js 9.0.0:
