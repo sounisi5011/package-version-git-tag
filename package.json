@@ -78,7 +78,6 @@
   },
   "devDependencies": {
     "@sounisi5011/check-peer-deps": "github:sounisi5011/check-peer-deps",
-    "@types/node": "12.7.4",
     "@typescript-eslint/eslint-plugin": "2.2.0",
     "@typescript-eslint/parser": "2.2.0",
     "ava": "2.3.0",
