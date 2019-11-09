@@ -20,6 +20,7 @@ if (isObject(PKG)) {
 
 program
     .option('--push', '`git push` the added tag to the remote repository')
+    .option('--verbose', 'show details of executed git commands')
     .parse(process.argv);
 
 main({
