@@ -54,6 +54,7 @@ steps:
   - bash: |
       export BranchName=$(git name-rev --name-only HEAD)
       echo "##vso[task.setvariable variable=BranchName]$BranchName"
+      echo "BranchName: ${BranchName}"
     displayName: Set Git branch name
 
   # see https://docs.microsoft.com/en-us/azure/devops/pipelines/build/variables?tabs=yaml&view=azure-devops
