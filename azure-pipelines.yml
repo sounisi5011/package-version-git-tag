@@ -63,6 +63,7 @@ steps:
       echo "variables['System.PullRequest.SourceBranch'] / ${{ variables['System.PullRequest.SourceBranch'] }}"
       echo "variables['System.PullRequest.TargetBranch'] / ${{ variables['System.PullRequest.TargetBranch'] }}"
       echo "variables['BranchName'] / ${{ variables['BranchName'] }}"
+      echo "BranchName / ${{ BranchName }}"
     displayName: Show variables['*Build*']
 
   - script: npm test
