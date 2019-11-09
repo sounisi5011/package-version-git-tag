@@ -11,6 +11,8 @@
 
 #### devDependencies
 
+* `can-npm-publish`
+    * [#68] - `1.3.1` -> `1.3.2`
 * `eslint-config-prettier`
     * [#54] - `6.2.0` -> `6.5.0`
 * `eslint-plugin-prettier`
@@ -29,6 +31,7 @@
 [#61]: https://github.com/sounisi5011/package-version-git-tag/pull/61
 [#65]: https://github.com/sounisi5011/package-version-git-tag/pull/65
 [#67]: https://github.com/sounisi5011/package-version-git-tag/pull/67
+[#68]: https://github.com/sounisi5011/package-version-git-tag/pull/68
 [#70]: https://github.com/sounisi5011/package-version-git-tag/pull/70
 [#73]: https://github.com/sounisi5011/package-version-git-tag/pull/73
 
