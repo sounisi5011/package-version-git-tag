@@ -32,16 +32,14 @@ async function main(opts: Options): Promise<void> {
         if (!(await isHeadTag(versionTagName))) {
             throw new Error(`Git tag '${versionTagName}' already exists`);
         }
-    }
 
-    if (!exists) {
-        await setTag(versionTagName, { debug: opts.verbose });
-    } else {
         if (opts.verbose) {
             printVerbose(
                 `> # git tag ${versionTagName}\n> # tag '${versionTagName}' already exists`,
             );
         }
+    } else {
+        await setTag(versionTagName, { debug: opts.verbose });
     }
 
     if (opts.push) {
