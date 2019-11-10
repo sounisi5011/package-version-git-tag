@@ -554,7 +554,7 @@ test.serial(
     },
 );
 
-test.serial.only(
+test.serial(
     'CLI should add Git tag with customized tag prefix by yarn',
     async t => {
         const { exec, gitDirpath } = await initGit(
@@ -585,12 +585,6 @@ test.serial.only(
             }),
         );
 
-        t.log({
-            // eslint-disable-next-line @typescript-eslint/camelcase
-            npm_execpath: process.env.npm_execpath,
-            execPath: process.execPath,
-        });
-
         await setEnv(
             {
                 // eslint-disable-next-line @typescript-eslint/camelcase
@@ -616,9 +610,10 @@ test.serial.only(
                     'should define version-tag-prefix in yarn config',
                 );
 
-                await t.notThrowsAsync(async () => {
-                    t.log(await exec(['yarn', 'run', npmScriptName]));
-                }, 'CLI should exits successfully');
+                await t.notThrowsAsync(
+                    exec(['yarn', 'run', npmScriptName]),
+                    'CLI should exits successfully',
+                );
             },
         );
 

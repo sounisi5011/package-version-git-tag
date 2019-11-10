@@ -92,25 +92,5 @@ export async function getConfig(keyMap: {
         'get',
         (isYarn && keyMap.yarn) || keyMap.npm,
     ]);
-
-    console.error([
-        {
-            // eslint-disable-next-line @typescript-eslint/camelcase
-            npm_execpath: process.env.npm_execpath,
-            execPath: process.execPath,
-        },
-        Object.entries(process.env)
-            .filter(([, v]) => v && /yarn/.test(v))
-            .reduce<typeof process.env>(
-                (obj, [k, v]) => ({ ...obj, [k]: v }),
-                {},
-            ),
-        [],
-        execPath,
-        [...spawnArgs, 'config', 'get', (isYarn && keyMap.yarn) || keyMap.npm],
-        [],
-        { stdout },
-    ]);
-
     return stdout.replace(/\n$/, '');
 }
