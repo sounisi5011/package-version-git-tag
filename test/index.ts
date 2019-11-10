@@ -28,6 +28,16 @@ test.before(async () => {
     });
     await del(path.resolve(FIXTURES_DIR, '{package-lock.json,node_modules}'));
     await execFileAsync('npm', ['install'], { cwd: FIXTURES_DIR });
+
+    /*
+     * Delete all npm environment variables
+     * Note: If npm environment variables are set, testing may not proceed properly.
+     */
+    Object.keys(process.env)
+        .filter(key => /^npm_/i.test(key))
+        .forEach(key => {
+            delete process.env[key];
+        });
 });
 
 test('CLI should add Git tag', async t => {
@@ -586,11 +596,7 @@ test.serial(
         );
 
         await setEnv(
-            {
-                // eslint-disable-next-line @typescript-eslint/camelcase
-                npm_execpath: undefined,
-                NPM_CONFIG_TAG_VERSION_PREFIX: 'this-is-npm-tag-prefix-',
-            },
+            { NPM_CONFIG_TAG_VERSION_PREFIX: 'this-is-npm-tag-prefix-' },
             async () => {
                 await writeFile(
                     path.join(gitDirpath, '.yarnrc'),
