@@ -1,8 +1,10 @@
+import { execFile } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import { promisify } from 'util';
 
 const readFileAsync = promisify(fs.readFile);
+const execFileAsync = promisify(execFile);
 
 export interface PkgDataInterface {
     version: string;
@@ -55,4 +57,13 @@ export function endPrintVerbose(): void {
     if (isPrintedVerbose) {
         console.error();
     }
+}
+
+export async function getConfig(keyMap: { npm: string }): Promise<string> {
+    const { stdout } = await execFileAsync('npm', [
+        'config',
+        'get',
+        keyMap.npm,
+    ]);
+    return stdout.replace(/\n$/, '');
 }
