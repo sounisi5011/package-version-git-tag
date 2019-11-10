@@ -5,6 +5,7 @@
 * MUST NOT use "Squash and merge" or "Rebase and merge". MUST use merge commit.
 * [SHOULD insert Emoji Prefix in git commit message](#git-commit-message-style).
 * If you make a fix that changes behavior (feature addition, bug fix, etc), you MUST add a test codes that fails before the fixes and succeeds after the fixes.
+* If you want to update the `README.md` file, you MUST edit the `readme-template.mustache` file instead.
 
 ## Git Commit Message Style
 
@@ -32,6 +33,7 @@ Inspired of [Atom Contributing] and [Gitmoji].
 * `👽` - updating code due to external API changes
 * `💩` - writing bad code that needs to be improved
 * `🚨` - removing linter warnings
+* `♻️` - refactoring code
 * `📝` - writing docs
 * `🚀` - deploying stuff
 * `🐛` - fixing a bug
