@@ -1,0 +1,94 @@
+---
+azurePipelinesBadgeURL: https://dev.azure.com/sounisi5011/npm%20projects/_apis/build/status/sounisi5011.package-version-git-tag?branchName=master
+azurePipelinesPageURL: https://dev.azure.com/sounisi5011/npm%20projects/_build/latest?definitionId=2&branchName=master
+codeclimateBadgeURL: https://api.codeclimate.com/v1/badges/ac675a219746d53b79bc/maintainability
+---
+
+# {{{pkg.name}}}
+
+[![Go to the latest release page on npm](https://img.shields.io/npm/v/{{{pkg.name}}}.svg)][npm]
+[![License: {{{pkg.license}}}](https://img.shields.io/static/v1?label=license&message={{#encURL}} {{{pkg.license}}} {{/encURL}}&color=green)][github-license]
+![Supported Node.js version: {{{pkg.engines.node}}}](https://img.shields.io/static/v1?label=node&message={{#encURL}} {{{pkg.engines.node}}} {{/encURL}}&color=brightgreen)
+[![bundle size](https://img.shields.io/bundlephobia/min/{{{pkg.name}}}/{{{pkg.version}}})](https://bundlephobia.com/result?p={{{pkg.name}}}@{{{pkg.version}}})
+[![Dependencies Status](https://david-dm.org/sounisi5011/{{{pkg.name}}}/status.svg)](https://david-dm.org/sounisi5011/{{{pkg.name}}})
+[![Build Status]({{{azurePipelinesBadgeURL}}})]({{{azurePipelinesPageURL}}})
+[![Maintainability Status]({{{codeclimateBadgeURL}}})](https://codeclimate.com/github/sounisi5011/{{{pkg.name}}}/maintainability)
+
+[npm]: https://www.npmjs.com/package/{{{pkg.name}}}
+[github-license]: {{{githubFileRoot}}}/LICENSE
+
+Add Git tag corresponding to the `version` field of `package.json`.
+
+## Install
+
+```sh
+npm install {{{pkg.name}}}
+```
+
+## Usage
+
+```console
+$ {{{pkg.name}}} --help
+Usage: {{{pkg.name}}} [options]
+
+Add Git tag corresponding to the version field of package.json
+
+Options:
+  -v, --version  output the version number
+  --push         `git push` the added tag to the remote repository
+  --verbose      show details of executed git commands
+  -n, --dry-run  perform a trial run with no changes made
+  -h, --help     output usage information
+```
+
+For example, suppose that `package.json` exists in the current directory, and version is `1.2.3`:
+
+```json
+{
+    "name": "my-awesome-package",
+    "version": "1.2.3",
+    ...
+}
+```
+
+In this case, this command is:
+
+```sh
+{{{pkg.name}}}
+```
+
+Equivalent to this operation:
+
+```console
+$ git tag v1.2.3
+```
+
+If you add the `--push` flag, it will also run `git push`. That is, this command is:
+
+```sh
+{{{pkg.name}}} --push
+```
+
+Equivalent to this operation:
+
+```console
+$ git tag v1.2.3
+$ git push origin v1.2.3
+```
+
+## Tests
+
+To run the test suite, first install the dependencies, then run `npm test`:
+
+```sh
+npm install
+npm test
+```
+
+## Contributing
+
+see [CONTRIBUTING.md](https://github.com/sounisi5011/{{{pkg.name}}}/blob/master/CONTRIBUTING.md)
+
+## Related
+
+* [taggit](https://github.com/okunishinishi/node-taggit)

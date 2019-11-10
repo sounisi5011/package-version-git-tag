@@ -1,0 +1,10 @@
+{
+  "name": "@sounisi5011/readme-generator",
+  "version": "0.0.0",
+  "private": true,
+  "bin": "index.js",
+  "dependencies": {
+    "gray-matter": "^4.0.2",
+    "mustache": "^3.1.0"
+  }
+}
