@@ -573,6 +573,18 @@ test.serial.only(
             linkTarget: path.join(FIXTURES_DIR, 'node_modules'),
         });
 
+        const version = '1.0.2';
+        const npmScriptName = 'run-cli';
+        await writeFile(
+            path.join(gitDirpath, 'package.json'),
+            JSON.stringify({
+                version,
+                scripts: {
+                    [npmScriptName]: PKG_DATA.name,
+                },
+            }),
+        );
+
         await setEnv(
             { NPM_CONFIG_TAG_VERSION_PREFIX: 'this-is-npm-tag-prefix-' },
             async () => {
@@ -595,12 +607,12 @@ test.serial.only(
                 );
 
                 await t.notThrowsAsync(async () => {
-                    t.log(await exec(['yarn', 'run', PKG_DATA.name]));
+                    t.log(await exec(['yarn', 'run', npmScriptName]));
                 }, 'CLI should exits successfully');
             },
         );
 
-        const tagName = `${customPrefix}0.0.0`;
+        const tagName = `${customPrefix}${version}`;
         t.is(
             (await exec(['git', 'tag', '-l'])).stdout,
             `${tagName}\n`,
