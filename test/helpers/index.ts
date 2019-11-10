@@ -27,10 +27,10 @@ export function getRandomInt(min: number, max: number): number {
 }
 
 export async function setEnv(
-    envs: typeof process.env,
+    envs: Record<string, string | undefined>,
     callback: () => void | Promise<void>,
 ): Promise<void> {
-    const origMap = new Map<string, typeof envs[string] | null>();
+    const origMap = new Map<string, string | undefined>();
     try {
         const envKeys = Object.keys(process.env);
         Object.entries(envs).forEach(([overwriteKey, newValue]) => {
@@ -40,17 +40,25 @@ export async function setEnv(
             );
             if (foundKey !== undefined) {
                 origMap.set(foundKey, process.env[foundKey]);
-                process.env[foundKey] = newValue;
+                if (typeof newValue === 'string') {
+                    process.env[foundKey] = newValue;
+                } else {
+                    delete process.env[foundKey];
+                }
             } else {
-                origMap.set(overwriteKey, null);
-                process.env[overwriteKey] = newValue;
+                origMap.set(overwriteKey, undefined);
+                if (typeof newValue === 'string') {
+                    process.env[overwriteKey] = newValue;
+                } else {
+                    delete process.env[overwriteKey];
+                }
             }
         });
 
         await callback();
     } finally {
         origMap.forEach((origValue, key) => {
-            if (origValue !== null) {
+            if (typeof origValue === 'string') {
                 process.env[key] = origValue;
             } else {
                 delete process.env[key];

@@ -592,7 +592,11 @@ test.serial.only(
         });
 
         await setEnv(
-            { NPM_CONFIG_TAG_VERSION_PREFIX: 'this-is-npm-tag-prefix-' },
+            {
+                // eslint-disable-next-line @typescript-eslint/camelcase
+                npm_execpath: undefined,
+                NPM_CONFIG_TAG_VERSION_PREFIX: 'this-is-npm-tag-prefix-',
+            },
             async () => {
                 await writeFile(
                     path.join(gitDirpath, '.yarnrc'),
