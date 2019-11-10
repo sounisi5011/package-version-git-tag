@@ -92,5 +92,13 @@ export async function getConfig(keyMap: {
         'get',
         (isYarn && keyMap.yarn) || keyMap.npm,
     ]);
+
+    console.error([
+        execPath,
+        [...spawnArgs, 'config', 'get', (isYarn && keyMap.yarn) || keyMap.npm],
+        [],
+        { stdout },
+    ]);
+
     return stdout.replace(/\n$/, '');
 }

@@ -554,7 +554,7 @@ test.serial(
     },
 );
 
-test.serial(
+test.serial.only(
     'CLI should add Git tag with customized tag prefix by yarn',
     async t => {
         const { exec, gitDirpath } = await initGit(
@@ -594,10 +594,9 @@ test.serial(
                     'should define version-tag-prefix in yarn config',
                 );
 
-                await t.notThrowsAsync(
-                    exec(['yarn', 'run', PKG_DATA.name]),
-                    'CLI should exits successfully',
-                );
+                await t.notThrowsAsync(async () => {
+                    t.log(await exec(['yarn', 'run', PKG_DATA.name]));
+                }, 'CLI should exits successfully');
             },
         );
 
