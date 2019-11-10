@@ -523,37 +523,13 @@ test.serial(
             linkTarget: path.join(FIXTURES_DIR, 'node_modules'),
         });
 
-        t.log(
-            Object.entries(process.env)
-                .filter(([name]) =>
-                    /^NPM_CONFIG_TAG_VERSION_PREFIX$/i.test(name),
-                )
-                .reduce<typeof process.env>(
-                    (obj, [k, v]) => ({ ...obj, [k]: v }),
-                    {},
-                ),
-        );
-
         await setEnv(
             { NPM_CONFIG_TAG_VERSION_PREFIX: customPrefix },
             async () => {
-                t.log(
-                    Object.entries(process.env)
-                        .filter(([name]) =>
-                            /^NPM_CONFIG_TAG_VERSION_PREFIX$/i.test(name),
-                        )
-                        .reduce<typeof process.env>(
-                            (obj, [k, v]) => ({ ...obj, [k]: v }),
-                            {},
-                        ),
-                );
-
                 await writeFile(
                     path.join(gitDirpath, '.yarnrc'),
                     'version-tag-prefix this-is-yarn-tag-prefix-',
                 );
-
-                t.log(await exec(['npm', 'config', 'list']));
 
                 t.is(
                     (await exec(['npm', 'config', 'get', 'tag-version-prefix']))
@@ -567,17 +543,6 @@ test.serial(
                     'CLI should exits successfully',
                 );
             },
-        );
-
-        t.log(
-            Object.entries(process.env)
-                .filter(([name]) =>
-                    /^NPM_CONFIG_TAG_VERSION_PREFIX$/i.test(name),
-                )
-                .reduce<typeof process.env>(
-                    (obj, [k, v]) => ({ ...obj, [k]: v }),
-                    {},
-                ),
         );
 
         const tagName = `${customPrefix}0.0.0`;
