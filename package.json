@@ -31,6 +31,7 @@
   },
   "scripts": {
     "build": "tsc",
+    "build:readme": "readme-generator --template ./readme-template.mustache",
     "clean": "del ./dist/ ./test/fixtures/{node_modules/,package-lock.json} ./test/tmp/",
     "fmt-pkg": "run-s fmt-pkg:prettier fmt-pkg:sort",
     "fmt-pkg:prettier": "prettier-package-json --write ./package.json",
@@ -49,9 +50,10 @@
     "release:validation:git-branch": "git-branch-is master",
     "release:validation:git-work-dir": "is-git-status-clean",
     "release:validation:publishable": "can-npm-publish --verbose",
-    "test": "run-s test:peer-deps lint test:ava",
+    "test": "run-s test:readme test:peer-deps lint test:ava",
     "test:ava": "ava",
-    "test:peer-deps": "check-peer-deps"
+    "test:peer-deps": "check-peer-deps",
+    "test:readme": "run-s 'build:readme -- --test'"
   },
   "husky": {
     "hooks": {
@@ -59,13 +61,20 @@
     }
   },
   "lint-staged": {
-    "!(package).json|*.{yaml,yml}": [
+    "!(README.md)": [
+      "run-s build:readme --",
+      "git add ./README.md"
+    ],
+    "!(package).json|*.{js,yaml,yml}": [
       "prettier --write",
       "git add"
     ],
     "*.ts": [
       "eslint --fix",
       "git add"
+    ],
+    "README.md": [
+      "run-s test:readme --"
     ],
     "package.json": [
       "prettier-package-json --write",
@@ -78,6 +87,7 @@
   },
   "devDependencies": {
     "@sounisi5011/check-peer-deps": "github:sounisi5011/check-peer-deps",
+    "@sounisi5011/readme-generator": "file:script/readme-generator",
     "@types/node": "*",
     "@typescript-eslint/eslint-plugin": "2.6.1",
     "@typescript-eslint/parser": "2.6.1",
