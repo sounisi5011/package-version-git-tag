@@ -1,8 +1,10 @@
+import { execFile } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import { promisify } from 'util';
 
 const readFileAsync = promisify(fs.readFile);
+const execFileAsync = promisify(execFile);
 
 export interface PkgDataInterface {
     version: string;
@@ -55,4 +57,40 @@ export function endPrintVerbose(): void {
     if (isPrintedVerbose) {
         console.error();
     }
+}
+
+/**
+ * @see https://github.com/mysticatea/npm-run-all/blob/v4.1.5/lib/run-task.js#L157-L174
+ */
+export function getNpmExecPath(): {
+    execPath: string;
+    spawnArgs: string[];
+    isYarn: boolean;
+} {
+    const npmPath = process.env.npm_execpath;
+    const npmPathIsJs =
+        typeof npmPath === 'string' && /^\.m?js$/.test(path.extname(npmPath));
+    const execPath = npmPathIsJs ? process.execPath : npmPath || 'npm';
+    const isYarn = path.basename(npmPath || 'npm').startsWith('yarn');
+
+    return {
+        execPath,
+        spawnArgs: typeof npmPath === 'string' && npmPathIsJs ? [npmPath] : [],
+        isYarn,
+    };
+}
+
+export async function getConfig(keyMap: {
+    npm: string;
+    yarn?: string;
+}): Promise<string> {
+    const { execPath, spawnArgs, isYarn } = getNpmExecPath();
+
+    const { stdout } = await execFileAsync(execPath, [
+        ...spawnArgs,
+        'config',
+        'get',
+        (isYarn && keyMap.yarn) || keyMap.npm,
+    ]);
+    return stdout.replace(/\n$/, '');
 }

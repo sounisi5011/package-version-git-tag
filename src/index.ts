@@ -3,6 +3,7 @@ import path from 'path';
 import { isHeadTag, push, setTag, tagExists } from './git';
 import {
     endPrintVerbose,
+    getConfig,
     isPkgData,
     printVerbose,
     readJSONFile,
@@ -19,7 +20,16 @@ async function getTagVersionName(): Promise<string> {
     const projectPkgData = await readJSONFile(projectPkgPath);
 
     if (isPkgData(projectPkgData)) {
-        return `v${projectPkgData.version}`;
+        /**
+         * @see https://github.com/sindresorhus/np/blob/v5.1.3/source/util.js#L51-L65
+         * @see https://github.com/npm/cli/blob/v6.13.0/lib/version.js#L311
+         * @see https://github.com/yarnpkg/yarn/blob/v1.19.1/src/cli/commands/version.js#L206
+         */
+        const prefix = await getConfig({
+            npm: 'tag-version-prefix',
+            yarn: 'version-tag-prefix',
+        });
+        return `${prefix}${projectPkgData.version}`;
     }
 
     throw new Error('Failed to find version tag name.');
