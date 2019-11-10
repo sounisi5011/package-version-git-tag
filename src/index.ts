@@ -28,8 +28,7 @@ async function getTagVersionName(): Promise<string> {
             npm: 'tag-version-prefix',
             yarn: 'version-tag-prefix',
         });
-        const { version } = projectPkgData;
-        return `${prefix}${version}`;
+        return `${prefix}${projectPkgData.version}`;
     }
 
     throw new Error('Failed to find version tag name.');

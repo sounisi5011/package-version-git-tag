@@ -524,22 +524,22 @@ test('CLI should add Git tag with customized tag prefix by npm', async t => {
     });
     await writeFile(
         path.join(gitDirpath, '.npmrc'),
-        `tag-version-prefix=${customPrefix}\n`,
+        `tag-version-prefix=${customPrefix}`,
     );
     await writeFile(
         path.join(gitDirpath, '.yarnrc'),
         'version-tag-prefix this-is-yarn-tag-prefix-',
     );
 
-    t.regex(
-        (await exec(['git', 'tag', '-l'])).stdout,
-        /^[\r\n]*$/,
-        'Git tag should not exist yet',
-    );
     t.is(
         (await exec(['npm', 'config', 'get', 'tag-version-prefix'])).stdout,
         `${customPrefix}\n`,
         'should define tag-version-prefix in npm-config',
+    );
+    t.regex(
+        (await exec(['git', 'tag', '-l'])).stdout,
+        /^[\r\n]*$/,
+        'Git tag should not exist yet',
     );
 
     await t.notThrowsAsync(
@@ -567,22 +567,22 @@ test('CLI should add Git tag with customized tag prefix by yarn', async t => {
     });
     await writeFile(
         path.join(gitDirpath, '.npmrc'),
-        'tag-version-prefix=this-is-npm-tag-prefix-\n',
+        'tag-version-prefix=this-is-npm-tag-prefix-',
     );
     await writeFile(
         path.join(gitDirpath, '.yarnrc'),
         `version-tag-prefix ${customPrefix}`,
     );
 
-    t.regex(
-        (await exec(['git', 'tag', '-l'])).stdout,
-        /^[\r\n]*$/,
-        'Git tag should not exist yet',
-    );
     t.is(
         (await exec(['yarn', 'config', 'get', 'version-tag-prefix'])).stdout,
         `${customPrefix}\n`,
         'should define version-tag-prefix in yarn config',
+    );
+    t.regex(
+        (await exec(['git', 'tag', '-l'])).stdout,
+        /^[\r\n]*$/,
+        'Git tag should not exist yet',
     );
 
     await t.notThrowsAsync(
