@@ -6,7 +6,7 @@ import path from 'path';
 import { promisify } from 'util';
 
 import * as PKG_DATA from '../package.json';
-import { createSymlink, getRandomInt, setEnv, writeFile } from './helpers';
+import { createSymlink, getRandomInt, writeFile } from './helpers';
 import { initGit } from './helpers/git';
 
 const FIXTURES_DIR = path.resolve(__dirname, 'fixtures');
@@ -514,108 +514,86 @@ test('CLI should not work with unknown options', async t => {
     );
 });
 
-test.serial(
-    'CLI should add Git tag with customized tag prefix by npm',
-    async t => {
-        const { exec, gitDirpath } = await initGit(
-            tmpDir('custom-tag-prefix-npm'),
-        );
-        const customPrefix = 'npm-tag-';
+test('CLI should add Git tag with customized tag prefix by npm', async t => {
+    const { exec, gitDirpath } = await initGit(tmpDir('custom-tag-prefix-npm'));
+    const customPrefix = 'npm-tag-';
 
-        t.regex(
-            (await exec(['git', 'tag', '-l'])).stdout,
-            /^[\r\n]*$/,
-            'Git tag should not exist yet',
-        );
+    await createSymlink({
+        symlinkPath: path.join(gitDirpath, 'node_modules'),
+        linkTarget: path.join(FIXTURES_DIR, 'node_modules'),
+    });
+    await writeFile(
+        path.join(gitDirpath, '.npmrc'),
+        `tag-version-prefix=${customPrefix}\n`,
+    );
+    await writeFile(
+        path.join(gitDirpath, '.yarnrc'),
+        'version-tag-prefix this-is-yarn-tag-prefix-',
+    );
 
-        await createSymlink({
-            symlinkPath: path.join(gitDirpath, 'node_modules'),
-            linkTarget: path.join(FIXTURES_DIR, 'node_modules'),
-        });
+    t.regex(
+        (await exec(['git', 'tag', '-l'])).stdout,
+        /^[\r\n]*$/,
+        'Git tag should not exist yet',
+    );
+    t.is(
+        (await exec(['npm', 'config', 'get', 'tag-version-prefix'])).stdout,
+        `${customPrefix}\n`,
+        'should define tag-version-prefix in npm-config',
+    );
 
-        await setEnv(
-            { NPM_CONFIG_TAG_VERSION_PREFIX: customPrefix },
-            async () => {
-                await writeFile(
-                    path.join(gitDirpath, '.yarnrc'),
-                    'version-tag-prefix this-is-yarn-tag-prefix-',
-                );
+    await t.notThrowsAsync(
+        exec(['npx', '--no-install', PKG_DATA.name]),
+        'CLI should exits successfully',
+    );
 
-                t.is(
-                    (await exec(['npm', 'config', 'get', 'tag-version-prefix']))
-                        .stdout,
-                    `${customPrefix}\n`,
-                    'should define tag-version-prefix in npm-config',
-                );
+    const tagName = `${customPrefix}0.0.0`;
+    t.is(
+        (await exec(['git', 'tag', '-l'])).stdout,
+        `${tagName}\n`,
+        `Git tag '${tagName}' should be added`,
+    );
+});
 
-                await t.notThrowsAsync(
-                    exec(['npx', '--no-install', PKG_DATA.name]),
-                    'CLI should exits successfully',
-                );
-            },
-        );
+test('CLI should add Git tag with customized tag prefix by yarn', async t => {
+    const { exec, gitDirpath } = await initGit(
+        tmpDir('custom-tag-prefix-yarn'),
+    );
+    const customPrefix = 'yarn-tag-';
 
-        const tagName = `${customPrefix}0.0.0`;
-        t.is(
-            (await exec(['git', 'tag', '-l'])).stdout,
-            `${tagName}\n`,
-            `Git tag '${tagName}' should be added`,
-        );
-    },
-);
+    await createSymlink({
+        symlinkPath: path.join(gitDirpath, 'node_modules'),
+        linkTarget: path.join(FIXTURES_DIR, 'node_modules'),
+    });
+    await writeFile(
+        path.join(gitDirpath, '.npmrc'),
+        'tag-version-prefix=this-is-npm-tag-prefix-\n',
+    );
+    await writeFile(
+        path.join(gitDirpath, '.yarnrc'),
+        `version-tag-prefix ${customPrefix}`,
+    );
 
-test.serial(
-    'CLI should add Git tag with customized tag prefix by yarn',
-    async t => {
-        const { exec, gitDirpath } = await initGit(
-            tmpDir('custom-tag-prefix-yarn'),
-        );
-        const customPrefix = 'yarn-tag-';
+    t.regex(
+        (await exec(['git', 'tag', '-l'])).stdout,
+        /^[\r\n]*$/,
+        'Git tag should not exist yet',
+    );
+    t.is(
+        (await exec(['yarn', 'config', 'get', 'version-tag-prefix'])).stdout,
+        `${customPrefix}\n`,
+        'should define version-tag-prefix in yarn config',
+    );
 
-        t.regex(
-            (await exec(['git', 'tag', '-l'])).stdout,
-            /^[\r\n]*$/,
-            'Git tag should not exist yet',
-        );
+    await t.notThrowsAsync(
+        exec(['yarn', 'run', PKG_DATA.name]),
+        'CLI should exits successfully',
+    );
 
-        await createSymlink({
-            symlinkPath: path.join(gitDirpath, 'node_modules'),
-            linkTarget: path.join(FIXTURES_DIR, 'node_modules'),
-        });
-
-        await setEnv(
-            { NPM_CONFIG_TAG_VERSION_PREFIX: 'this-is-npm-tag-prefix-' },
-            async () => {
-                await writeFile(
-                    path.join(gitDirpath, '.yarnrc'),
-                    `version-tag-prefix ${customPrefix}`,
-                );
-
-                t.is(
-                    (
-                        await exec([
-                            'yarn',
-                            'config',
-                            'get',
-                            'version-tag-prefix',
-                        ])
-                    ).stdout,
-                    `${customPrefix}\n`,
-                    'should define version-tag-prefix in yarn config',
-                );
-
-                await t.notThrowsAsync(
-                    exec(['yarn', 'run', PKG_DATA.name]),
-                    'CLI should exits successfully',
-                );
-            },
-        );
-
-        const tagName = `${customPrefix}0.0.0`;
-        t.is(
-            (await exec(['git', 'tag', '-l'])).stdout,
-            `${tagName}\n`,
-            `Git tag '${tagName}' should be added`,
-        );
-    },
-);
+    const tagName = `${customPrefix}0.0.0`;
+    t.is(
+        (await exec(['git', 'tag', '-l'])).stdout,
+        `${tagName}\n`,
+        `Git tag '${tagName}' should be added`,
+    );
+});
