@@ -8,6 +8,10 @@
 
 * [#57] - Update dependency eslint to v6.6.0
 
+### Documentation
+
+* [#80] - Introduce README generator
+
 ### Updated Dependencies
 
 #### devDependencies
@@ -17,6 +21,7 @@
 
 [Unreleased]: https://github.com/sounisi5011/package-version-git-tag/compare/v1.2.0...master
 [#57]: https://github.com/sounisi5011/package-version-git-tag/pull/57
+[#80]: https://github.com/sounisi5011/package-version-git-tag/pull/80
 
 ## [1.2.0] (2019-11-09 UTC)
 
