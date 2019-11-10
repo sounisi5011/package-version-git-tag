@@ -510,7 +510,7 @@ test.serial(
         const { exec, gitDirpath } = await initGit(
             tmpDir('custom-tag-prefix-npm'),
         );
-        const customPrefix = 'npm-tag-';
+        const customPrefix = 'x';
 
         await createSymlink({
             symlinkPath: path.join(gitDirpath, 'node_modules'),
