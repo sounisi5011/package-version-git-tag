@@ -512,6 +512,15 @@ test.serial(
         );
         const customPrefix = 'npm-tag-';
 
+        t.log(
+            Object.entries(process.env)
+                .filter(([name]) => /^NPM_CONFIG_/i.test(name))
+                .reduce<typeof process.env>(
+                    (obj, [k, v]) => ({ ...obj, [k]: v }),
+                    {},
+                ),
+        );
+
         await createSymlink({
             symlinkPath: path.join(gitDirpath, 'node_modules'),
             linkTarget: path.join(FIXTURES_DIR, 'node_modules'),
@@ -529,7 +538,7 @@ test.serial(
             '--userconfig',
             path.join(gitDirpath, '.npmrc'),
         ]);
-        process.env.NPM_CONFIG_USERCONFIG = path.join(gitDirpath, '.npmrc');
+        // process.env.NPM_CONFIG_USERCONFIG = path.join(gitDirpath, '.npmrc');
         await writeFile(
             path.join(gitDirpath, '.yarnrc'),
             'version-tag-prefix this-is-yarn-tag-prefix-',
