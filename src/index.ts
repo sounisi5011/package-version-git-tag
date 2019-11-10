@@ -22,8 +22,12 @@ async function getTagVersionName(): Promise<string> {
     if (isPkgData(projectPkgData)) {
         /**
          * @see https://github.com/npm/cli/blob/v6.13.0/lib/version.js#L311
+         * @see https://github.com/yarnpkg/yarn/blob/v1.19.1/src/cli/commands/version.js#L206
          */
-        const prefix = await getConfig({ npm: 'tag-version-prefix' });
+        const prefix = await getConfig({
+            npm: 'tag-version-prefix',
+            yarn: 'version-tag-prefix',
+        });
         const { version } = projectPkgData;
         return `${prefix}${version}`;
     }

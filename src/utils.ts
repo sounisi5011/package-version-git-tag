@@ -59,11 +59,38 @@ export function endPrintVerbose(): void {
     }
 }
 
-export async function getConfig(keyMap: { npm: string }): Promise<string> {
-    const { stdout } = await execFileAsync('npm', [
+/**
+ * @see https://github.com/mysticatea/npm-run-all/blob/v4.1.5/lib/run-task.js#L157-L174
+ */
+export function getNpmExecPath(): {
+    execPath: string;
+    spawnArgs: string[];
+    isYarn: boolean;
+} {
+    const npmPath = process.env.npm_execpath;
+    const npmPathIsJs =
+        typeof npmPath === 'string' && /^\.m?js$/.test(path.extname(npmPath));
+    const execPath = npmPathIsJs ? process.execPath : npmPath || 'npm';
+    const isYarn = path.basename(npmPath || 'npm').startsWith('yarn');
+
+    return {
+        execPath,
+        spawnArgs: typeof npmPath === 'string' && npmPathIsJs ? [npmPath] : [],
+        isYarn,
+    };
+}
+
+export async function getConfig(keyMap: {
+    npm: string;
+    yarn?: string;
+}): Promise<string> {
+    const { execPath, spawnArgs, isYarn } = getNpmExecPath();
+
+    const { stdout } = await execFileAsync(execPath, [
+        ...spawnArgs,
         'config',
         'get',
-        keyMap.npm,
+        (isYarn && keyMap.yarn) || keyMap.npm,
     ]);
     return stdout.replace(/\n$/, '');
 }
