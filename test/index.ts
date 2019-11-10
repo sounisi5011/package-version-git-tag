@@ -512,10 +512,19 @@ test('CLI should add Git tag with customized tag prefix by npm', async t => {
         symlinkPath: path.join(gitDirpath, 'node_modules'),
         linkTarget: path.join(FIXTURES_DIR, 'node_modules'),
     });
-    await writeFile(
+    // await writeFile(
+    //     path.join(gitDirpath, '.npmrc'),
+    //     `tag-version-prefix = ${customPrefix}\n`,
+    // );
+    await exec([
+        'npm',
+        'config',
+        'set',
+        'tag-version-prefix',
+        customPrefix,
+        '--userconfig',
         path.join(gitDirpath, '.npmrc'),
-        `tag-version-prefix = ${customPrefix}\n`,
-    );
+    ]);
     await writeFile(
         path.join(gitDirpath, '.yarnrc'),
         'version-tag-prefix this-is-yarn-tag-prefix-',
@@ -558,10 +567,19 @@ test('CLI should add Git tag with customized tag prefix by yarn', async t => {
         symlinkPath: path.join(gitDirpath, 'node_modules'),
         linkTarget: path.join(FIXTURES_DIR, 'node_modules'),
     });
-    await writeFile(
+    // await writeFile(
+    //     path.join(gitDirpath, '.npmrc'),
+    //     'tag-version-prefix = this-is-npm-tag-prefix-\n',
+    // );
+    await exec([
+        'npm',
+        'config',
+        'set',
+        'tag-version-prefix',
+        'this-is-npm-tag-prefix-',
+        '--userconfig',
         path.join(gitDirpath, '.npmrc'),
-        'tag-version-prefix = this-is-npm-tag-prefix-\n',
-    );
+    ]);
     await writeFile(
         path.join(gitDirpath, '.yarnrc'),
         `version-tag-prefix ${customPrefix}`,
