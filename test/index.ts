@@ -6,7 +6,7 @@ import path from 'path';
 import { promisify } from 'util';
 
 import * as PKG_DATA from '../package.json';
-import { createSymlink, getRandomInt, writeFile } from './helpers';
+import { createSymlink, getRandomInt, setEnv, writeFile } from './helpers';
 import { initGit } from './helpers/git';
 
 const FIXTURES_DIR = path.resolve(__dirname, 'fixtures');
@@ -512,55 +512,72 @@ test.serial(
         );
         const customPrefix = 'npm-tag-';
 
-        t.log(
-            Object.entries(process.env)
-                .filter(([name]) => /^NPM_CONFIG_/i.test(name))
-                .reduce<typeof process.env>(
-                    (obj, [k, v]) => ({ ...obj, [k]: v }),
-                    {},
-                ),
-        );
-
-        await createSymlink({
-            symlinkPath: path.join(gitDirpath, 'node_modules'),
-            linkTarget: path.join(FIXTURES_DIR, 'node_modules'),
-        });
-        // await writeFile(
-        //     path.join(gitDirpath, '.npmrc'),
-        //     `tag-version-prefix = ${customPrefix}\n`,
-        // );
-        await exec([
-            'npm',
-            'config',
-            'set',
-            'tag-version-prefix',
-            customPrefix,
-            '--userconfig',
-            path.join(gitDirpath, '.npmrc'),
-        ]);
-        // process.env.NPM_CONFIG_USERCONFIG = path.join(gitDirpath, '.npmrc');
-        await writeFile(
-            path.join(gitDirpath, '.yarnrc'),
-            'version-tag-prefix this-is-yarn-tag-prefix-',
-        );
-
-        t.log(await exec(['cat', path.join(gitDirpath, '.npmrc')]));
-        t.log(await exec(['npm', 'config', 'list']));
-
-        t.is(
-            (await exec(['npm', 'config', 'get', 'tag-version-prefix'])).stdout,
-            `${customPrefix}\n`,
-            'should define tag-version-prefix in npm-config',
-        );
         t.regex(
             (await exec(['git', 'tag', '-l'])).stdout,
             /^[\r\n]*$/,
             'Git tag should not exist yet',
         );
 
-        await t.notThrowsAsync(
-            exec(['npx', '--no-install', PKG_DATA.name]),
-            'CLI should exits successfully',
+        await createSymlink({
+            symlinkPath: path.join(gitDirpath, 'node_modules'),
+            linkTarget: path.join(FIXTURES_DIR, 'node_modules'),
+        });
+
+        t.log(
+            Object.entries(process.env)
+                .filter(([name]) =>
+                    /^NPM_CONFIG_TAG_VERSION_PREFIX$/i.test(name),
+                )
+                .reduce<typeof process.env>(
+                    (obj, [k, v]) => ({ ...obj, [k]: v }),
+                    {},
+                ),
+        );
+
+        await setEnv(
+            { NPM_CONFIG_TAG_VERSION_PREFIX: customPrefix },
+            async () => {
+                t.log(
+                    Object.entries(process.env)
+                        .filter(([name]) =>
+                            /^NPM_CONFIG_TAG_VERSION_PREFIX$/i.test(name),
+                        )
+                        .reduce<typeof process.env>(
+                            (obj, [k, v]) => ({ ...obj, [k]: v }),
+                            {},
+                        ),
+                );
+
+                await writeFile(
+                    path.join(gitDirpath, '.yarnrc'),
+                    'version-tag-prefix this-is-yarn-tag-prefix-',
+                );
+
+                t.log(await exec(['npm', 'config', 'list']));
+
+                t.is(
+                    (await exec(['npm', 'config', 'get', 'tag-version-prefix']))
+                        .stdout,
+                    `${customPrefix}\n`,
+                    'should define tag-version-prefix in npm-config',
+                );
+
+                await t.notThrowsAsync(
+                    exec(['npx', '--no-install', PKG_DATA.name]),
+                    'CLI should exits successfully',
+                );
+            },
+        );
+
+        t.log(
+            Object.entries(process.env)
+                .filter(([name]) =>
+                    /^NPM_CONFIG_TAG_VERSION_PREFIX$/i.test(name),
+                )
+                .reduce<typeof process.env>(
+                    (obj, [k, v]) => ({ ...obj, [k]: v }),
+                    {},
+                ),
         );
 
         const tagName = `${customPrefix}0.0.0`;
@@ -580,44 +597,43 @@ test.serial(
         );
         const customPrefix = 'yarn-tag-';
 
-        await createSymlink({
-            symlinkPath: path.join(gitDirpath, 'node_modules'),
-            linkTarget: path.join(FIXTURES_DIR, 'node_modules'),
-        });
-        // await writeFile(
-        //     path.join(gitDirpath, '.npmrc'),
-        //     'tag-version-prefix = this-is-npm-tag-prefix-\n',
-        // );
-        await exec([
-            'npm',
-            'config',
-            'set',
-            'tag-version-prefix',
-            'this-is-npm-tag-prefix-',
-            '--userconfig',
-            path.join(gitDirpath, '.npmrc'),
-        ]);
-        process.env.NPM_CONFIG_USERCONFIG = path.join(gitDirpath, '.npmrc');
-        await writeFile(
-            path.join(gitDirpath, '.yarnrc'),
-            `version-tag-prefix ${customPrefix}`,
-        );
-
-        t.is(
-            (await exec(['yarn', 'config', 'get', 'version-tag-prefix']))
-                .stdout,
-            `${customPrefix}\n`,
-            'should define version-tag-prefix in yarn config',
-        );
         t.regex(
             (await exec(['git', 'tag', '-l'])).stdout,
             /^[\r\n]*$/,
             'Git tag should not exist yet',
         );
 
-        await t.notThrowsAsync(
-            exec(['yarn', 'run', PKG_DATA.name]),
-            'CLI should exits successfully',
+        await createSymlink({
+            symlinkPath: path.join(gitDirpath, 'node_modules'),
+            linkTarget: path.join(FIXTURES_DIR, 'node_modules'),
+        });
+
+        await setEnv(
+            { NPM_CONFIG_TAG_VERSION_PREFIX: 'this-is-npm-tag-prefix-' },
+            async () => {
+                await writeFile(
+                    path.join(gitDirpath, '.yarnrc'),
+                    `version-tag-prefix ${customPrefix}`,
+                );
+
+                t.is(
+                    (
+                        await exec([
+                            'yarn',
+                            'config',
+                            'get',
+                            'version-tag-prefix',
+                        ])
+                    ).stdout,
+                    `${customPrefix}\n`,
+                    'should define version-tag-prefix in yarn config',
+                );
+
+                await t.notThrowsAsync(
+                    exec(['yarn', 'run', PKG_DATA.name]),
+                    'CLI should exits successfully',
+                );
+            },
         );
 
         const tagName = `${customPrefix}0.0.0`;
