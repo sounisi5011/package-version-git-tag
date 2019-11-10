@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Features
+
+* [#81] - Custom tag prefix
+
 ### Supported Node version
 
 `>=8.3.0` -> `>=8.10.0`
@@ -22,6 +26,7 @@
 [Unreleased]: https://github.com/sounisi5011/package-version-git-tag/compare/v1.2.0...master
 [#57]: https://github.com/sounisi5011/package-version-git-tag/pull/57
 [#80]: https://github.com/sounisi5011/package-version-git-tag/pull/80
+[#81]: https://github.com/sounisi5011/package-version-git-tag/pull/81
 
 ## [1.2.0] (2019-11-09 UTC)
 
