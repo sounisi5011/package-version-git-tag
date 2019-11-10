@@ -585,6 +585,12 @@ test.serial.only(
             }),
         );
 
+        t.log({
+            // eslint-disable-next-line @typescript-eslint/camelcase
+            npm_execpath: process.env.npm_execpath,
+            execPath: process.execPath,
+        });
+
         await setEnv(
             { NPM_CONFIG_TAG_VERSION_PREFIX: 'this-is-npm-tag-prefix-' },
             async () => {
