@@ -521,6 +521,7 @@ test('CLI should add Git tag with customized tag prefix by npm', async t => {
         'version-tag-prefix this-is-yarn-tag-prefix-',
     );
 
+    t.log(await exec(['cat', path.join(gitDirpath, '.npmrc')]));
     t.log(await exec(['npm', 'config', 'list']));
 
     t.is(
