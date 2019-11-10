@@ -21,6 +21,7 @@ async function getTagVersionName(): Promise<string> {
 
     if (isPkgData(projectPkgData)) {
         /**
+         * @see https://github.com/sindresorhus/np/blob/v5.1.3/source/util.js#L51-L65
          * @see https://github.com/npm/cli/blob/v6.13.0/lib/version.js#L311
          * @see https://github.com/yarnpkg/yarn/blob/v1.19.1/src/cli/commands/version.js#L206
          */
