@@ -116,7 +116,7 @@
     "prettier": "1.19.1",
     "prettier-package-json": "2.1.0",
     "sort-package-json": "1.23.1",
-    "ts-node": "8.4.1",
+    "ts-node": "8.5.0",
     "typescript": "3.7.2"
   },
   "engines": {
