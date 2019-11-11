@@ -27,6 +27,10 @@
 
 #### devDependencies
 
+* `@typescript-eslint/eslint-plugin`
+    * [#86] - `2.6.1` -> `2.7.0`
+* `@typescript-eslint/parser`
+    * [#86] - `2.6.1` -> `2.7.0`
 * `eslint`
     * [#57] - `6.3.0` -> `6.6.0`
 * `ts-node`
@@ -40,6 +44,7 @@
 [#83]: https://github.com/sounisi5011/package-version-git-tag/pull/83
 [#84]: https://github.com/sounisi5011/package-version-git-tag/pull/84
 [#85]: https://github.com/sounisi5011/package-version-git-tag/pull/85
+[#86]: https://github.com/sounisi5011/package-version-git-tag/pull/86
 
 ## [1.2.0] (2019-11-09 UTC)
 
