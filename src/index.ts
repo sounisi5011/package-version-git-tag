@@ -62,6 +62,7 @@ async function main(opts: Options): Promise<void> {
         await gitTagAlreadyExists(versionTagName, opts);
     } else {
         await setTag(versionTagName, {
+            message: '',
             debug: opts.verbose,
             dryRun: opts.dryRun,
         });

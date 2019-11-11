@@ -1,4 +1,5 @@
 import { execFile } from 'child_process';
+import { commandJoin } from 'command-join';
 import { promisify } from 'util';
 
 import { printVerbose } from './utils';
@@ -32,16 +33,30 @@ export async function isHeadTag(tagName: string): Promise<boolean> {
 export async function setTag(
     tagName: string,
     {
+        message,
+        sign = false,
         debug = false,
         dryRun = false,
-    }: { debug?: boolean; dryRun?: boolean } = {},
+    }: {
+        message?: string;
+        sign?: boolean;
+        debug?: boolean;
+        dryRun?: boolean;
+    } = {},
 ): Promise<void> {
     try {
+        const args = ['tag', tagName];
+        if (sign || typeof message === 'string') {
+            /**
+             * @see https://github.com/npm/cli/blob/v6.13.0/lib/version.js#L304
+             */
+            args.push(sign ? '-sm' : '-m', message || '');
+        }
         if (debug) {
-            printVerbose(`> git tag ${tagName}`);
+            printVerbose(`> git ${commandJoin(args)}`);
         }
         if (!dryRun) {
-            await execFileAsync('git', ['tag', tagName]);
+            await execFileAsync('git', args);
         }
     } catch (error) {
         throw new Error(`setTag() Error: ${error}`);
@@ -57,11 +72,12 @@ export async function push(
     }: { repository?: string; debug?: boolean; dryRun?: boolean } = {},
 ): Promise<void> {
     try {
+        const args = ['push', repository, src];
         if (debug) {
-            printVerbose(`> git push ${repository} ${src}`);
+            printVerbose(`> git ${commandJoin(args)}`);
         }
         if (!dryRun) {
-            await execFileAsync('git', ['push', repository, src]);
+            await execFileAsync('git', args);
         }
     } catch (error) {
         throw new Error(`push() Error: ${error}`);
