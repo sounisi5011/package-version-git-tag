@@ -60,9 +60,9 @@ test('CLI should add Git tag', async t => {
     );
 
     t.regex(
-        (await exec(['git', 'tag', '-l'])).stdout,
-        /^v0\.0\.0$/m,
-        'Git tag v0.0.0 should be added',
+        (await exec(['git', 'for-each-ref', 'refs/tags'])).stdout,
+        /^\w+\s+tag\s+refs\/tags\/v0\.0\.0\n$/,
+        'Git annotated tag v0.0.0 should be added',
     );
 });
 
@@ -79,13 +79,13 @@ test('CLI should add Git tag with verbose output', async t => {
         const { stdout, stderr } = await exec([CLI_PATH, '--verbose']);
 
         t.is(stdout, '');
-        t.is(stderr, '\n> git tag v0.0.0\n\n');
+        t.is(stderr, '\n> git tag v0.0.0 -m 0.0.0\n\n');
     }, 'CLI should exits successfully');
 
     t.regex(
-        (await exec(['git', 'tag', '-l'])).stdout,
-        /^v0\.0\.0$/m,
-        'Git tag v0.0.0 should be added',
+        (await exec(['git', 'for-each-ref', 'refs/tags'])).stdout,
+        /^\w+\s+tag\s+refs\/tags\/v0\.0\.0\n$/,
+        'Git annotated tag v0.0.0 should be added',
     );
 });
 
@@ -99,7 +99,7 @@ test('CLI should not add Git tag with dry-run', async t => {
         const { stdout, stderr } = await exec([CLI_PATH, '--dry-run']);
 
         t.is(stdout, '');
-        t.is(stderr, 'Dry Run enabled\n\n> git tag v0.0.0\n\n');
+        t.is(stderr, 'Dry Run enabled\n\n> git tag v0.0.0 -m 0.0.0\n\n');
     }, 'CLI should exits successfully');
 
     t.is(
@@ -166,7 +166,7 @@ test('CLI should complete successfully if Git tag has been added with verbose ou
         t.is(stdout, '');
         t.is(
             stderr,
-            `\n> #git tag v0.0.0\n  # tag 'v0.0.0' already exists\n\n`,
+            `\n> #git tag v0.0.0 -m 0.0.0\n  # tag 'v0.0.0' already exists\n\n`,
         );
     }, 'CLI should exits successfully');
 
@@ -201,7 +201,7 @@ test('CLI should complete successfully if Git tag has been added with dry-run', 
         t.is(stdout, '');
         t.is(
             stderr,
-            `Dry Run enabled\n\n> #git tag v0.0.0\n  # tag 'v0.0.0' already exists\n\n`,
+            `Dry Run enabled\n\n> #git tag v0.0.0 -m 0.0.0\n  # tag 'v0.0.0' already exists\n\n`,
         );
     }, 'CLI should exits successfully');
 
@@ -244,7 +244,7 @@ test('CLI should read version and add tag', async t => {
     const patch = getRandomInt(0, 9);
     const version = [major, minor, patch].join('.');
     const versionTagRegExp = new RegExp(
-        `^v${major}\\.${minor}\\.${patch}$`,
+        String.raw`^\w+\s+tag\s+refs/tags/v${major}\.${minor}\.${patch}$`,
         'm',
     );
 
@@ -258,7 +258,7 @@ test('CLI should read version and add tag', async t => {
     await exec(['git', 'commit', '-m', 'Update version']);
 
     t.notRegex(
-        (await exec(['git', 'tag', '-l'])).stdout,
+        (await exec(['git', 'for-each-ref', 'refs/tags'])).stdout,
         versionTagRegExp,
         `Git tag v${version} should not exist yet`,
     );
@@ -274,9 +274,9 @@ test('CLI should read version and add tag', async t => {
     );
 
     t.regex(
-        (await exec(['git', 'tag', '-l'])).stdout,
+        (await exec(['git', 'for-each-ref', 'refs/tags'])).stdout,
         versionTagRegExp,
-        `Git tag v${version} should be added`,
+        `Git annotated tag v${version} should be added`,
     );
 });
 
@@ -302,9 +302,9 @@ test('CLI push flag should fail if there is no remote repository', async t => {
     );
 
     t.regex(
-        (await exec(['git', 'tag', '-l'])).stdout,
-        /^v0\.0\.0$/m,
-        'Git tag v0.0.0 should be added',
+        (await exec(['git', 'for-each-ref', 'refs/tags'])).stdout,
+        /^\w+\s+tag\s+refs\/tags\/v0\.0\.0\n$/,
+        'Git annotated tag v0.0.0 should be added',
     );
 });
 
@@ -333,9 +333,9 @@ test('CLI should add and push Git tag', async t => {
         );
 
         t.regex(
-            (await exec(['git', 'tag', '-l'])).stdout,
-            /^v0\.0\.0$/m,
-            'Git tag v0.0.0 should be added',
+            (await exec(['git', 'for-each-ref', 'refs/tags'])).stdout,
+            /^\w+\s+tag\s+refs\/tags\/v0\.0\.0\n$/,
+            'Git annotated tag v0.0.0 should be added',
         );
 
         t.deepEqual(
@@ -370,14 +370,15 @@ test('CLI should add and push Git tag with verbose output', async t => {
             t.is(stdout, '');
             t.is(
                 stderr,
-                '\n> git tag v0.0.0\n' + '> git push origin v0.0.0\n\n',
+                '\n> git tag v0.0.0 -m 0.0.0\n' +
+                    '> git push origin v0.0.0\n\n',
             );
         }, 'CLI should exits successfully');
 
         t.regex(
-            (await exec(['git', 'tag', '-l'])).stdout,
-            /^v0\.0\.0$/m,
-            'Git tag v0.0.0 should be added',
+            (await exec(['git', 'for-each-ref', 'refs/tags'])).stdout,
+            /^\w+\s+tag\s+refs\/tags\/v0\.0\.0\n$/,
+            'Git annotated tag v0.0.0 should be added',
         );
 
         t.deepEqual(
@@ -410,7 +411,7 @@ test('CLI should not add and not push Git tag with dry-run', async t => {
         t.is(stdout, '');
         t.is(
             stderr,
-            'Dry Run enabled\n\n> git tag v0.0.0\n> git push origin v0.0.0\n\n',
+            'Dry Run enabled\n\n> git tag v0.0.0 -m 0.0.0\n> git push origin v0.0.0\n\n',
         );
     }, 'CLI should exits successfully');
 
@@ -448,9 +449,9 @@ test('CLI should add and push single Git tag', async t => {
     );
 
     t.regex(
-        (await exec(['git', 'tag', '-l'])).stdout,
-        /^v0\.0\.0$/m,
-        'Git tag v0.0.0 should be added',
+        (await exec(['git', 'for-each-ref', 'refs/tags'])).stdout,
+        /^\w+\s+tag\s+refs\/tags\/v0\.0\.0$/m,
+        'Git annotated tag v0.0.0 should be added',
     );
 
     t.deepEqual(tagList, ['v0.0.0'], 'Git tag needs to push only one');
@@ -548,10 +549,13 @@ test('CLI should add Git tag with customized tag prefix by npm', async t => {
     );
 
     const tagName = `${customPrefix}0.0.0`;
-    t.is(
-        (await exec(['git', 'tag', '-l'])).stdout,
-        `${tagName}\n`,
-        `Git tag '${tagName}' should be added`,
+    const versionTagRegExp = new RegExp(
+        String.raw`^\w+\s+tag\s+refs/tags/${escapeRegExp(tagName)}\n$`,
+    );
+    t.regex(
+        (await exec(['git', 'for-each-ref', 'refs/tags'])).stdout,
+        versionTagRegExp,
+        `Git annotated tag '${tagName}' should be added`,
     );
 });
 
@@ -602,10 +606,13 @@ test('CLI should add Git tag with customized tag prefix by npm / run npm-script'
     );
 
     const tagName = `${customPrefix}${version}`;
-    t.is(
-        (await exec(['git', 'tag', '-l'])).stdout,
-        `${tagName}\n`,
-        `Git tag '${tagName}' should be added`,
+    const versionTagRegExp = new RegExp(
+        String.raw`^\w+\s+tag\s+refs/tags/${escapeRegExp(tagName)}\n$`,
+    );
+    t.regex(
+        (await exec(['git', 'for-each-ref', 'refs/tags'])).stdout,
+        versionTagRegExp,
+        `Git annotated tag '${tagName}' should be added`,
     );
 });
 
@@ -645,10 +652,13 @@ test('CLI should add Git tag with customized tag prefix by yarn', async t => {
     );
 
     const tagName = `${customPrefix}0.0.0`;
-    t.is(
-        (await exec(['git', 'tag', '-l'])).stdout,
-        `${tagName}\n`,
-        `Git tag '${tagName}' should be added`,
+    const versionTagRegExp = new RegExp(
+        String.raw`^\w+\s+tag\s+refs/tags/${escapeRegExp(tagName)}\n$`,
+    );
+    t.regex(
+        (await exec(['git', 'for-each-ref', 'refs/tags'])).stdout,
+        versionTagRegExp,
+        `Git annotated tag '${tagName}' should be added`,
     );
 });
 
@@ -699,9 +709,12 @@ test('CLI should add Git tag with customized tag prefix by yarn / run npm-script
     );
 
     const tagName = `${customPrefix}${version}`;
-    t.is(
-        (await exec(['git', 'tag', '-l'])).stdout,
-        `${tagName}\n`,
-        `Git tag '${tagName}' should be added`,
+    const versionTagRegExp = new RegExp(
+        String.raw`^\w+\s+tag\s+refs/tags/${escapeRegExp(tagName)}\n$`,
+    );
+    t.regex(
+        (await exec(['git', 'for-each-ref', 'refs/tags'])).stdout,
+        versionTagRegExp,
+        `Git annotated tag '${tagName}' should be added`,
     );
 });

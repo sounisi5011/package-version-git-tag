@@ -1,4 +1,5 @@
 import { execFile } from 'child_process';
+import { commandJoin } from 'command-join';
 import { promisify } from 'util';
 
 import { printVerbose } from './utils';
@@ -29,22 +30,57 @@ export async function isHeadTag(tagName: string): Promise<boolean> {
     }
 }
 
+function genTagCmdArgs(
+    tagName: string,
+    message?: string,
+    sign: boolean = false,
+): { command: string; args: string[]; commandText: string } {
+    const command = 'git';
+    const args =
+        sign || typeof message === 'string'
+            ? /**
+               * @see https://github.com/npm/cli/blob/v6.13.0/lib/version.js#L304
+               */
+              ['tag', tagName, sign ? '-sm' : '-m', message || '']
+            : ['tag', tagName];
+
+    return {
+        command,
+        args,
+        get commandText() {
+            return `${command} ${commandJoin(args)}`;
+        },
+    };
+}
+
 export async function setTag(
     tagName: string,
     {
+        message,
+        sign,
         debug = false,
         dryRun = false,
-    }: { debug?: boolean; dryRun?: boolean } = {},
+    }: {
+        message?: string;
+        sign?: boolean;
+        debug?: boolean | ((commandText: string) => string);
+        dryRun?: boolean;
+    } = {},
 ): Promise<void> {
-    try {
-        if (debug) {
-            printVerbose(`> git tag ${tagName}`);
+    const cmd = genTagCmdArgs(tagName, message, sign);
+
+    if (typeof debug === 'function') {
+        printVerbose(debug(cmd.commandText));
+    } else if (debug) {
+        printVerbose(`> ${cmd.commandText}`);
+    }
+
+    if (!dryRun) {
+        try {
+            await execFileAsync(cmd.command, cmd.args);
+        } catch (error) {
+            throw new Error(`setTag() Error: ${error}`);
         }
-        if (!dryRun) {
-            await execFileAsync('git', ['tag', tagName]);
-        }
-    } catch (error) {
-        throw new Error(`setTag() Error: ${error}`);
     }
 }
 
@@ -57,11 +93,12 @@ export async function push(
     }: { repository?: string; debug?: boolean; dryRun?: boolean } = {},
 ): Promise<void> {
     try {
+        const args = ['push', repository, src];
         if (debug) {
-            printVerbose(`> git push ${repository} ${src}`);
+            printVerbose(`> git ${commandJoin(args)}`);
         }
         if (!dryRun) {
-            await execFileAsync('git', ['push', repository, src]);
+            await execFileAsync('git', args);
         }
     } catch (error) {
         throw new Error(`push() Error: ${error}`);
