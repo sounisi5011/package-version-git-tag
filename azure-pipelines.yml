@@ -90,7 +90,7 @@ steps:
       versionSpec: $(node_version)
     displayName: Install Node.js
 
-  - script: |
+  - bash: |
       echo node $(node --version)
       echo npm $(npm --version)
     displayName: Show node and npm version
