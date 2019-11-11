@@ -527,7 +527,7 @@ test('CLI should add Git tag with customized tag prefix by npm', async t => {
         linkTarget: path.join(FIXTURES_DIR, 'node_modules'),
         // On Windows, an "EPERM: operation not permitted" error may occur when executing stat to a symbolic link.
         // To correct this problem, change the permissions of a symbolic link.
-        mode: 0o755,
+        mode: 0o777,
     });
     t.log({
         mode: fs
@@ -584,7 +584,7 @@ test('CLI should add Git tag with customized tag prefix by npm / run npm-script'
         linkTarget: path.join(FIXTURES_DIR, 'node_modules'),
         // On Windows, an "EPERM: operation not permitted" error may occur when executing stat to a symbolic link.
         // To correct this problem, change the permissions of a symbolic link.
-        mode: 0o666,
+        mode: 0o777,
     });
     t.log({
         mode: fs
