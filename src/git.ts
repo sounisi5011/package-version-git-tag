@@ -49,13 +49,13 @@ export async function setTag(
         dryRun?: boolean;
     } = {},
 ): Promise<void> {
-    const args = ['tag', tagName];
-    if (sign || typeof message === 'string') {
-        /**
-         * @see https://github.com/npm/cli/blob/v6.13.0/lib/version.js#L304
-         */
-        args.push(sign ? '-sm' : '-m', message || '');
-    }
+    const args =
+        sign || typeof message === 'string'
+            ? /**
+               * @see https://github.com/npm/cli/blob/v6.13.0/lib/version.js#L304
+               */
+              ['tag', tagName, sign ? '-sm' : '-m', message || '']
+            : ['tag', tagName];
 
     const commandText = `git ${commandJoin(args)}`;
     if (typeof debug === 'function') {
