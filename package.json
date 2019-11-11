@@ -1,6 +1,6 @@
 {
   "name": "package-version-git-tag",
-  "version": "1.2.0",
+  "version": "2.0.0",
   "description": "Add Git tag corresponding to the version field of package.json",
   "keywords": [
     "cli",
@@ -44,16 +44,17 @@
     "release": "run-s release:validation release:build release:publish",
     "release:build": "run-s clean build",
     "release:publish": "run-s release:publish:git release:publish:npm",
-    "release:publish:git": "node ./dist/bin.js --push",
+    "release:publish:git": "node ./dist/bin.js --push --verbose",
     "release:publish:npm": "npm publish --access=public",
     "release:validation": "npm-run-all release:validation:publishable -p 'release:validation:!(publishable)' test",
     "release:validation:git-branch": "git-branch-is master",
     "release:validation:git-work-dir": "is-git-status-clean",
     "release:validation:publishable": "can-npm-publish --verbose",
-    "test": "run-s test:readme test:peer-deps lint test:ava",
-    "test:ava": "ava",
+    "test": "run-s test:other-than-unit-test test:unit-test",
+    "test:other-than-unit-test": "run-s test:readme test:peer-deps lint",
     "test:peer-deps": "check-peer-deps",
-    "test:readme": "run-s 'build:readme -- --test'"
+    "test:readme": "run-s 'build:readme -- --test'",
+    "test:unit-test": "ava"
   },
   "husky": {
     "hooks": {

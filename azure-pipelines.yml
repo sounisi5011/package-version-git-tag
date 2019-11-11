@@ -7,37 +7,14 @@ trigger:
   - master
 
 jobs:
-  - job: Lint
+  - template: azure-pipelines-templates/lint.yml
 
-    pool:
-      vmImage: ubuntu-latest
-
-    steps:
-      - task: NodeTool@0
-        inputs:
-          versionSpec: 12.x
-        displayName: Install Node.js
-
-      - bash: |
-          echo node $(node --version)
-          echo npm $(npm --version)
-        displayName: Show node and npm version
-
-      - script: npm ci
-        displayName: Install dependencies
-
-      - script: npx run-s test:readme test:peer-deps lint
-        displayName: Run linter
-
-    timeoutInMinutes: 2
-    cancelTimeoutInMinutes: 1
-
-  - template: azure-pipelines/unit-test.yml
+  - template: azure-pipelines-templates/unit-test.yml
     parameters:
       name: Linux
       vmImage: ubuntu-latest
 
-  - template: azure-pipelines/unit-test.yml
+  - template: azure-pipelines-templates/unit-test.yml
     parameters:
       name: Windows
       vmImage: windows-latest

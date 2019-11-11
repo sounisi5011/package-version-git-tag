@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+[Unreleased]: https://github.com/sounisi5011/package-version-git-tag/compare/v2.0.0...master
+
+## [2.0.0] (2019-11-11 UTC)
+
 ### Features
 
 * [#81] - Custom tag prefix
@@ -36,7 +40,7 @@
 * `ts-node`
     * [#82] - `8.4.1` -> `8.5.0`
 
-[Unreleased]: https://github.com/sounisi5011/package-version-git-tag/compare/v1.2.0...master
+[2.0.0]: https://github.com/sounisi5011/package-version-git-tag/compare/v1.2.0...v2.0.0
 [#57]: https://github.com/sounisi5011/package-version-git-tag/pull/57
 [#80]: https://github.com/sounisi5011/package-version-git-tag/pull/80
 [#81]: https://github.com/sounisi5011/package-version-git-tag/pull/81
