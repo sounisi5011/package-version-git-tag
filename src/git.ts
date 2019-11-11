@@ -57,11 +57,13 @@ export async function setTag(
               ['tag', tagName, sign ? '-sm' : '-m', message || '']
             : ['tag', tagName];
 
-    const commandText = `git ${commandJoin(args)}`;
-    if (typeof debug === 'function') {
-        printVerbose(debug({ commandText, args }));
-    } else if (debug) {
-        printVerbose(`> ${commandText}`);
+    if (debug) {
+        const commandText = `git ${commandJoin(args)}`;
+        printVerbose(
+            typeof debug === 'function'
+                ? debug({ commandText, args })
+                : `> ${commandText}`,
+        );
     }
 
     if (!dryRun) {
