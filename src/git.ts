@@ -30,11 +30,34 @@ export async function isHeadTag(tagName: string): Promise<boolean> {
     }
 }
 
+export function genTagCmdArgs(
+    tagName: string,
+    message?: string,
+    sign: boolean = false,
+): { command: string; args: string[]; commandText: string } {
+    const command = 'git';
+    const args =
+        sign || typeof message === 'string'
+            ? /**
+               * @see https://github.com/npm/cli/blob/v6.13.0/lib/version.js#L304
+               */
+              ['tag', tagName, sign ? '-sm' : '-m', message || '']
+            : ['tag', tagName];
+
+    return {
+        command,
+        args,
+        get commandText() {
+            return `${command} ${commandJoin(args)}`;
+        },
+    };
+}
+
 export async function setTag(
     tagName: string,
     {
         message,
-        sign = false,
+        sign,
         debug = false,
         dryRun = false,
     }: {
@@ -44,24 +67,17 @@ export async function setTag(
         dryRun?: boolean;
     } = {},
 ): Promise<void> {
-    const args =
-        sign || typeof message === 'string'
-            ? /**
-               * @see https://github.com/npm/cli/blob/v6.13.0/lib/version.js#L304
-               */
-              ['tag', tagName, sign ? '-sm' : '-m', message || '']
-            : ['tag', tagName];
+    const cmd = genTagCmdArgs(tagName, message, sign);
 
-    const commandText = `git ${commandJoin(args)}`;
     if (typeof debug === 'function') {
-        printVerbose(debug(commandText));
+        printVerbose(debug(cmd.commandText));
     } else if (debug) {
-        printVerbose(`> ${commandText}`);
+        printVerbose(`> ${cmd.commandText}`);
     }
 
     if (!dryRun) {
         try {
-            await execFileAsync('git', args);
+            await execFileAsync(cmd.command, cmd.args);
         } catch (error) {
             throw new Error(`setTag() Error: ${error}`);
         }
