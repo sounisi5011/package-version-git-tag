@@ -26,7 +26,7 @@ jobs:
       - script: npm ci
         displayName: Install dependencies
 
-      - script: npx run-s test:readme test:peer-deps lint
+      - script: npm run test:other-than-unit-test
         displayName: Run linter
 
     timeoutInMinutes: 2

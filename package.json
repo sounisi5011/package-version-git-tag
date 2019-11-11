@@ -50,10 +50,11 @@
     "release:validation:git-branch": "git-branch-is master",
     "release:validation:git-work-dir": "is-git-status-clean",
     "release:validation:publishable": "can-npm-publish --verbose",
-    "test": "run-s test:readme test:peer-deps lint test:ava",
-    "test:ava": "ava",
+    "test": "run-s test:other-than-unit-test test:unit-test",
+    "test:other-than-unit-test": "run-s test:readme test:peer-deps lint",
     "test:peer-deps": "check-peer-deps",
-    "test:readme": "run-s 'build:readme -- --test'"
+    "test:readme": "run-s 'build:readme -- --test'",
+    "test:unit-test": "ava"
   },
   "husky": {
     "hooks": {
