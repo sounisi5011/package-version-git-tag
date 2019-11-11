@@ -84,7 +84,7 @@
   },
   "dependencies": {
     "command-join": "3.0.0",
-    "commander": "4.0.0"
+    "commander": "4.0.1"
   },
   "devDependencies": {
     "@sounisi5011/check-peer-deps": "github:sounisi5011/check-peer-deps",

@@ -19,6 +19,11 @@
 
 ### Updated Dependencies
 
+#### dependencies
+
+* `commander`
+    * [#84] - `4.0.0` -> `4.0.1`
+
 #### devDependencies
 
 * `eslint`
@@ -32,6 +37,7 @@
 [#81]: https://github.com/sounisi5011/package-version-git-tag/pull/81
 [#82]: https://github.com/sounisi5011/package-version-git-tag/pull/82
 [#83]: https://github.com/sounisi5011/package-version-git-tag/pull/83
+[#84]: https://github.com/sounisi5011/package-version-git-tag/pull/84
 
 ## [1.2.0] (2019-11-09 UTC)
 
