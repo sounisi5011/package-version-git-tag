@@ -8,6 +8,7 @@ import {
     createSymlink,
     execFileAsync,
     getRandomInt,
+    replaceParentDirPath,
     writeFile,
 } from './helpers';
 import { initGit } from './helpers/git';
@@ -522,8 +523,11 @@ test('CLI should add Git tag with customized tag prefix by npm', async t => {
     const customPrefix = 'npm-tag-';
 
     await createSymlink({
-        symlinkPath: path.join(gitDirpath, 'node_modules'),
-        linkTarget: path.join(FIXTURES_DIR, 'node_modules'),
+        symlinkPath: replaceParentDirPath(CLI_PATH, {
+            from: FIXTURES_DIR,
+            to: gitDirpath,
+        }),
+        linkTarget: CLI_PATH,
     });
     await writeFile(
         path.join(gitDirpath, '.npmrc'),
@@ -568,8 +572,11 @@ test('CLI should add Git tag with customized tag prefix by npm / run npm-script'
     const customPrefix = 'npm-tag-';
 
     await createSymlink({
-        symlinkPath: path.join(gitDirpath, 'node_modules'),
-        linkTarget: path.join(FIXTURES_DIR, 'node_modules'),
+        symlinkPath: replaceParentDirPath(CLI_PATH, {
+            from: FIXTURES_DIR,
+            to: gitDirpath,
+        }),
+        linkTarget: CLI_PATH,
     });
     await writeFile(
         path.join(gitDirpath, '.npmrc'),
@@ -625,8 +632,11 @@ test('CLI should add Git tag with customized tag prefix by yarn', async t => {
     const customPrefix = 'yarn-tag-';
 
     await createSymlink({
-        symlinkPath: path.join(gitDirpath, 'node_modules'),
-        linkTarget: path.join(FIXTURES_DIR, 'node_modules'),
+        symlinkPath: replaceParentDirPath(CLI_PATH, {
+            from: FIXTURES_DIR,
+            to: gitDirpath,
+        }),
+        linkTarget: CLI_PATH,
     });
     await writeFile(
         path.join(gitDirpath, '.npmrc'),
@@ -671,8 +681,11 @@ test('CLI should add Git tag with customized tag prefix by yarn / run npm-script
     const customPrefix = 'yarn-tag-';
 
     await createSymlink({
-        symlinkPath: path.join(gitDirpath, 'node_modules'),
-        linkTarget: path.join(FIXTURES_DIR, 'node_modules'),
+        symlinkPath: replaceParentDirPath(CLI_PATH, {
+            from: FIXTURES_DIR,
+            to: gitDirpath,
+        }),
+        linkTarget: CLI_PATH,
     });
     await writeFile(
         path.join(gitDirpath, '.npmrc'),

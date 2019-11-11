@@ -1,4 +1,5 @@
 import fs from 'fs';
+import makeDir from 'make-dir';
 import path from 'path';
 import { promisify } from 'util';
 
@@ -16,10 +17,23 @@ export async function createSymlink({
     linkTarget: string;
 }): Promise<void> {
     const symlinkFullpath = path.resolve(symlinkPath);
+    const symlinkDirFullpath = path.dirname(symlinkFullpath);
     const symlinkTargetPath = path.isAbsolute(linkTarget)
-        ? path.relative(path.dirname(symlinkFullpath), linkTarget)
+        ? path.relative(symlinkDirFullpath, linkTarget)
         : linkTarget;
+
+    await makeDir(symlinkDirFullpath);
     await symlinkAsync(symlinkTargetPath, symlinkFullpath);
+}
+
+export function replaceParentDirPath(
+    targetPath: string,
+    parentDirPath: { from: string; to: string },
+): string {
+    return path.join(
+        parentDirPath.to,
+        path.relative(parentDirPath.from, targetPath),
+    );
 }
 
 export function getRandomInt(min: number, max: number): number {
