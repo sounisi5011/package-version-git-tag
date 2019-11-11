@@ -99,9 +99,9 @@ steps:
     displayName: Install dependencies
 
   - script: npm test
-    displayName: Run test
+    displayName: Run full test
     condition: eq( variables['Agent.OS'], 'Linux' )
 
   - script: npm run test:ava
-    displayName: Run test
+    displayName: Run unit test
     condition: ne( variables['Agent.OS'], 'Linux' )
