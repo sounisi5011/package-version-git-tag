@@ -1,13 +1,7 @@
 import path from 'path';
 
 import { isHeadTag, push, setTag, tagExists } from './git';
-import {
-    endPrintVerbose,
-    getConfig,
-    isPkgData,
-    printVerbose,
-    readJSONFile,
-} from './utils';
+import { endPrintVerbose, getConfig, isPkgData, readJSONFile } from './utils';
 
 export interface Options {
     push?: boolean;
@@ -57,6 +51,7 @@ async function getVersionTagData(): Promise<{
 
 async function gitTagAlreadyExists(
     versionTagName: string,
+    tagMessage: string,
     opts: Options,
 ): Promise<void> {
     if (!(await isHeadTag(versionTagName))) {
@@ -64,9 +59,12 @@ async function gitTagAlreadyExists(
     }
 
     if (opts.verbose) {
-        printVerbose(
-            `> #git tag ${versionTagName}\n  # tag '${versionTagName}' already exists`,
-        );
+        await setTag(versionTagName, {
+            message: tagMessage,
+            debug: ({ commandText }) =>
+                `> #${commandText}\n  # tag '${versionTagName}' already exists`,
+            dryRun: true,
+        });
     }
 }
 
@@ -79,7 +77,7 @@ async function main(opts: Options): Promise<void> {
     const { tagName: versionTagName, message } = await getVersionTagData();
 
     if (await tagExists(versionTagName)) {
-        await gitTagAlreadyExists(versionTagName, opts);
+        await gitTagAlreadyExists(versionTagName, message, opts);
     } else {
         await setTag(versionTagName, {
             message,

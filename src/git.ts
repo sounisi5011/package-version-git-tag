@@ -40,7 +40,12 @@ export async function setTag(
     }: {
         message?: string;
         sign?: boolean;
-        debug?: boolean;
+        debug?:
+            | boolean
+            | ((arg: {
+                  commandText: string;
+                  args: ReadonlyArray<string>;
+              }) => string);
         dryRun?: boolean;
     } = {},
 ): Promise<void> {
@@ -53,7 +58,12 @@ export async function setTag(
             args.push(sign ? '-sm' : '-m', message || '');
         }
         if (debug) {
-            printVerbose(`> git ${commandJoin(args)}`);
+            const commandText = `git ${commandJoin(args)}`;
+            printVerbose(
+                typeof debug === 'function'
+                    ? debug({ commandText, args })
+                    : `> ${commandText}`,
+            );
         }
         if (!dryRun) {
             await execFileAsync('git', args);
