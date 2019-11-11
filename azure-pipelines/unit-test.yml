@@ -1,6 +1,5 @@
 parameters:
-  name: UnitTest
-  displayName: Linux
+  name: Linux
   vmImage: ubuntu-latest
   nodeVersions:
     - 8.10.0
@@ -17,8 +16,8 @@ parameters:
     - 13.x
 
 jobs:
-  - job: ${{ parameters.name }}
-    displayName: ${{ parameters.displayName }}
+  - job: ${{ format('UnitTest_{0}', parameters.name) }}
+    displayName: ${{ format('UnitTest / {0}', parameters.name) }}
 
     pool:
       vmImage: ${{ parameters.vmImage }}
