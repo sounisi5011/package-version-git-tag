@@ -1,6 +1,6 @@
 {
   "name": "package-version-git-tag",
-  "version": "1.2.0",
+  "version": "2.0.0",
   "description": "Add Git tag corresponding to the version field of package.json",
   "keywords": [
     "cli",
