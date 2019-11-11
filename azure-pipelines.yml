@@ -6,50 +6,97 @@
 trigger:
   - master
 
-parameters:
-  vmImages:
-    - ubuntu-latest
-    - windows-latest
-  nodeVersions:
-    - 8.10.0
-    - 8.x
-    - 9.0.0
-    - 9.x
-    - 10.0.0
-    - 10.x
-    - 11.0.0
-    - 11.x
-    - 12.0.0
-    - 12.x
-    - 13.0.0
-    - 13.x
+strategy:
+  matrix:
+    Node.js 8.10.0 / Linux:
+      imageName: ubuntu-latest
+      node_version: 8.10.0
+    Node.js 8.10.0 / Windows:
+      imageName: windows-latest
+      node_version: 8.10.0
+    Node.js 8.x / Linux:
+      imageName: ubuntu-latest
+      node_version: 8.x
+    Node.js 8.x / Windows:
+      imageName: windows-latest
+      node_version: 8.x
+    Node.js 9.0.0 / Linux:
+      imageName: ubuntu-latest
+      node_version: 9.0.0
+    Node.js 9.0.0 / Windows:
+      imageName: windows-latest
+      node_version: 9.0.0
+    Node.js 9.x / Linux:
+      imageName: ubuntu-latest
+      node_version: 9.x
+    Node.js 9.x / Windows:
+      imageName: windows-latest
+      node_version: 9.x
+    Node.js 10.0.0 / Linux:
+      imageName: ubuntu-latest
+      node_version: 10.0.0
+    Node.js 10.0.0 / Windows:
+      imageName: windows-latest
+      node_version: 10.0.0
+    Node.js 10.x / Linux:
+      imageName: ubuntu-latest
+      node_version: 10.x
+    Node.js 10.x / Windows:
+      imageName: windows-latest
+      node_version: 10.x
+    Node.js 11.0.0 / Linux:
+      imageName: ubuntu-latest
+      node_version: 11.0.0
+    Node.js 11.0.0 / Windows:
+      imageName: windows-latest
+      node_version: 11.0.0
+    Node.js 11.x / Linux:
+      imageName: ubuntu-latest
+      node_version: 11.x
+    Node.js 11.x / Windows:
+      imageName: windows-latest
+      node_version: 11.x
+    Node.js 12.0.0 / Linux:
+      imageName: ubuntu-latest
+      node_version: 12.0.0
+    Node.js 12.0.0 / Windows:
+      imageName: windows-latest
+      node_version: 12.0.0
+    Node.js 12.x / Linux:
+      imageName: ubuntu-latest
+      node_version: 12.x
+    Node.js 12.x / Windows:
+      imageName: windows-latest
+      node_version: 12.x
+    Node.js 13.0.0 / Linux:
+      imageName: ubuntu-latest
+      node_version: 13.0.0
+    Node.js 13.0.0 / Windows:
+      imageName: windows-latest
+      node_version: 13.0.0
+    Node.js 13.x / Linux:
+      imageName: ubuntu-latest
+      node_version: 13.x
+    Node.js 13.x / Windows:
+      imageName: windows-latest
+      node_version: 13.x
 
-jobs:
-  ${{ each vmImage in parameters.vmImages }}:
-    - job: ${{ vmImage }}
+pool:
+  vmImage: $(imageName)
 
-      pool:
-        vmImage: ${{ vmImage }}
+steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: $(node_version)
+    displayName: Install Node.js
 
-      strategy:
-        matrix:
-          ${{ each nodeVersion in parameters.nodeVersions }}:
-            ${{ format('Node.js {0} / {1}', nodeVersion, vmImage) }}:
-              node_version: ${{ nodeVersion }}
+  - script: |
+      echo node $(node --version)
+      echo npm $(npm --version)
+    displayName: Show node and npm version
 
-      steps:
-        - task: NodeTool@0
-          inputs:
-            versionSpec: $(node_version)
-          displayName: Install Node.js
+  - script: npm ci || npm install
+    displayName: Install dependencies
 
-        - script: |
-            echo node $(node --version)
-            echo npm $(npm --version)
-          displayName: Show node and npm version
-
-        - script: npm ci || npm install
-          displayName: Install dependencies
-
-        - script: npm test
-          displayName: Run test
+  - script: npm test
+    displayName: Run test
