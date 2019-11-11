@@ -44,3 +44,6 @@ jobs:
 
       - script: npm run test:ava
         displayName: Run unit test
+
+    timeoutInMinutes: 3
+    cancelTimeoutInMinutes: 1
