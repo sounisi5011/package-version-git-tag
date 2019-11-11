@@ -49,25 +49,27 @@ export async function setTag(
         dryRun?: boolean;
     } = {},
 ): Promise<void> {
-    try {
-        const args = ['tag', tagName];
-        if (sign || typeof message === 'string') {
-            /**
-             * @see https://github.com/npm/cli/blob/v6.13.0/lib/version.js#L304
-             */
-            args.push(sign ? '-sm' : '-m', message || '');
-        }
-        const commandText = `git ${commandJoin(args)}`;
-        if (typeof debug === 'function') {
-            printVerbose(debug({ commandText, args }));
-        } else if (debug) {
-            printVerbose(`> ${commandText}`);
-        }
-        if (!dryRun) {
+    const args = ['tag', tagName];
+    if (sign || typeof message === 'string') {
+        /**
+         * @see https://github.com/npm/cli/blob/v6.13.0/lib/version.js#L304
+         */
+        args.push(sign ? '-sm' : '-m', message || '');
+    }
+
+    const commandText = `git ${commandJoin(args)}`;
+    if (typeof debug === 'function') {
+        printVerbose(debug({ commandText, args }));
+    } else if (debug) {
+        printVerbose(`> ${commandText}`);
+    }
+
+    if (!dryRun) {
+        try {
             await execFileAsync('git', args);
+        } catch (error) {
+            throw new Error(`setTag() Error: ${error}`);
         }
-    } catch (error) {
-        throw new Error(`setTag() Error: ${error}`);
     }
 }
 
