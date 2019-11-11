@@ -29,6 +29,9 @@ jobs:
       - script: npx run-s test:readme test:peer-deps lint
         displayName: Run linter
 
+    timeoutInMinutes: 2
+    cancelTimeoutInMinutes: 1
+
   - template: azure-pipelines/unit-test.yml
     parameters:
       name: Linux
