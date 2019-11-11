@@ -113,15 +113,10 @@ export async function execFileAsync(
         const stderrList: unknown[] = [];
 
         if (process.stdout) {
-            process.stdout.on('data', data => {
-                stdoutList.push(data);
-            });
+            process.stdout.on('data', data => stdoutList.push(data));
         }
-
         if (process.stderr) {
-            process.stderr.on('data', data => {
-                stderrList.push(data);
-            });
+            process.stderr.on('data', data => stderrList.push(data));
         }
 
         process.on(
