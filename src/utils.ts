@@ -1,10 +1,10 @@
-import { execFile } from 'child_process';
+import { commandJoin } from 'command-join';
+import crossSpawn from 'cross-spawn';
 import fs from 'fs';
 import path from 'path';
 import { promisify } from 'util';
 
 const readFileAsync = promisify(fs.readFile);
-const execFileAsync = promisify(execFile);
 
 export interface PkgDataInterface {
     version: string;
@@ -40,6 +40,59 @@ export async function readJSONFile(filepath: string): Promise<unknown> {
     } catch (error) {
         throw new Error(`Could not read file: ${relativePath(filepath)}`);
     }
+}
+
+/**
+ * @see https://github.com/nodejs/node/blob/v12.13.0/lib/child_process.js#L178-L390
+ */
+export async function execFileAsync(
+    ...args: Parameters<typeof crossSpawn>
+): Promise<{ readonly stdout: string; readonly stderr: string }> {
+    return new Promise((resolve, reject) => {
+        const process = crossSpawn(...args);
+        const stdoutList: unknown[] = [];
+        const stderrList: unknown[] = [];
+
+        if (process.stdout) {
+            process.stdout.on('data', data => {
+                stdoutList.push(data);
+            });
+        }
+
+        if (process.stderr) {
+            process.stderr.on('data', data => {
+                stderrList.push(data);
+            });
+        }
+
+        process.on('close', (code, signal) => {
+            const stdout = stdoutList.join('');
+            const stderr = stderrList.join('');
+
+            if (code === 0 && signal === null) {
+                resolve({ stdout, stderr });
+                return;
+            }
+
+            let cmd = args[0];
+            if (args[1]) {
+                cmd += ` ${commandJoin(args[1])}`;
+            }
+
+            const error = new Error(`Command failed: ${cmd}\n${stderr}`);
+            reject(error);
+        });
+
+        process.on('error', error => {
+            if (process.stdout) {
+                process.stdout.destroy();
+            }
+            if (process.stderr) {
+                process.stderr.destroy();
+            }
+            reject(error);
+        });
+    });
 }
 
 let isPrintedVerbose = false;

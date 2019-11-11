@@ -1,12 +1,15 @@
 import test from 'ava';
-import { execFile } from 'child_process';
 import del from 'del';
 import escapeRegExp from 'escape-string-regexp';
 import path from 'path';
-import { promisify } from 'util';
 
 import * as PKG_DATA from '../package.json';
-import { createSymlink, getRandomInt, writeFile } from './helpers';
+import {
+    createSymlink,
+    execFileAsync,
+    getRandomInt,
+    writeFile,
+} from './helpers';
 import { initGit } from './helpers/git';
 
 const FIXTURES_DIR = path.resolve(__dirname, 'fixtures');
@@ -17,7 +20,6 @@ const CLI_PATH = path.resolve(
     PKG_DATA.name,
 );
 
-const execFileAsync = promisify(execFile);
 function tmpDir(dirname: string): string {
     return path.resolve(__dirname, 'tmp', dirname);
 }

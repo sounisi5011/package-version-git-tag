@@ -4,6 +4,8 @@ import { promisify } from 'util';
 
 const symlinkAsync = promisify(fs.symlink);
 
+export { execFileAsync } from '../../src/utils';
+
 export const writeFile = promisify(fs.writeFile);
 
 export async function createSymlink({

@@ -1,10 +1,6 @@
-import { execFile } from 'child_process';
 import { commandJoin } from 'command-join';
-import { promisify } from 'util';
 
-import { printVerbose } from './utils';
-
-const execFileAsync = promisify(execFile);
+import { execFileAsync, printVerbose } from './utils';
 
 export async function tagExists(tagName: string): Promise<boolean> {
     try {
