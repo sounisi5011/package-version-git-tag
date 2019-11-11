@@ -6,35 +6,34 @@
 trigger:
   - master
 
-pool:
-  vmImage: ubuntu-latest
+parameters:
+  vmImages:
+    - ubuntu-latest
+    - windows-latest
+  nodeVersions:
+    - 8.10.0
+    - 8.x
+    - 9.0.0
+    - 9.x
+    - 10.0.0
+    - 10.x
+    - 11.0.0
+    - 11.x
+    - 12.0.0
+    - 12.x
+    - 13.0.0
+    - 13.x
 
 strategy:
   matrix:
-    Node.js 8.10.0:
-      node_version: 8.10.0
-    Node.js 8.x:
-      node_version: 8.x
-    Node.js 9.0.0:
-      node_version: 9.0.0
-    Node.js 9.x:
-      node_version: 9.x
-    Node.js 10.0.0:
-      node_version: 10.0.0
-    Node.js 10.x:
-      node_version: 10.x
-    Node.js 11.0.0:
-      node_version: 11.0.0
-    Node.js 11.x:
-      node_version: 11.x
-    Node.js 12.0.0:
-      node_version: 12.0.0
-    Node.js 12.x:
-      node_version: 12.x
-    Node.js 13.0.0:
-      node_version: 13.0.0
-    Node.js 13.x:
-      node_version: 13.x
+    ${{ each vmImage in parameters.vmImages }}:
+      ${{ each nodeVersion in parameters.nodeVersions }}:
+        ${{ format('Node.js {0} / {1}', nodeVersion, vmImage) }}:
+          imageName: ${{ vmImage }}
+          node_version: ${{ nodeVersion }}
+
+pool:
+  vmImage: $(imageName)
 
 steps:
   - task: NodeTool@0
