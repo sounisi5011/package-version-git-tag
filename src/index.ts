@@ -61,7 +61,7 @@ async function gitTagAlreadyExists(
     if (opts.verbose) {
         await setTag(versionTagName, {
             message: tagMessage,
-            debug: ({ commandText }) =>
+            debug: commandText =>
                 `> #${commandText}\n  # tag '${versionTagName}' already exists`,
             dryRun: true,
         });
