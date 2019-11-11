@@ -1,7 +1,6 @@
 import test from 'ava';
 import del from 'del';
 import escapeRegExp from 'escape-string-regexp';
-import fs from 'fs';
 import path from 'path';
 
 import * as PKG_DATA from '../package.json';
@@ -526,14 +525,6 @@ test('CLI should add Git tag with customized tag prefix by npm', async t => {
         symlinkPath: path.join(gitDirpath, 'node_modules'),
         linkTarget: path.join(FIXTURES_DIR, 'node_modules'),
     });
-    t.log({
-        mode: fs
-            .statSync(path.join(gitDirpath, 'node_modules'))
-            .mode.toString(8),
-        lmode: fs
-            .lstatSync(path.join(gitDirpath, 'node_modules'))
-            .mode.toString(8),
-    });
     await writeFile(
         path.join(gitDirpath, '.npmrc'),
         `tag-version-prefix=${customPrefix}`,
@@ -579,14 +570,6 @@ test('CLI should add Git tag with customized tag prefix by npm / run npm-script'
     await createSymlink({
         symlinkPath: path.join(gitDirpath, 'node_modules'),
         linkTarget: path.join(FIXTURES_DIR, 'node_modules'),
-    });
-    t.log({
-        mode: fs
-            .statSync(path.join(gitDirpath, 'node_modules'))
-            .mode.toString(8),
-        lmode: fs
-            .lstatSync(path.join(gitDirpath, 'node_modules'))
-            .mode.toString(8),
     });
     await writeFile(
         path.join(gitDirpath, '.npmrc'),
@@ -645,14 +628,6 @@ test('CLI should add Git tag with customized tag prefix by yarn', async t => {
         symlinkPath: path.join(gitDirpath, 'node_modules'),
         linkTarget: path.join(FIXTURES_DIR, 'node_modules'),
     });
-    t.log({
-        mode: fs
-            .statSync(path.join(gitDirpath, 'node_modules'))
-            .mode.toString(8),
-        lmode: fs
-            .lstatSync(path.join(gitDirpath, 'node_modules'))
-            .mode.toString(8),
-    });
     await writeFile(
         path.join(gitDirpath, '.npmrc'),
         'tag-version-prefix=this-is-npm-tag-prefix-',
@@ -698,14 +673,6 @@ test('CLI should add Git tag with customized tag prefix by yarn / run npm-script
     await createSymlink({
         symlinkPath: path.join(gitDirpath, 'node_modules'),
         linkTarget: path.join(FIXTURES_DIR, 'node_modules'),
-    });
-    t.log({
-        mode: fs
-            .statSync(path.join(gitDirpath, 'node_modules'))
-            .mode.toString(8),
-        lmode: fs
-            .lstatSync(path.join(gitDirpath, 'node_modules'))
-            .mode.toString(8),
     });
     await writeFile(
         path.join(gitDirpath, '.npmrc'),
