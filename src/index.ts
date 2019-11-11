@@ -15,21 +15,41 @@ export interface Options {
     dryRun?: boolean;
 }
 
-async function getTagVersionName(): Promise<string> {
+async function getVersionTagData(): Promise<{
+    tagName: string;
+    message: string;
+}> {
     const projectPkgPath = path.join(process.cwd(), 'package.json');
     const projectPkgData = await readJSONFile(projectPkgPath);
 
     if (isPkgData(projectPkgData)) {
+        const { version } = projectPkgData;
+
         /**
          * @see https://github.com/sindresorhus/np/blob/v5.1.3/source/util.js#L51-L65
          * @see https://github.com/npm/cli/blob/v6.13.0/lib/version.js#L311
-         * @see https://github.com/yarnpkg/yarn/blob/v1.19.1/src/cli/commands/version.js#L206
+         * @see https://github.com/yarnpkg/yarn/blob/v1.19.1/src/cli/commands/version.js#L194
          */
         const prefix = await getConfig({
             npm: 'tag-version-prefix',
             yarn: 'version-tag-prefix',
         });
-        return `${prefix}${projectPkgData.version}`;
+
+        /**
+         * @see https://github.com/npm/cli/blob/v6.13.0/lib/version.js#L311
+         * @see https://github.com/yarnpkg/yarn/blob/v1.19.1/src/cli/commands/version.js#L206
+         */
+        const tagName = `${prefix}${version}`;
+
+        /**
+         * @see https://github.com/npm/cli/blob/v6.13.0/lib/version.js#L296
+         * @see https://github.com/yarnpkg/yarn/blob/v1.19.1/src/cli/commands/version.js#L191
+         */
+        const message = (
+            await getConfig({ npm: 'message', yarn: 'version-git-message' })
+        ).replace(/%s/g, version);
+
+        return { tagName, message };
     }
 
     throw new Error('Failed to find version tag name.');
@@ -56,13 +76,13 @@ async function main(opts: Options): Promise<void> {
         opts.verbose = true;
     }
 
-    const versionTagName = await getTagVersionName();
+    const { tagName: versionTagName, message } = await getVersionTagData();
 
     if (await tagExists(versionTagName)) {
         await gitTagAlreadyExists(versionTagName, opts);
     } else {
         await setTag(versionTagName, {
-            message: '',
+            message,
             debug: opts.verbose,
             dryRun: opts.dryRun,
         });
