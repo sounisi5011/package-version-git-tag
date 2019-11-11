@@ -4,15 +4,10 @@ import escapeRegExp from 'escape-string-regexp';
 import path from 'path';
 
 import * as PKG_DATA from '../package.json';
-import {
-    createSymlink,
-    execFileAsync,
-    getRandomInt,
-    replaceParentDirPath,
-    writeFile,
-} from './helpers';
+import { execFileAsync, getRandomInt, writeFile } from './helpers';
 import { initGit } from './helpers/git';
 
+const PROJECT_ROOT = path.resolve(__dirname, '..');
 const FIXTURES_DIR = path.resolve(__dirname, 'fixtures');
 const CLI_PATH = path.resolve(
     FIXTURES_DIR,
@@ -26,9 +21,7 @@ function tmpDir(dirname: string): string {
 }
 
 test.before(async () => {
-    await execFileAsync('npm', ['run', 'build'], {
-        cwd: path.resolve(__dirname, '..'),
-    });
+    await execFileAsync('npm', ['run', 'build'], { cwd: PROJECT_ROOT });
     await del(path.resolve(FIXTURES_DIR, '{package-lock.json,node_modules}'));
     await execFileAsync('npm', ['install'], { cwd: FIXTURES_DIR });
 
@@ -522,13 +515,7 @@ test('CLI should add Git tag with customized tag prefix by npm', async t => {
     const { exec, gitDirpath } = await initGit(tmpDir('custom-tag-prefix-npm'));
     const customPrefix = 'npm-tag-';
 
-    await createSymlink({
-        symlinkPath: replaceParentDirPath(CLI_PATH, {
-            from: FIXTURES_DIR,
-            to: gitDirpath,
-        }),
-        linkTarget: CLI_PATH,
-    });
+    await exec(['npm', 'install', PROJECT_ROOT]);
     await writeFile(
         path.join(gitDirpath, '.npmrc'),
         `tag-version-prefix=${customPrefix}`,
@@ -571,13 +558,7 @@ test('CLI should add Git tag with customized tag prefix by npm / run npm-script'
     );
     const customPrefix = 'npm-tag-';
 
-    await createSymlink({
-        symlinkPath: replaceParentDirPath(CLI_PATH, {
-            from: FIXTURES_DIR,
-            to: gitDirpath,
-        }),
-        linkTarget: CLI_PATH,
-    });
+    await exec(['npm', 'install', PROJECT_ROOT]);
     await writeFile(
         path.join(gitDirpath, '.npmrc'),
         `tag-version-prefix=${customPrefix}`,
@@ -631,13 +612,7 @@ test('CLI should add Git tag with customized tag prefix by yarn', async t => {
     );
     const customPrefix = 'yarn-tag-';
 
-    await createSymlink({
-        symlinkPath: replaceParentDirPath(CLI_PATH, {
-            from: FIXTURES_DIR,
-            to: gitDirpath,
-        }),
-        linkTarget: CLI_PATH,
-    });
+    await exec(['npm', 'install', PROJECT_ROOT]);
     await writeFile(
         path.join(gitDirpath, '.npmrc'),
         'tag-version-prefix=this-is-npm-tag-prefix-',
@@ -680,13 +655,7 @@ test('CLI should add Git tag with customized tag prefix by yarn / run npm-script
     );
     const customPrefix = 'yarn-tag-';
 
-    await createSymlink({
-        symlinkPath: replaceParentDirPath(CLI_PATH, {
-            from: FIXTURES_DIR,
-            to: gitDirpath,
-        }),
-        linkTarget: CLI_PATH,
-    });
+    await exec(['npm', 'install', PROJECT_ROOT]);
     await writeFile(
         path.join(gitDirpath, '.npmrc'),
         'tag-version-prefix=this-is-npm-tag-prefix-',
