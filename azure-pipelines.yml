@@ -100,3 +100,8 @@ steps:
 
   - script: npm test
     displayName: Run test
+    condition: eq( variables['Agent.OS'], 'Linux' )
+
+  - script: npm run test:ava
+    displayName: Run test
+    condition: ne( variables['Agent.OS'], 'Linux' )
