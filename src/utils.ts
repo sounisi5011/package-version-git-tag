@@ -1,3 +1,4 @@
+import childProcess from 'child_process';
 import { commandJoin } from 'command-join';
 import crossSpawn from 'cross-spawn';
 import fs from 'fs';
@@ -43,6 +44,64 @@ export async function readJSONFile(filepath: string): Promise<unknown> {
 }
 
 /**
+ * @see https://github.com/nodejs/node/blob/v12.13.0/lib/child_process.js#L250-L303
+ */
+function execExithandler({
+    command,
+    args = [],
+    stdoutList,
+    stderrList,
+    resolve,
+    reject,
+}: {
+    command: string;
+    args: ReadonlyArray<string>;
+    stdoutList: unknown[];
+    stderrList: unknown[];
+    resolve: (value: { stdout: string; stderr: string }) => void;
+    reject: (reason: Error) => void;
+}): (code: number, signal: string) => void {
+    return (code, signal) => {
+        const stdout = stdoutList.join('');
+        const stderr = stderrList.join('');
+
+        if (code === 0 && signal === null) {
+            resolve({ stdout, stderr });
+            return;
+        }
+
+        let cmd = command;
+        if (args.length > 0) {
+            cmd += ` ${commandJoin(args)}`;
+        }
+
+        const error = new Error(`Command failed: ${cmd}\n${stderr}`);
+        reject(error);
+    };
+}
+
+/**
+ * @see https://github.com/nodejs/node/blob/v12.13.0/lib/child_process.js#L305-L315
+ */
+function execErrorhandler({
+    process,
+    reject,
+}: {
+    process: childProcess.ChildProcess;
+    reject: (reason: Error) => void;
+}): (error: Error) => void {
+    return error => {
+        if (process.stdout) {
+            process.stdout.destroy();
+        }
+        if (process.stderr) {
+            process.stderr.destroy();
+        }
+        reject(error);
+    };
+}
+
+/**
  * @see https://github.com/nodejs/node/blob/v12.13.0/lib/child_process.js#L178-L390
  */
 export async function execFileAsync(
@@ -65,33 +124,18 @@ export async function execFileAsync(
             });
         }
 
-        process.on('close', (code, signal) => {
-            const stdout = stdoutList.join('');
-            const stderr = stderrList.join('');
-
-            if (code === 0 && signal === null) {
-                resolve({ stdout, stderr });
-                return;
-            }
-
-            let cmd = args[0];
-            if (args[1]) {
-                cmd += ` ${commandJoin(args[1])}`;
-            }
-
-            const error = new Error(`Command failed: ${cmd}\n${stderr}`);
-            reject(error);
-        });
-
-        process.on('error', error => {
-            if (process.stdout) {
-                process.stdout.destroy();
-            }
-            if (process.stderr) {
-                process.stderr.destroy();
-            }
-            reject(error);
-        });
+        process.on(
+            'close',
+            execExithandler({
+                command: args[0],
+                args: args[1] || [],
+                stdoutList,
+                stderrList,
+                resolve,
+                reject,
+            }),
+        );
+        process.on('error', execErrorhandler({ process, reject }));
     });
 }
 
