@@ -1,6 +1,5 @@
 parameters:
-  name: UnitTest
-  displayName: Linux
+  name: Linux
   vmImage: ubuntu-latest
   nodeVersions:
     - 8.10.0
@@ -16,32 +15,28 @@ parameters:
     - 13.0.0
     - 13.x
 
-jobs:
-  - job: ${{ parameters.name }}
-    displayName: ${{ parameters.displayName }}
+pool:
+  vmImage: ${{ parameters.vmImage }}
 
-    pool:
-      vmImage: ${{ parameters.vmImage }}
+strategy:
+  matrix:
+    ${{ each nodeVersion in parameters.nodeVersions }}:
+      ? ${{ format('UnitTest / Node.js {0} on {1}', nodeVersion, parameters.name) }}
+      : node_version: ${{ nodeVersion }}
 
-    strategy:
-      matrix:
-        ${{ each nodeVersion in parameters.nodeVersions }}:
-          ${{ format('Node.js {0}', nodeVersion) }}:
-            node_version: ${{ nodeVersion }}
+steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: $(node_version)
+    displayName: Install Node.js
 
-    steps:
-      - task: NodeTool@0
-        inputs:
-          versionSpec: $(node_version)
-        displayName: Install Node.js
+  - bash: |
+      echo node $(node --version)
+      echo npm $(npm --version)
+    displayName: Show node and npm version
 
-      - bash: |
-          echo node $(node --version)
-          echo npm $(npm --version)
-        displayName: Show node and npm version
+  - script: npm ci || npm install
+    displayName: Install dependencies
 
-      - script: npm ci || npm install
-        displayName: Install dependencies
-
-      - script: npm run test:ava
-        displayName: Run unit test
+  - script: npm run test:ava
+    displayName: Run unit test
