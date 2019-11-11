@@ -30,7 +30,7 @@ export async function isHeadTag(tagName: string): Promise<boolean> {
     }
 }
 
-export function genTagCmdArgs(
+function genTagCmdArgs(
     tagName: string,
     message?: string,
     sign: boolean = false,
