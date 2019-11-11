@@ -59,11 +59,11 @@ export async function setTag(
                 : ['tag', tagName];
         if (debug) {
             const commandText = `git ${commandJoin(args)}`;
-            printVerbose(
-                typeof debug === 'function'
-                    ? debug({ commandText, args })
-                    : `> ${commandText}`,
-            );
+            if (typeof debug === 'function') {
+                printVerbose(debug({ commandText, args }));
+            } else {
+                printVerbose(`> ${commandText}`);
+            }
         }
         if (!dryRun) {
             await execFileAsync('git', args);
