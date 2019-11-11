@@ -6,6 +6,7 @@
 
 * [#81] - Custom tag prefix
 * [#83] - Annotated Git tag
+* [#85] - Windows support
 
 ### Supported Node version
 
@@ -38,6 +39,7 @@
 [#82]: https://github.com/sounisi5011/package-version-git-tag/pull/82
 [#83]: https://github.com/sounisi5011/package-version-git-tag/pull/83
 [#84]: https://github.com/sounisi5011/package-version-git-tag/pull/84
+[#85]: https://github.com/sounisi5011/package-version-git-tag/pull/85
 
 ## [1.2.0] (2019-11-09 UTC)
 

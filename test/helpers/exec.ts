@@ -1,4 +1,5 @@
 import childProcess from 'child_process';
+import crossSpawn from 'cross-spawn';
 
 export interface ExecFunc {
     (cmd: readonly string[], options?: childProcess.ExecFileOptions): Promise<{
@@ -10,7 +11,7 @@ export interface ExecFunc {
 export function execGenerator(gitDirpath: string): ExecFunc {
     return ([command, ...args], options) => {
         return new Promise((resolve, reject) => {
-            const process = childProcess.execFile(command, args, {
+            const process = crossSpawn(command, args, {
                 cwd: gitDirpath,
                 ...options,
             });

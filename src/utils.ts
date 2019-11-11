@@ -1,10 +1,11 @@
-import { execFile } from 'child_process';
+import childProcess from 'child_process';
+import { commandJoin } from 'command-join';
+import crossSpawn from 'cross-spawn';
 import fs from 'fs';
 import path from 'path';
 import { promisify } from 'util';
 
 const readFileAsync = promisify(fs.readFile);
-const execFileAsync = promisify(execFile);
 
 export interface PkgDataInterface {
     version: string;
@@ -40,6 +41,97 @@ export async function readJSONFile(filepath: string): Promise<unknown> {
     } catch (error) {
         throw new Error(`Could not read file: ${relativePath(filepath)}`);
     }
+}
+
+/**
+ * @see https://github.com/nodejs/node/blob/v12.13.0/lib/child_process.js#L250-L303
+ */
+function execExithandler({
+    command,
+    args = [],
+    stdoutList,
+    stderrList,
+    resolve,
+    reject,
+}: {
+    command: string;
+    args: ReadonlyArray<string>;
+    stdoutList: unknown[];
+    stderrList: unknown[];
+    resolve: (value: { stdout: string; stderr: string }) => void;
+    reject: (reason: Error) => void;
+}): (code: number, signal: string) => void {
+    return (code, signal) => {
+        const stdout = stdoutList.join('');
+        const stderr = stderrList.join('');
+
+        if (code === 0 && signal === null) {
+            resolve({ stdout, stderr });
+            return;
+        }
+
+        let cmd = command;
+        if (args.length > 0) {
+            cmd += ` ${commandJoin(args)}`;
+        }
+
+        const error = new Error(`Command failed: ${cmd}\n${stderr}`);
+        reject(error);
+    };
+}
+
+/**
+ * @see https://github.com/nodejs/node/blob/v12.13.0/lib/child_process.js#L305-L315
+ */
+function execErrorhandler({
+    process,
+    reject,
+}: {
+    process: childProcess.ChildProcess;
+    reject: (reason: Error) => void;
+}): (error: Error) => void {
+    return error => {
+        if (process.stdout) {
+            process.stdout.destroy();
+        }
+        if (process.stderr) {
+            process.stderr.destroy();
+        }
+        reject(error);
+    };
+}
+
+/**
+ * @see https://github.com/nodejs/node/blob/v12.13.0/lib/child_process.js#L178-L390
+ */
+export async function execFileAsync(
+    ...args: [string, ReadonlyArray<string>?, childProcess.SpawnOptions?]
+): Promise<{ readonly stdout: string; readonly stderr: string }> {
+    return new Promise((resolve, reject) => {
+        const process = crossSpawn(...args);
+        const stdoutList: unknown[] = [];
+        const stderrList: unknown[] = [];
+
+        if (process.stdout) {
+            process.stdout.on('data', data => stdoutList.push(data));
+        }
+        if (process.stderr) {
+            process.stderr.on('data', data => stderrList.push(data));
+        }
+
+        process.on(
+            'close',
+            execExithandler({
+                command: args[0],
+                args: args[1] || [],
+                stdoutList,
+                stderrList,
+                resolve,
+                reject,
+            }),
+        );
+        process.on('error', execErrorhandler({ process, reject }));
+    });
 }
 
 let isPrintedVerbose = false;
