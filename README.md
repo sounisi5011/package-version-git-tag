@@ -74,7 +74,21 @@ $ git push origin v1.2.3
 
 If you want to customize the tag name format, you can take the following steps:
 
-* If the command execute with [yarn], change [the `version-tag-prefix` setting of yarn](https://yarnpkg.com/en/docs/cli/version#toc-git-tags).
+* If you are execute this command with [yarn], change [the `version-tag-prefix` setting of yarn](https://yarnpkg.com/docs/cli/version#toc-git-tags).
+  This can be achieved by executing the following command:
+
+  ```sh
+  # Set the tag prefix to "foo-bar-"
+  yarn config set version-tag-prefix foo-bar-
+  ```
+
+  Another way is to create [the `.yarnrc` file](https://yarnpkg.com/docs/yarnrc):
+
+  **`.yarnrc`**
+  ```
+  # Set the tag prefix to "foo-bar-"
+  version-tag-prefix foo-bar-
+  ```
 
 [yarn]: https://yarnpkg.com
 
@@ -84,6 +98,14 @@ If you want to customize the tag name format, you can take the following steps:
   ```sh
   # Set the tag prefix to "foo-bar-"
   npm config set tag-version-prefix foo-bar-
+  ```
+
+  Another way is to create [the `.npmrc` file](https://docs.npmjs.com/files/npmrc):
+
+  **`.npmrc`**
+  ```ini
+  ; Set the tag prefix to "foo-bar-"
+  tag-version-prefix = "foo-bar-"
   ```
 
 ## Tests
