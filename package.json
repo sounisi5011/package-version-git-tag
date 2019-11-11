@@ -83,7 +83,6 @@
     ]
   },
   "dependencies": {
-    "@types/cross-spawn": "6.0.1",
     "command-join": "3.0.0",
     "commander": "4.0.1",
     "cross-spawn": "7.0.1"
@@ -91,6 +90,7 @@
   "devDependencies": {
     "@sounisi5011/check-peer-deps": "github:sounisi5011/check-peer-deps",
     "@sounisi5011/readme-generator": "file:script/readme-generator",
+    "@types/cross-spawn": "6.0.1",
     "@types/node": "*",
     "@typescript-eslint/eslint-plugin": "2.6.1",
     "@typescript-eslint/parser": "2.6.1",

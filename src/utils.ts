@@ -105,7 +105,7 @@ function execErrorhandler({
  * @see https://github.com/nodejs/node/blob/v12.13.0/lib/child_process.js#L178-L390
  */
 export async function execFileAsync(
-    ...args: Parameters<typeof crossSpawn>
+    ...args: [string, ReadonlyArray<string>?, childProcess.SpawnOptions?]
 ): Promise<{ readonly stdout: string; readonly stderr: string }> {
     return new Promise((resolve, reject) => {
         const process = crossSpawn(...args);
