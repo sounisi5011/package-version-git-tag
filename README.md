@@ -66,7 +66,7 @@ package-version-git-tag --push
 Equivalent to this operation:
 
 ```ShellSession
-$ git tag v1.2.3
+$ git tag v1.2.3 -m 1.2.3
 $ git push origin v1.2.3
 ```
 
