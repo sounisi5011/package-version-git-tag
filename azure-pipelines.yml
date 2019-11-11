@@ -31,10 +31,10 @@ jobs:
 
   - template: azure-pipelines/unit-test.yml
     parameters:
-      name: Linux
+      displayName: Linux
       vmImage: ubuntu-latest
 
   - template: azure-pipelines/unit-test.yml
     parameters:
-      name: Windows
+      displayName: Windows
       vmImage: windows-latest
