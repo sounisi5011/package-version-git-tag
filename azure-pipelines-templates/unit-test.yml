@@ -1,19 +1,9 @@
 parameters:
   name: Linux
   vmImage: ubuntu-latest
-  nodeVersions:
-    - 8.3.0
-    - 8.x
-    - 9.0.0
-    - 9.x
-    - 10.0.0
-    - 10.x
-    - 11.0.0
-    - 11.x
-    - 12.0.0
-    - 12.x
-    - 13.0.0
-    - 13.x
+
+variables:
+  - template: node-versions.yml
 
 jobs:
   - job: ${{ format('UnitTest_{0}', parameters.name) }}
@@ -24,7 +14,7 @@ jobs:
 
     strategy:
       matrix:
-        ${{ each nodeVersion in parameters.nodeVersions }}:
+        ${{ each nodeVersion in variables.nodeVersions }}:
           ${{ format('Node.js {0}', nodeVersion) }}:
             node_version: ${{ nodeVersion }}
 
