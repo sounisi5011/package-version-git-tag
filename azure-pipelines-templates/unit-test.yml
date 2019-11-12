@@ -2,12 +2,12 @@ parameters:
   name: Linux
   vmImage: ubuntu-latest
 
-variables:
-  - template: node-versions.yml
-
 jobs:
   - job: ${{ format('UnitTest_{0}', parameters.name) }}
     displayName: ${{ format('UnitTest / {0}', parameters.name) }}
+
+    variables:
+      - template: node-versions.yml
 
     pool:
       vmImage: ${{ parameters.vmImage }}
