@@ -2,11 +2,15 @@
 
 ## [Unreleased]
 
+[Unreleased]: https://github.com/sounisi5011/package-version-git-tag/compare/v2.0.2...master
+
+## [2.0.2] (2019-11-12 UTC)
+
 ### Documentation
 
 * [#90] - Fix document
 
-[Unreleased]: https://github.com/sounisi5011/package-version-git-tag/compare/v2.0.1...master
+[2.0.2]: https://github.com/sounisi5011/package-version-git-tag/compare/v2.0.1...v2.0.2
 [#90]: https://github.com/sounisi5011/package-version-git-tag/pull/90
 
 ## [2.0.1] (2019-11-11 UTC)
