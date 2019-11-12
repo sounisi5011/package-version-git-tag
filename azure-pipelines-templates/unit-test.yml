@@ -2,7 +2,7 @@ parameters:
   name: Linux
   vmImage: ubuntu-latest
   nodeVersions:
-    - 8.10.0
+    - 8.3.0
     - 8.x
     - 9.0.0
     - 9.x
