@@ -2,7 +2,7 @@
 
 [![Go to the latest release page on npm](https://img.shields.io/npm/v/package-version-git-tag.svg)][npm]
 [![License: MIT](https://img.shields.io/static/v1?label=license&message=MIT&color=green)][github-license]
-![Supported Node.js version: >=8.10.0](https://img.shields.io/static/v1?label=node&message=%3E%3D8.10.0&color=brightgreen)
+![Supported Node.js version: >=8.3.0](https://img.shields.io/static/v1?label=node&message=%3E%3D8.3.0&color=brightgreen)
 [![bundle size](https://img.shields.io/bundlephobia/min/package-version-git-tag/2.0.2)](https://bundlephobia.com/result?p=package-version-git-tag@2.0.2)
 [![Dependencies Status](https://david-dm.org/sounisi5011/package-version-git-tag/status.svg)](https://david-dm.org/sounisi5011/package-version-git-tag)
 [![Build Status](https://dev.azure.com/sounisi5011/npm%20projects/_apis/build/status/sounisi5011.package-version-git-tag?branchName=master)](https://dev.azure.com/sounisi5011/npm%20projects/_build/latest?definitionId=2&branchName=master)
