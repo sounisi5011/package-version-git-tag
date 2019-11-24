@@ -8,8 +8,13 @@
 
 * [#92] - Downgrade supported Node version
 
+### Others
+
+* [#101] - Renovate package groups
+
 [Unreleased]: https://github.com/sounisi5011/package-version-git-tag/compare/v2.0.2...master
 [#92]: https://github.com/sounisi5011/package-version-git-tag/pull/92
+[#101]: https://github.com/sounisi5011/package-version-git-tag/pull/101
 
 ## [2.0.2] (2019-11-12 UTC)
 
