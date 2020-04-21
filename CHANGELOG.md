@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+[Unreleased]: https://github.com/sounisi5011/package-version-git-tag/compare/v2.0.3...master
+
+## [2.0.3] (2020-04-21 UTC)
+
+* Update dependencies
+* Downgrade supported Node version
+
 ### Supported Node version
 
 `>=8.10.0` -> `>=8.3.0`
@@ -63,7 +70,7 @@
 
 * [#101] - Renovate package groups
 
-[Unreleased]: https://github.com/sounisi5011/package-version-git-tag/compare/v2.0.2...master
+[2.0.3]: https://github.com/sounisi5011/package-version-git-tag/compare/v2.0.2...v2.0.3
 [#92]: https://github.com/sounisi5011/package-version-git-tag/pull/92
 [#101]: https://github.com/sounisi5011/package-version-git-tag/pull/101
 [#112]: https://github.com/sounisi5011/package-version-git-tag/pull/112

@@ -1,6 +1,6 @@
 {
   "name": "package-version-git-tag",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "Add Git tag corresponding to the version field of package.json",
   "keywords": [
     "cli",
@@ -104,7 +104,7 @@
     "@sounisi5011/check-peer-deps": "github:sounisi5011/check-peer-deps",
     "@sounisi5011/readme-generator": "file:script/readme-generator",
     "@types/cross-spawn": "6.0.1",
-    "@types/node": "*",
+    "@types/node": "12.x",
     "@typescript-eslint/eslint-plugin": "2.29.0",
     "@typescript-eslint/parser": "2.29.0",
     "ava": "2.4.0",
