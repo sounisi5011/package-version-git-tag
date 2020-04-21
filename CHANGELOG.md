@@ -37,6 +37,8 @@
     * [#103] - `3.1.1` -> `3.1.3`
 * `eslint-plugin-simple-import-sort`
     * [#106] - `4.0.0` -> `5.0.2`
+* `git-branch-is`
+    * [#104] - `3.0.0` -> `3.1.0`
 * `husky`
     * [#109] - `3.0.9` -> `4.2.5`
 * `lint-staged`
@@ -68,6 +70,7 @@
 [#103]: https://github.com/sounisi5011/package-version-git-tag/pull/103
 [#102]: https://github.com/sounisi5011/package-version-git-tag/pull/102
 [#105]: https://github.com/sounisi5011/package-version-git-tag/pull/105
+[#104]: https://github.com/sounisi5011/package-version-git-tag/pull/104
 
 ## [2.0.2] (2019-11-12 UTC)
 
