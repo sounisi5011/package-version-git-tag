@@ -19,8 +19,22 @@
 
 #### devDependencies
 
+* `@typescript-eslint/eslint-plugin`
+    * [#103] - `2.7.0` -> `2.29.0`
+* `@typescript-eslint/parser`
+    * [#103] - `2.7.0` -> `2.29.0`
+* `eslint`
+    * [#103] - `6.6.0` -> `6.8.0`
+* `eslint-config-prettier`
+    * [#103] - `6.5.0` -> `6.10.1`
+* `eslint-config-standard`
+    * [#103] - `14.1.0` -> `14.1.1`
+* `eslint-plugin-import`
+    * [#103] - `2.18.2` -> `2.20.2`
 * `eslint-plugin-node`
     * [#106] - `10.0.0` -> `11.1.0`
+* `eslint-plugin-prettier`
+    * [#103] - `3.1.1` -> `3.1.3`
 * `eslint-plugin-simple-import-sort`
     * [#106] - `4.0.0` -> `5.0.2`
 * `husky`
@@ -41,6 +55,7 @@
 [#115]: https://github.com/sounisi5011/package-version-git-tag/pull/115
 [#109]: https://github.com/sounisi5011/package-version-git-tag/pull/109
 [#106]: https://github.com/sounisi5011/package-version-git-tag/pull/106
+[#103]: https://github.com/sounisi5011/package-version-git-tag/pull/103
 
 ## [2.0.2] (2019-11-12 UTC)
 
