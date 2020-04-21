@@ -17,6 +17,15 @@
 * `cross-spawn`
     * [#115] - `7.0.1` -> `7.0.2`
 
+#### devDependencies
+
+* `husky`
+    * [#109] - `3.0.9` -> `4.2.5`
+* `lint-staged`
+    * [#109] - `9.4.2` -> `10.1.6`
+* `prettier`
+    * [#109] - `1.19.1` -> `2.0.4`
+
 ### Others
 
 * [#101] - Renovate package groups
@@ -26,6 +35,7 @@
 [#101]: https://github.com/sounisi5011/package-version-git-tag/pull/101
 [#112]: https://github.com/sounisi5011/package-version-git-tag/pull/112
 [#115]: https://github.com/sounisi5011/package-version-git-tag/pull/115
+[#109]: https://github.com/sounisi5011/package-version-git-tag/pull/109
 
 ## [2.0.2] (2019-11-12 UTC)
 
