@@ -67,20 +67,17 @@
       "git add ./README.md"
     ],
     "!(package).json|*.{js,yaml,yml}": [
-      "prettier --write",
-      "git add"
+      "prettier --write"
     ],
     "*.ts": [
-      "eslint --fix",
-      "git add"
+      "eslint --fix"
     ],
     "README.md": [
       "run-s test:readme --"
     ],
     "package.json": [
       "prettier-package-json --write",
-      "sort-package-json",
-      "git add"
+      "sort-package-json"
     ]
   },
   "ava": {
