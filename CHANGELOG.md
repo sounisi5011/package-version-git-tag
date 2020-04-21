@@ -14,6 +14,8 @@
 
 * `commander`
     * [#112] - `4.0.1` -> `5.0.0`
+* `cross-spawn`
+    * [#115] - `7.0.1` -> `7.0.2`
 
 ### Others
 
@@ -23,6 +25,7 @@
 [#92]: https://github.com/sounisi5011/package-version-git-tag/pull/92
 [#101]: https://github.com/sounisi5011/package-version-git-tag/pull/101
 [#112]: https://github.com/sounisi5011/package-version-git-tag/pull/112
+[#115]: https://github.com/sounisi5011/package-version-git-tag/pull/115
 
 ## [2.0.2] (2019-11-12 UTC)
 
