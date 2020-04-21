@@ -43,6 +43,10 @@
     * [#109] - `9.4.2` -> `10.1.6`
 * `prettier`
     * [#109] - `1.19.1` -> `2.0.4`
+* `prettier-package-json`
+    * [#102] - `2.1.0` -> `2.1.3`
+* `sort-package-json`
+    * [#102] - `1.23.1` -> `1.42.0`
 
 ### Others
 
@@ -56,6 +60,7 @@
 [#109]: https://github.com/sounisi5011/package-version-git-tag/pull/109
 [#106]: https://github.com/sounisi5011/package-version-git-tag/pull/106
 [#103]: https://github.com/sounisi5011/package-version-git-tag/pull/103
+[#102]: https://github.com/sounisi5011/package-version-git-tag/pull/102
 
 ## [2.0.2] (2019-11-12 UTC)
 
