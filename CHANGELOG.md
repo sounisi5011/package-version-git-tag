@@ -41,12 +41,18 @@
     * [#109] - `3.0.9` -> `4.2.5`
 * `lint-staged`
     * [#109] - `9.4.2` -> `10.1.6`
+* `make-dir`
+    * [#105] - `3.0.0` -> `3.0.2`
+* `node-git-server`
+    * [#105] - `0.6.0` -> `0.6.1`
 * `prettier`
     * [#109] - `1.19.1` -> `2.0.4`
 * `prettier-package-json`
     * [#102] - `2.1.0` -> `2.1.3`
 * `sort-package-json`
     * [#102] - `1.23.1` -> `1.42.0`
+* `ts-node`
+    * [#105] - `8.5.0` -> `8.9.0`
 
 ### Others
 
@@ -61,6 +67,7 @@
 [#106]: https://github.com/sounisi5011/package-version-git-tag/pull/106
 [#103]: https://github.com/sounisi5011/package-version-git-tag/pull/103
 [#102]: https://github.com/sounisi5011/package-version-git-tag/pull/102
+[#105]: https://github.com/sounisi5011/package-version-git-tag/pull/105
 
 ## [2.0.2] (2019-11-12 UTC)
 
