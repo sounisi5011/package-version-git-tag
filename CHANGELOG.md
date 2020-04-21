@@ -55,6 +55,8 @@
     * [#102] - `1.23.1` -> `1.42.0`
 * `ts-node`
     * [#105] - `8.5.0` -> `8.9.0`
+* `typescript`
+    * [#107] - `3.7.2` -> `3.8.3`
 
 ### Others
 
@@ -71,6 +73,7 @@
 [#102]: https://github.com/sounisi5011/package-version-git-tag/pull/102
 [#105]: https://github.com/sounisi5011/package-version-git-tag/pull/105
 [#104]: https://github.com/sounisi5011/package-version-git-tag/pull/104
+[#107]: https://github.com/sounisi5011/package-version-git-tag/pull/107
 
 ## [2.0.2] (2019-11-12 UTC)
 
