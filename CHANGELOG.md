@@ -43,6 +43,7 @@
     * [#109] - `3.0.9` -> `4.2.5`
 * `lint-staged`
     * [#109] - `9.4.2` -> `10.1.6`
+    * [#117] - `10.1.6` -> `10.1.7`
 * `make-dir`
     * [#105] - `3.0.0` -> `3.0.2`
 * `node-git-server`
@@ -74,6 +75,7 @@
 [#105]: https://github.com/sounisi5011/package-version-git-tag/pull/105
 [#104]: https://github.com/sounisi5011/package-version-git-tag/pull/104
 [#107]: https://github.com/sounisi5011/package-version-git-tag/pull/107
+[#117]: https://github.com/sounisi5011/package-version-git-tag/pull/117
 
 ## [2.0.2] (2019-11-12 UTC)
 
