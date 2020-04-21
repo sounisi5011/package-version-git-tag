@@ -19,6 +19,10 @@
 
 #### devDependencies
 
+* `eslint-plugin-node`
+    * [#106] - `10.0.0` -> `11.1.0`
+* `eslint-plugin-simple-import-sort`
+    * [#106] - `4.0.0` -> `5.0.2`
 * `husky`
     * [#109] - `3.0.9` -> `4.2.5`
 * `lint-staged`
@@ -36,6 +40,7 @@
 [#112]: https://github.com/sounisi5011/package-version-git-tag/pull/112
 [#115]: https://github.com/sounisi5011/package-version-git-tag/pull/115
 [#109]: https://github.com/sounisi5011/package-version-git-tag/pull/109
+[#106]: https://github.com/sounisi5011/package-version-git-tag/pull/106
 
 ## [2.0.2] (2019-11-12 UTC)
 
