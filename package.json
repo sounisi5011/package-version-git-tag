@@ -20,15 +20,15 @@
   },
   "license": "MIT",
   "author": "sounisi5011",
-  "files": [
-    "dist/"
-  ],
   "main": "dist/index",
   "types": "dist/index.d.ts",
   "bin": "dist/bin.js",
   "directories": {
     "test": "test"
   },
+  "files": [
+    "dist/"
+  ],
   "scripts": {
     "build": "tsc",
     "build:readme": "readme-generator --template ./readme-template.mustache",
@@ -83,6 +83,21 @@
       "git add"
     ]
   },
+  "ava": {
+    "compileEnhancements": false,
+    "extensions": [
+      "ts"
+    ],
+    "files": [
+      "./test/**/*.ts"
+    ],
+    "helpers": [
+      "**/helpers/**/*"
+    ],
+    "require": [
+      "ts-node/register/transpile-only"
+    ]
+  },
   "dependencies": {
     "command-join": "3.0.0",
     "commander": "5.0.0",
@@ -124,20 +139,5 @@
   },
   "engines": {
     "node": ">=8.3.0"
-  },
-  "ava": {
-    "files": [
-      "./test/**/*.ts"
-    ],
-    "helpers": [
-      "**/helpers/**/*"
-    ],
-    "compileEnhancements": false,
-    "require": [
-      "ts-node/register/transpile-only"
-    ],
-    "extensions": [
-      "ts"
-    ]
   }
 }
