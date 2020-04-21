@@ -30,13 +30,13 @@ test.before(async () => {
      * Note: If npm environment variables are set, testing may not proceed properly.
      */
     Object.keys(process.env)
-        .filter(key => /^npm_/i.test(key))
-        .forEach(key => {
+        .filter((key) => /^npm_/i.test(key))
+        .forEach((key) => {
             delete process.env[key];
         });
 });
 
-test('CLI should add Git tag', async t => {
+test('CLI should add Git tag', async (t) => {
     const { exec } = await initGit(tmpDir('not-exists-git-tag'));
 
     t.regex(
@@ -62,7 +62,7 @@ test('CLI should add Git tag', async t => {
     );
 });
 
-test('CLI should add Git tag with verbose output', async t => {
+test('CLI should add Git tag with verbose output', async (t) => {
     const { exec } = await initGit(tmpDir('not-exists-git-tag-with-verbose'));
 
     t.regex(
@@ -85,7 +85,7 @@ test('CLI should add Git tag with verbose output', async t => {
     );
 });
 
-test('CLI should not add Git tag with dry-run', async t => {
+test('CLI should not add Git tag with dry-run', async (t) => {
     const { exec } = await initGit(tmpDir('not-exists-git-tag-with-dry-run'));
 
     const gitTags = (await exec(['git', 'tag', '-l'])).stdout;
@@ -105,7 +105,7 @@ test('CLI should not add Git tag with dry-run', async t => {
     );
 });
 
-test('CLI should complete successfully if Git tag has been added', async t => {
+test('CLI should complete successfully if Git tag has been added', async (t) => {
     const { exec } = await initGit(tmpDir('exists-git-tag-in-same-commit'));
     await exec(['git', 'tag', 'v0.0.0']);
 
@@ -138,7 +138,7 @@ test('CLI should complete successfully if Git tag has been added', async t => {
     );
 });
 
-test('CLI should complete successfully if Git tag has been added with verbose output', async t => {
+test('CLI should complete successfully if Git tag has been added with verbose output', async (t) => {
     const { exec } = await initGit(
         tmpDir('exists-git-tag-in-same-commit-with-verbose'),
     );
@@ -173,7 +173,7 @@ test('CLI should complete successfully if Git tag has been added with verbose ou
     );
 });
 
-test('CLI should complete successfully if Git tag has been added with dry-run', async t => {
+test('CLI should complete successfully if Git tag has been added with dry-run', async (t) => {
     const { exec } = await initGit(
         tmpDir('exists-git-tag-in-same-commit-with-dry-run'),
     );
@@ -208,7 +208,7 @@ test('CLI should complete successfully if Git tag has been added with dry-run', 
     );
 });
 
-test('CLI should fail if Git tag exists on different commits', async t => {
+test('CLI should fail if Git tag exists on different commits', async (t) => {
     const { exec } = await initGit(tmpDir('exists-git-tag-in-other-commit'));
 
     await exec(['git', 'tag', 'v0.0.0']);
@@ -233,7 +233,7 @@ test('CLI should fail if Git tag exists on different commits', async t => {
     );
 });
 
-test('CLI should read version and add tag', async t => {
+test('CLI should read version and add tag', async (t) => {
     const { exec, gitDirpath } = await initGit(tmpDir('add-random-git-tag'));
     const major = getRandomInt(0, 99);
     const minor = getRandomInt(1, 23);
@@ -276,7 +276,7 @@ test('CLI should read version and add tag', async t => {
     );
 });
 
-test('CLI push flag should fail if there is no remote repository', async t => {
+test('CLI push flag should fail if there is no remote repository', async (t) => {
     const { exec } = await initGit(tmpDir('push-fail-git-tag'));
 
     await t.throwsAsync(
@@ -304,7 +304,7 @@ test('CLI push flag should fail if there is no remote repository', async t => {
     );
 });
 
-test('CLI should add and push Git tag', async t => {
+test('CLI should add and push Git tag', async (t) => {
     const { exec, remote } = await initGit(
         tmpDir('push-success-git-tag'),
         true,
@@ -342,7 +342,7 @@ test('CLI should add and push Git tag', async t => {
     }
 });
 
-test('CLI should add and push Git tag with verbose output', async t => {
+test('CLI should add and push Git tag with verbose output', async (t) => {
     const { exec, remote } = await initGit(
         tmpDir('push-success-git-tag-with-verbose'),
         true,
@@ -385,7 +385,7 @@ test('CLI should add and push Git tag with verbose output', async t => {
     }
 });
 
-test('CLI should not add and not push Git tag with dry-run', async t => {
+test('CLI should not add and not push Git tag with dry-run', async (t) => {
     const {
         exec,
         remote: { tagList },
@@ -419,7 +419,7 @@ test('CLI should not add and not push Git tag with dry-run', async t => {
     t.deepEqual(tagList, [], 'Git tag should not been pushed');
 });
 
-test('CLI should add and push single Git tag', async t => {
+test('CLI should add and push single Git tag', async (t) => {
     const {
         exec,
         remote: { tagList },
@@ -453,7 +453,7 @@ test('CLI should add and push single Git tag', async t => {
     t.deepEqual(tagList, ['v0.0.0'], 'Git tag needs to push only one');
 });
 
-test('CLI should support "--version" option', async t => {
+test('CLI should support "--version" option', async (t) => {
     const { exec } = await initGit(tmpDir('display-version'));
 
     await t.notThrowsAsync(async () => {
@@ -467,7 +467,7 @@ test('CLI should support "--version" option', async t => {
     }, 'CLI should exits successfully');
 });
 
-test('CLI should to display help', async t => {
+test('CLI should to display help', async (t) => {
     const { exec } = await initGit(tmpDir('display-help'));
 
     const gitTags = (await exec(['git', 'tag', '-l'])).stdout;
@@ -490,7 +490,7 @@ test('CLI should to display help', async t => {
     );
 });
 
-test('CLI should not work with unknown options', async t => {
+test('CLI should not work with unknown options', async (t) => {
     const { exec } = await initGit(tmpDir('unknown-option'));
 
     const gitTags = (await exec(['git', 'tag', '-l'])).stdout;
@@ -511,7 +511,7 @@ test('CLI should not work with unknown options', async t => {
     );
 });
 
-test('CLI should add Git tag with customized tag prefix by npm', async t => {
+test('CLI should add Git tag with customized tag prefix by npm', async (t) => {
     const { exec, gitDirpath } = await initGit(tmpDir('custom-tag-prefix-npm'));
     const customPrefix = 'npm-tag-';
 
@@ -552,7 +552,7 @@ test('CLI should add Git tag with customized tag prefix by npm', async t => {
     );
 });
 
-test('CLI should add Git tag with customized tag prefix by npm / run npm-script', async t => {
+test('CLI should add Git tag with customized tag prefix by npm / run npm-script', async (t) => {
     const { exec, gitDirpath } = await initGit(
         tmpDir('custom-tag-prefix-npm.run-script'),
     );
@@ -606,7 +606,7 @@ test('CLI should add Git tag with customized tag prefix by npm / run npm-script'
     );
 });
 
-test('CLI should add Git tag with customized tag prefix by yarn', async t => {
+test('CLI should add Git tag with customized tag prefix by yarn', async (t) => {
     const { exec, gitDirpath } = await initGit(
         tmpDir('custom-tag-prefix-yarn'),
     );
@@ -649,7 +649,7 @@ test('CLI should add Git tag with customized tag prefix by yarn', async t => {
     );
 });
 
-test('CLI should add Git tag with customized tag prefix by yarn / run npm-script', async t => {
+test('CLI should add Git tag with customized tag prefix by yarn / run npm-script', async (t) => {
     const { exec, gitDirpath } = await initGit(
         tmpDir('custom-tag-prefix-yarn.run-script'),
     );

@@ -9,7 +9,7 @@ const PORT = {
 
 const usedPort = new Set<number>();
 
-export default async function(
+export default async function (
     dirpath: string,
 ): Promise<{ remoteURL: string; repos: Server; tagList: string[] }> {
     const tagList: string[] = [];
@@ -20,7 +20,7 @@ export default async function(
         autoCreate: true,
     });
 
-    repos.on('tag', tag => {
+    repos.on('tag', (tag) => {
         tagList.push(tag.version);
         tag.accept();
     });
@@ -30,7 +30,7 @@ export default async function(
             continue;
         }
         try {
-            await new Promise(resolve => repos.listen(port, resolve));
+            await new Promise((resolve) => repos.listen(port, resolve));
             usedPort.add(port);
             return {
                 remoteURL: `http://localhost:${port}`,

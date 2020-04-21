@@ -90,7 +90,7 @@ function execErrorhandler({
     process: childProcess.ChildProcess;
     reject: (reason: Error) => void;
 }): (error: Error) => void {
-    return error => {
+    return (error) => {
         if (process.stdout) {
             process.stdout.destroy();
         }
@@ -113,10 +113,10 @@ export async function execFileAsync(
         const stderrList: unknown[] = [];
 
         if (process.stdout) {
-            process.stdout.on('data', data => stdoutList.push(data));
+            process.stdout.on('data', (data) => stdoutList.push(data));
         }
         if (process.stderr) {
-            process.stderr.on('data', data => stderrList.push(data));
+            process.stderr.on('data', (data) => stderrList.push(data));
         }
 
         process.on(

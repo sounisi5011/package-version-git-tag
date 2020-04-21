@@ -19,13 +19,13 @@ export function execGenerator(gitDirpath: string): ExecFunc {
             const stderrList: unknown[] = [];
 
             if (process.stdout) {
-                process.stdout.on('data', data => {
+                process.stdout.on('data', (data) => {
                     stdoutList.push(data);
                 });
             }
 
             if (process.stderr) {
-                process.stderr.on('data', data => {
+                process.stderr.on('data', (data) => {
                     stderrList.push(data);
                 });
             }
@@ -56,7 +56,7 @@ export function execGenerator(gitDirpath: string): ExecFunc {
                 }
             });
 
-            process.on('error', err => {
+            process.on('error', (err) => {
                 reject(err);
             });
         });

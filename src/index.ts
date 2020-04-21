@@ -61,7 +61,7 @@ async function gitTagAlreadyExists(
     if (opts.verbose) {
         await setTag(versionTagName, {
             message: tagMessage,
-            debug: commandText =>
+            debug: (commandText) =>
                 `> #${commandText}\n  # tag '${versionTagName}' already exists`,
             dryRun: true,
         });
@@ -94,7 +94,7 @@ async function main(opts: Options): Promise<void> {
     }
 }
 
-export default async function(opts: Options = {}): Promise<void> {
+export default async function (opts: Options = {}): Promise<void> {
     try {
         await main(opts);
     } finally {
