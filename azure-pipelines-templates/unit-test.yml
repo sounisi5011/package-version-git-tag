@@ -14,6 +14,8 @@ parameters:
     - 12.x
     - 13.0.0
     - 13.x
+    - 14.0.0
+    - 14.x
 
 jobs:
   - job: ${{ format('UnitTest_{0}', parameters.name) }}
@@ -44,6 +46,6 @@ jobs:
 
       - script: npm run test:unit-test
         displayName: Run unit test
+        timeoutInMinutes: 3
 
-    timeoutInMinutes: 3
     cancelTimeoutInMinutes: 1

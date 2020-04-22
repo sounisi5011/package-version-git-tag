@@ -20,6 +20,6 @@ jobs:
 
       - script: npm run test:other-than-unit-test
         displayName: Run linter
+        timeoutInMinutes: 2
 
-    timeoutInMinutes: 2
     cancelTimeoutInMinutes: 1
