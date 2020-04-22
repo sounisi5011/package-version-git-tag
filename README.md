@@ -2,7 +2,7 @@
 
 [![Go to the latest release page on npm](https://img.shields.io/npm/v/package-version-git-tag.svg)][npm]
 [![License: MIT](https://img.shields.io/static/v1?label=license&message=MIT&color=green)][github-license]
-![Supported Node.js version: >=8.3.0](https://img.shields.io/static/v1?label=node&message=%3E%3D8.3.0&color=brightgreen)
+![Supported Node.js version: 8.3.0 - 14.x](https://img.shields.io/static/v1?label=node&message=8.3.0%20-%2014.x&color=brightgreen)
 [![Minified Bundle Size Details](https://img.shields.io/bundlephobia/min/package-version-git-tag/2.0.3)](https://bundlephobia.com/result?p=package-version-git-tag@2.0.3)
 [![Install Size Details](https://packagephobia.now.sh/badge?p=package-version-git-tag@2.0.3)](https://packagephobia.now.sh/result?p=package-version-git-tag@2.0.3)
 [![Dependencies Status](https://david-dm.org/sounisi5011/package-version-git-tag/status.svg)](https://david-dm.org/sounisi5011/package-version-git-tag)
