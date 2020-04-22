@@ -2,7 +2,14 @@
 
 ## [Unreleased]
 
+### Supported Node version
+
+`>=8.3.0` -> `8.3.0 - 14.x`
+
+* [#122] - Support Node.js 14
+
 [Unreleased]: https://github.com/sounisi5011/package-version-git-tag/compare/v2.0.3...master
+[#122]: https://github.com/sounisi5011/package-version-git-tag/pull/122
 
 ## [2.0.3] (2020-04-21 UTC)
 
