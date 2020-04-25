@@ -97,7 +97,7 @@
   },
   "dependencies": {
     "command-join": "3.0.0",
-    "commander": "5.0.0",
+    "commander": "5.1.0",
     "cross-spawn": "7.0.2"
   },
   "devDependencies": {
