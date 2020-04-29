@@ -453,18 +453,32 @@ test('CLI should add and push single Git tag', async (t) => {
     t.deepEqual(tagList, ['v0.0.0'], 'Git tag needs to push only one');
 });
 
-test('CLI should support "--version" option', async (t) => {
+test('CLI should to display version', async (t) => {
     const { exec } = await initGit(tmpDir('display-version'));
 
-    await t.notThrowsAsync(async () => {
-        const { stdout, stderr } = await exec([CLI_PATH, '--version']);
-        t.regex(
-            stdout,
-            new RegExp(`^${escapeRegExp(PKG_DATA.version)}$`, 'm'),
-            'CLI should output version number in stdout',
+    const gitTags = (await exec(['git', 'tag', '-l'])).stdout;
+
+    for (const option of ['--version', '-v', '-V']) {
+        await t.notThrowsAsync(async () => {
+            const { stdout, stderr } = await exec([CLI_PATH, option]);
+            t.regex(
+                stdout,
+                new RegExp(`^${escapeRegExp(PKG_DATA.version)}$`, 'm'),
+                `CLI should output version number in stdout / "${option}" option`,
+            );
+            t.is(
+                stderr,
+                '',
+                `CLI should not output anything in stderr / "${option}" option`,
+            );
+        }, `CLI should exits successfully / "${option}" option`);
+
+        t.is(
+            (await exec(['git', 'tag', '-l'])).stdout,
+            gitTags,
+            `Git tag should not change / "${option}" option`,
         );
-        t.is(stderr, '', 'CLI should not output anything in stderr');
-    }, 'CLI should exits successfully');
+    }
 });
 
 test('CLI should to display help', async (t) => {
