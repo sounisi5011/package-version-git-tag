@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+[Unreleased]: https://github.com/sounisi5011/package-version-git-tag/compare/v2.1.0...master
+
+## [2.1.0] (2020-04-30 UTC)
+
+* Support Node.js 14
+* Added `-V` as alias for `--version` option
+* Replace [`commander` package](https://www.npmjs.com/package/commander/v/5.0.0) to [`cac` package](https://www.npmjs.com/package/cac/v/6.5.8)
+* Update dev dependencies
+
 ### Features
 
 * [#125] - Add `-V` option
@@ -109,7 +118,7 @@
 
 * [#125] - `commander`
 
-[Unreleased]: https://github.com/sounisi5011/package-version-git-tag/compare/v2.0.3...master
+[2.1.0]: https://github.com/sounisi5011/package-version-git-tag/compare/v2.0.3...v2.1.0
 [#122]: https://github.com/sounisi5011/package-version-git-tag/pull/122
 [#125]: https://github.com/sounisi5011/package-version-git-tag/pull/125
 [#120]: https://github.com/sounisi5011/package-version-git-tag/pull/120
