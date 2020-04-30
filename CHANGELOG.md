@@ -2,14 +2,84 @@
 
 ## [Unreleased]
 
+### Features
+
+* [#125] - Add `-V` option
+
+### Breaking Changes
+
+* [#125] - Change output format:
+    + ```ShellSession
+      $ package-version-git-tag --version
+      2.0.3
+      ```
+      ↓
+      ```ShellSession
+      $ package-version-git-tag --version
+      package-version-git-tag/2.0.3 darwin-x64 node-v10.18.0
+      ```
+    + ```ShellSession
+      $ package-version-git-tag --help
+      Usage: bin [options]
+
+      Add Git tag corresponding to the version field of package.json
+
+      Options:
+        -v, --version  output the version number
+        --push         `git push` the added tag to the remote repository
+        --verbose      show details of executed git commands
+        -n, --dry-run  perform a trial run with no changes made
+        -h, --help     display help for command
+      ```
+      ↓
+      ```ShellSession
+      $ package-version-git-tag --help
+      package-version-git-tag v2.0.3
+
+      Add Git tag corresponding to the version field of package.json
+
+      Usage:
+        $ package-version-git-tag [options]
+
+      Options:
+        -V, -v, --version  Display version number 
+        -h, --help         Display this message 
+        --push             `git push` the added tag to the remote repository 
+        --verbose          show details of executed git commands 
+        -n, --dry-run      perform a trial run with no changes made 
+      ```
+    + ```ShellSession
+      $ package-version-git-tag --typo-option
+      error: unknown option '--typo-option'
+      ```
+      ↓
+      ```ShellSession
+      $ package-version-git-tag --typo-option
+      unknown option: --typoOption
+      Try `package-version-git-tag --help` for valid options.
+      ```
+
 ### Supported Node version
 
 `>=8.3.0` -> `8.3.0 - 14.x`
 
 * [#122] - Support Node.js 14
 
+### Added Dependencies
+
+#### dependencies
+
+* [#125] - `cac@6.5.8`
+
+### Removed Dependencies
+
+#### dependencies
+
+* [#125] - `commander`
+
 [Unreleased]: https://github.com/sounisi5011/package-version-git-tag/compare/v2.0.3...master
 [#122]: https://github.com/sounisi5011/package-version-git-tag/pull/122
+[#125]: https://github.com/sounisi5011/package-version-git-tag/pull/125
 
 ## [2.0.3] (2020-04-21 UTC)
 
