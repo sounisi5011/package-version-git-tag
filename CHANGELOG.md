@@ -88,10 +88,14 @@
     * [#121] - `5.0.2` -> `5.0.3`
 * `lint-staged`
     * [#120] - `10.1.7` -> `10.2.0`
+* `make-dir`
+    * [#123] - `3.0.2` -> `3.1.0`
 * `prettier`
     * [#120] - `2.0.4` -> `2.0.5`
 * `sort-package-json`
     * [#120] - `1.42.0` -> `1.42.1`
+* `ts-node`
+    * [#123] - `8.9.0` -> `8.9.1`
 
 ### Added Dependencies
 
@@ -110,6 +114,7 @@
 [#125]: https://github.com/sounisi5011/package-version-git-tag/pull/125
 [#120]: https://github.com/sounisi5011/package-version-git-tag/pull/120
 [#121]: https://github.com/sounisi5011/package-version-git-tag/pull/121
+[#123]: https://github.com/sounisi5011/package-version-git-tag/pull/123
 
 ## [2.0.3] (2020-04-21 UTC)
 
