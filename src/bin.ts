@@ -47,9 +47,10 @@ if (unknownOptions.length > 0) {
     process.exitCode = 1;
     console.error(
         `unknown ${unknownOptions.length > 1 ? 'options' : 'option'}: ` +
-            unknownOptions
+            `${unknownOptions
                 .map((name) => (/^[^-]$/.test(name) ? `-${name}` : `--${name}`))
-                .join(' '),
+                .join(' ')}\n` +
+            `Try \`${cli.name} --help\` for valid options.`,
     );
     process.exit();
 }
