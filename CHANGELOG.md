@@ -74,6 +74,17 @@
 
 * [#122] - Support Node.js 14
 
+### Updated Dependencies
+
+#### devDependencies
+
+* `lint-staged`
+    * [#120] - `10.1.7` -> `10.2.0`
+* `prettier`
+    * [#120] - `2.0.4` -> `2.0.5`
+* `sort-package-json`
+    * [#120] - `1.42.0` -> `1.42.1`
+
 ### Added Dependencies
 
 #### dependencies
@@ -89,6 +100,7 @@
 [Unreleased]: https://github.com/sounisi5011/package-version-git-tag/compare/v2.0.3...master
 [#122]: https://github.com/sounisi5011/package-version-git-tag/pull/122
 [#125]: https://github.com/sounisi5011/package-version-git-tag/pull/125
+[#120]: https://github.com/sounisi5011/package-version-git-tag/pull/120
 
 ## [2.0.3] (2020-04-21 UTC)
 

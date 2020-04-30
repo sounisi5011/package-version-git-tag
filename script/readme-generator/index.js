@@ -63,11 +63,7 @@ async function main(args) {
     encURL: () => (text, render) =>
       encodeURIComponent(render(text.trim())).replace(
         /[!'()*]/g,
-        char =>
-          `%${char
-            .charCodeAt(0)
-            .toString(16)
-            .toUpperCase()}`,
+        (char) => `%${char.charCodeAt(0).toString(16).toUpperCase()}`,
       ),
     ...templateData,
     githubTreeRoot: `https://github.com/sounisi5011/${pkg.name}/tree/v${pkg.version}`,
