@@ -13,15 +13,9 @@ const pkg = (() => {
     let version: string | undefined;
     let description = '';
     if (isObject(PKG)) {
-        if (typeof PKG.name === 'string') {
-            name = PKG.name;
-        }
-        if (typeof PKG.version === 'string') {
-            version = PKG.version;
-        }
-        if (typeof PKG.description === 'string') {
-            description = PKG.description;
-        }
+        if (typeof PKG.name === 'string') name = PKG.name;
+        if (typeof PKG.version === 'string') version = PKG.version;
+        if (typeof PKG.description === 'string') description = PKG.description;
     }
 
     return { name, version, description };
