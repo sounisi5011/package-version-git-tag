@@ -37,31 +37,36 @@ if (cli.commands.length <= 0) {
     cli.usage('[options]');
 }
 
-const { options } = cli.parse();
-if (options.version || options.help) {
-    process.exit();
-}
+(() => {
+    const { options } = cli.parse();
 
-const unknownOptions = Object.keys(options).filter(
-    (name) => name !== '--' && !cli.globalCommand.hasOption(name),
-);
-if (unknownOptions.length > 0) {
-    process.exitCode = 1;
-    console.error(
-        `unknown ${unknownOptions.length > 1 ? 'options' : 'option'}: ` +
-            `${unknownOptions
-                .map((name) => (/^[^-]$/.test(name) ? `-${name}` : `--${name}`))
-                .join(' ')}\n` +
-            `Try \`${cli.name} --help\` for valid options.`,
+    if (options.version || options.help) {
+        return;
+    }
+
+    const unknownOptions = Object.keys(options).filter(
+        (name) => name !== '--' && !cli.globalCommand.hasOption(name),
     );
-    process.exit();
-}
+    if (unknownOptions.length > 0) {
+        process.exitCode = 1;
+        console.error(
+            `unknown ${unknownOptions.length > 1 ? 'options' : 'option'}: ` +
+                `${unknownOptions
+                    .map((name) =>
+                        /^[^-]$/.test(name) ? `-${name}` : `--${name}`,
+                    )
+                    .join(' ')}\n` +
+                `Try \`${cli.name} --help\` for valid options.`,
+        );
+        return;
+    }
 
-main({
-    push: options.push,
-    verbose: options.verbose,
-    dryRun: options.dryRun,
-}).catch((error) => {
-    process.exitCode = 1;
-    console.error(error instanceof Error ? error.message : error);
-});
+    main({
+        push: options.push,
+        verbose: options.verbose,
+        dryRun: options.dryRun,
+    }).catch((error) => {
+        process.exitCode = 1;
+        console.error(error instanceof Error ? error.message : error);
+    });
+})();
