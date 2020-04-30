@@ -5,30 +5,26 @@ import { cac } from 'cac';
 import main from './';
 import { isObject } from './utils';
 
-const pkg = (() => {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const PKG: unknown = require('../package.json');
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const PKG: unknown = require('../package.json');
 
-    let name: string | undefined;
-    let version: string | undefined;
-    let description = '';
-    if (isObject(PKG)) {
-        if (typeof PKG.name === 'string') name = PKG.name;
-        if (typeof PKG.version === 'string') version = PKG.version;
-        if (typeof PKG.description === 'string') description = PKG.description;
-    }
+let pkgName: string | undefined;
+let pkgVersion: string | undefined;
+let pkgDescription = '';
+if (isObject(PKG)) {
+    if (typeof PKG.name === 'string') pkgName = PKG.name;
+    if (typeof PKG.version === 'string') pkgVersion = PKG.version;
+    if (typeof PKG.description === 'string') pkgDescription = PKG.description;
+}
 
-    return { name, version, description };
-})();
-
-const cli = cac(pkg.name);
-if (pkg.version) {
-    cli.version(pkg.version, '-V, -v, --version');
+const cli = cac(pkgName);
+if (pkgVersion) {
+    cli.version(pkgVersion, '-V, -v, --version');
 }
 cli.help(
-    pkg.description
+    pkgDescription
         ? (sections) => {
-              sections.splice(1, 0, { body: pkg.description });
+              sections.splice(1, 0, { body: pkgDescription });
           }
         : undefined,
 );
