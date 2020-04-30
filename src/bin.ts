@@ -5,24 +5,36 @@ import { cac } from 'cac';
 import main from './';
 import { isObject } from './utils';
 
-const cli = cac();
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const PKG: unknown = require('../package.json');
+const pkg = (() => {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const PKG: unknown = require('../package.json');
 
-let description = '';
-if (isObject(PKG)) {
-    if (typeof PKG.version === 'string') {
-        cli.version(PKG.version, '-V, -v, --version');
+    let name: string | undefined;
+    let version: string | undefined;
+    let description = '';
+    if (isObject(PKG)) {
+        if (typeof PKG.name === 'string') {
+            name = PKG.name;
+        }
+        if (typeof PKG.version === 'string') {
+            version = PKG.version;
+        }
+        if (typeof PKG.description === 'string') {
+            description = PKG.description;
+        }
     }
 
-    if (typeof PKG.description === 'string') {
-        description = PKG.description;
-    }
+    return { name, version, description };
+})();
+
+const cli = cac(pkg.name);
+if (pkg.version) {
+    cli.version(pkg.version, '-V, -v, --version');
 }
 cli.help(
-    description
+    pkg.description
         ? (sections) => {
-              sections.splice(1, 0, { body: description });
+              sections.splice(1, 0, { body: pkg.description });
           }
         : undefined,
 );
