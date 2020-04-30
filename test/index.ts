@@ -453,18 +453,32 @@ test('CLI should add and push single Git tag', async (t) => {
     t.deepEqual(tagList, ['v0.0.0'], 'Git tag needs to push only one');
 });
 
-test('CLI should support "--version" option', async (t) => {
+test('CLI should to display version', async (t) => {
     const { exec } = await initGit(tmpDir('display-version'));
 
-    await t.notThrowsAsync(async () => {
-        const { stdout, stderr } = await exec([CLI_PATH, '--version']);
-        t.regex(
-            stdout,
-            new RegExp(`^${escapeRegExp(PKG_DATA.version)}$`, 'm'),
-            'CLI should output version number in stdout',
+    const gitTags = (await exec(['git', 'tag', '-l'])).stdout;
+
+    for (const option of ['--version', '-v', '-V']) {
+        await t.notThrowsAsync(async () => {
+            const { stdout, stderr } = await exec([CLI_PATH, option]);
+            t.is(
+                stdout,
+                `${PKG_DATA.name}/${PKG_DATA.version} ${process.platform}-${process.arch} node-${process.version}\n`,
+                `CLI should output version number in stdout / "${option}" option`,
+            );
+            t.is(
+                stderr,
+                '',
+                `CLI should not output anything in stderr / "${option}" option`,
+            );
+        }, `CLI should exits successfully / "${option}" option`);
+
+        t.is(
+            (await exec(['git', 'tag', '-l'])).stdout,
+            gitTags,
+            `Git tag should not change / "${option}" option`,
         );
-        t.is(stderr, '', 'CLI should not output anything in stderr');
-    }, 'CLI should exits successfully');
+    }
 });
 
 test('CLI should to display help', async (t) => {
@@ -474,11 +488,25 @@ test('CLI should to display help', async (t) => {
 
     await t.notThrowsAsync(async () => {
         const { stdout, stderr } = await exec([CLI_PATH, '--help']);
-        t.regex(stdout, /^Usage: /, 'CLI should output help in stdout');
-        t.regex(
+        t.is(
             stdout,
-            new RegExp(`^${escapeRegExp(PKG_DATA.description)}$`, 'm'),
-            'CLI should include description in help',
+            [
+                `${PKG_DATA.name} v${PKG_DATA.version}`,
+                '',
+                PKG_DATA.description,
+                '',
+                'Usage:',
+                `  $ ${PKG_DATA.name} [options]`,
+                '',
+                'Options:',
+                '  -V, -v, --version  Display version number ',
+                '  -h, --help         Display this message ',
+                '  --push             `git push` the added tag to the remote repository ',
+                '  --verbose          show details of executed git commands ',
+                '  -n, --dry-run      perform a trial run with no changes made ',
+                '',
+            ].join('\n'),
+            'CLI should output help in stdout',
         );
         t.is(stderr, '', 'CLI should not output anything in stderr');
     }, 'CLI should exits successfully');
@@ -495,11 +523,22 @@ test('CLI should not work with unknown options', async (t) => {
 
     const gitTags = (await exec(['git', 'tag', '-l'])).stdout;
 
+    const unknownOption = '--lololololololololololololololol';
     await t.throwsAsync(
         exec([CLI_PATH, '--lololololololololololololololol']),
         {
             name: 'CommandFailedError',
-            message: /^e (.+ )?unknown option/m,
+            message: new RegExp(
+                `^stderr:\n${escapeRegExp(
+                    [
+                        `unknown option: ${unknownOption}`,
+                        `Try \`${PKG_DATA.name} --help\` for valid options.`,
+                    ]
+                        .map((line) => `e ${line}`)
+                        .join('\n'),
+                )}$`,
+                'm',
+            ),
         },
         'CLI should fail',
     );
