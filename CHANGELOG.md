@@ -9,15 +9,19 @@
 ### Breaking Changes
 
 * [#125] - Change output format:
+
     + ```ShellSession
       $ package-version-git-tag --version
       2.0.3
       ```
+
       ↓
+
       ```ShellSession
       $ package-version-git-tag --version
       package-version-git-tag/2.0.3 darwin-x64 node-v10.18.0
       ```
+
     + ```ShellSession
       $ package-version-git-tag --help
       Usage: bin [options]
@@ -31,7 +35,9 @@
         -n, --dry-run  perform a trial run with no changes made
         -h, --help     display help for command
       ```
+
       ↓
+
       ```ShellSession
       $ package-version-git-tag --help
       package-version-git-tag v2.0.3
@@ -48,11 +54,14 @@
         --verbose          show details of executed git commands 
         -n, --dry-run      perform a trial run with no changes made 
       ```
+
     + ```ShellSession
       $ package-version-git-tag --typo-option
       error: unknown option '--typo-option'
       ```
+
       ↓
+
       ```ShellSession
       $ package-version-git-tag --typo-option
       unknown option: --typoOption
