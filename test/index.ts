@@ -481,6 +481,40 @@ test('CLI should to display version', async (t) => {
     }
 });
 
+test('CLI should to display version by npx', async (t) => {
+    const { exec } = await initGit(tmpDir('display-version-npx'));
+
+    const gitTags = (await exec(['git', 'tag', '-l'])).stdout;
+
+    await t.notThrowsAsync(exec(['npm', 'install', PROJECT_ROOT]));
+    for (const option of ['--version', '-v', '-V']) {
+        await t.notThrowsAsync(async () => {
+            const { stdout, stderr } = await exec([
+                'npx',
+                '--no-install',
+                PKG_DATA.name,
+                option,
+            ]);
+            t.is(
+                stdout,
+                `${PKG_DATA.name}/${PKG_DATA.version} ${process.platform}-${process.arch} node-${process.version}\n`,
+                `CLI should output version number in stdout / "${option}" option`,
+            );
+            t.is(
+                stderr,
+                '',
+                `CLI should not output anything in stderr / "${option}" option`,
+            );
+        }, `CLI should exits successfully / "${option}" option`);
+
+        t.is(
+            (await exec(['git', 'tag', '-l'])).stdout,
+            gitTags,
+            `Git tag should not change / "${option}" option`,
+        );
+    }
+});
+
 test('CLI should to display help', async (t) => {
     const { exec } = await initGit(tmpDir('display-help'));
 
