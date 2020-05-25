@@ -98,7 +98,7 @@
   "dependencies": {
     "cac": "6.5.8",
     "command-join": "3.0.0",
-    "cross-spawn": "7.0.2"
+    "cross-spawn": "7.0.3"
   },
   "devDependencies": {
     "@sounisi5011/check-peer-deps": "github:sounisi5011/check-peer-deps",
