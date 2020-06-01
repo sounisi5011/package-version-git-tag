@@ -5,7 +5,9 @@ extends:
   - eslint:recommended
   - standard
 parserOptions:
-  ecmaVersion: 2017
+  ecmaVersion: 2018
+  # Node.js 10+ almost supports features up to ES2018
+  # see https://node.green/#ES2018
 rules:
   no-console: off
   import/no-extraneous-dependencies:
