@@ -1,0 +1,13 @@
+diff --git a/node_modules/check-peer-deps/check-peer-deps.js b/node_modules/check-peer-deps/check-peer-deps.js
+index 58c073b..43191b2 100644
+--- a/node_modules/check-peer-deps/check-peer-deps.js
++++ b/node_modules/check-peer-deps/check-peer-deps.js
+@@ -215,6 +215,8 @@ const checkPeerDependencies = async (peerDependencies, name) =>
+         const maxUsable = semver.maxSatisfying(versions, peerDepRange);
+         console.log(`Package dependencies can satisfy the peerDependency? ${maxUsable ? 'Yes' : 'No'}`);
+       }
++
++      process.exitCode = 1;
+     }
+   }));
+ 
