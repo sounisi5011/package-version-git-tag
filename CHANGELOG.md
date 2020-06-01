@@ -11,6 +11,7 @@
 ### Documentation
 
 * [#140] - Update markdown syntax
+* [#142] - Fix install step in README
 
 ### Added Dependencies
 
@@ -40,6 +41,7 @@
 [#139]: https://github.com/sounisi5011/package-version-git-tag/pull/139
 [#140]: https://github.com/sounisi5011/package-version-git-tag/pull/140
 [#141]: https://github.com/sounisi5011/package-version-git-tag/pull/141
+[#142]: https://github.com/sounisi5011/package-version-git-tag/pull/142
 
 ## [2.1.0] (2020-04-30 UTC)
 
