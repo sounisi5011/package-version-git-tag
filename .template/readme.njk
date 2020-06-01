@@ -3,46 +3,33 @@ azurePipelinesBadgeURL: https://dev.azure.com/sounisi5011/npm%20projects/_apis/b
 azurePipelinesPageURL: https://dev.azure.com/sounisi5011/npm%20projects/_build/latest?definitionId=2&branchName=master
 codeclimateBadgeURL: https://api.codeclimate.com/v1/badges/ac675a219746d53b79bc/maintainability
 ---
+# {{ pkg.name }}
 
-# {{{pkg.name}}}
+[![Go to the latest release page on npm](https://img.shields.io/npm/v/{{ pkg.name }}.svg)][npm]
+[![License: {{ pkg.license }}](https://img.shields.io/static/v1?label=license&message={{ pkg.license | urlencode }}&color=green)][github-license]
+![Supported Node.js version: {{ pkg.engines.node }}](https://img.shields.io/static/v1?label=node&message={{ pkg.engines.node | urlencode }}&color=brightgreen)
+[![Minified Bundle Size Details](https://img.shields.io/bundlephobia/min/{{ pkg.name }}/{{ pkg.version }})](https://bundlephobia.com/result?p={{ pkg.name }}@{{ pkg.version }})
+[![Install Size Details](https://packagephobia.now.sh/badge?p={{ pkg.name }}@{{ pkg.version }})](https://packagephobia.now.sh/result?p={{ pkg.name }}@{{ pkg.version }})
+[![Dependencies Status](https://david-dm.org/{{ repo.user }}/{{ repo.project }}/status.svg)](https://david-dm.org/{{ repo.user }}/{{ repo.project }})
+[![Build Status]({{ azurePipelinesBadgeURL }})]({{ azurePipelinesPageURL }})
+[![Maintainability Status]({{ codeclimateBadgeURL }})](https://codeclimate.com/github/{{ repo.user }}/{{ repo.project }}/maintainability)
 
-[![Go to the latest release page on npm](https://img.shields.io/npm/v/{{{pkg.name}}}.svg)][npm]
-[![License: {{{pkg.license}}}](https://img.shields.io/static/v1?label=license&message={{#encURL}} {{{pkg.license}}} {{/encURL}}&color=green)][github-license]
-![Supported Node.js version: {{{pkg.engines.node}}}](https://img.shields.io/static/v1?label=node&message={{#encURL}} {{{pkg.engines.node}}} {{/encURL}}&color=brightgreen)
-[![Minified Bundle Size Details](https://img.shields.io/bundlephobia/min/{{{pkg.name}}}/{{{pkg.version}}})](https://bundlephobia.com/result?p={{{pkg.name}}}@{{{pkg.version}}})
-[![Install Size Details](https://packagephobia.now.sh/badge?p={{{pkg.name}}}@{{{pkg.version}}})](https://packagephobia.now.sh/result?p={{{pkg.name}}}@{{{pkg.version}}})
-[![Dependencies Status](https://david-dm.org/sounisi5011/{{{pkg.name}}}/status.svg)](https://david-dm.org/sounisi5011/{{{pkg.name}}})
-[![Build Status]({{{azurePipelinesBadgeURL}}})]({{{azurePipelinesPageURL}}})
-[![Maintainability Status]({{{codeclimateBadgeURL}}})](https://codeclimate.com/github/sounisi5011/{{{pkg.name}}}/maintainability)
-
-[npm]: https://www.npmjs.com/package/{{{pkg.name}}}
-[github-license]: {{{githubFileRoot}}}/LICENSE
+[npm]: {{ pkg.name | npmURL }}
+[github-license]: {{ '/LICENSE' | repoBrowseURL }}
 
 Add Git tag corresponding to the `version` field of `package.json`.
 
 ## Install
 
 ```sh
-npm install {{{pkg.name}}}
+npm install {{ pkg.name }}
 ```
 
 ## Usage
 
 ```ShellSession
-$ {{{pkg.name}}} --help
-{{{pkg.name}}} v{{{pkg.version}}}
-
-Add Git tag corresponding to the version field of package.json
-
-Usage:
-  $ {{{pkg.name}}} [options]
-
-Options:
-  -V, -v, --version  Display version number 
-  -h, --help         Display this message 
-  --push             `git push` the added tag to the remote repository 
-  --verbose          show details of executed git commands 
-  -n, --dry-run      perform a trial run with no changes made 
+$ {{ pkg.name }} --help
+{{ 'ts-node --transpile-only ./src/bin.ts --help' | execCommand }}
 ```
 
 For example, suppose that `package.json` exists in the current directory, and version is `1.2.3`:
@@ -58,7 +45,7 @@ For example, suppose that `package.json` exists in the current directory, and ve
 In this case, this command is:
 
 ```sh
-{{{pkg.name}}}
+{{ pkg.name }}
 ```
 
 Equivalent to this operation:
@@ -70,7 +57,7 @@ $ git tag v1.2.3 -m 1.2.3
 If you add the `--push` flag, it will also run `git push`. That is, this command is:
 
 ```sh
-{{{pkg.name}}} --push
+{{ pkg.name }} --push
 ```
 
 Equivalent to this operation:
@@ -131,7 +118,7 @@ npm test
 
 ## Contributing
 
-see [CONTRIBUTING.md](https://github.com/sounisi5011/{{{pkg.name}}}/blob/master/CONTRIBUTING.md)
+see [CONTRIBUTING.md]({{ '/CONTRIBUTING.md' | repoBrowseURL(branch='master') }})
 
 ## Related
 

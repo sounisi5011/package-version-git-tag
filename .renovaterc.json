@@ -1,7 +1,6 @@
 {
   "extends": ["config:js-lib"],
   "commitMessagePrefix": "⬆️",
-  "ignorePaths": ["script/**/package.json"],
   "ignoreDeps": ["@types/node"],
   "packageRules": [
     {
@@ -43,12 +42,13 @@
     },
     {
       "packageNames": [
-        "@sounisi5011/check-peer-deps",
         "can-npm-publish",
+        "check-peer-deps",
         "del-cli",
         "git-branch-is",
         "is-git-status-clean",
-        "npm-run-all"
+        "npm-run-all",
+        "patch-package"
       ],
       "groupName": "dependencies: npm-scripts packages",
       "groupSlug": "npm-scripts-packages"
