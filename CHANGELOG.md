@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Supported Node version
+
+`8.3.0 - 14.x` -> `10.x || 12.x || 14.x`
+
+* [#138] - Omit unsupported Node.js
+
 ### Added Dependencies
 
 #### devDependencies
@@ -23,6 +29,7 @@
 
 [Unreleased]: https://github.com/sounisi5011/package-version-git-tag/compare/v2.1.0...master
 [#136]: https://github.com/sounisi5011/package-version-git-tag/pull/136
+[#138]: https://github.com/sounisi5011/package-version-git-tag/pull/138
 [#137]: https://github.com/sounisi5011/package-version-git-tag/pull/137
 
 ## [2.1.0] (2020-04-30 UTC)
