@@ -17,7 +17,7 @@ Add Git tag corresponding to the `version` field of `package.json`.
 ## Install
 
 ```sh
-npm install package-version-git-tag
+npm install --save-dev package-version-git-tag
 ```
 
 ## Usage
