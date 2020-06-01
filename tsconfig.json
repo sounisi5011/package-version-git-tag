@@ -27,7 +27,7 @@
       "*": ["./types.node_modules/*"]
     },
     "types": ["node"],
-    "esModuleInterop": true,
+    "esModuleInterop": false,
 
     /* Source Map Options */
     "inlineSources": true,
