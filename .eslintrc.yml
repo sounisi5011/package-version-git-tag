@@ -4,34 +4,41 @@ env:
 extends:
   - eslint:recommended
   - standard
-  - plugin:@typescript-eslint/recommended
-  - plugin:import/typescript
-  - plugin:prettier/recommended
-  - prettier/@typescript-eslint
-parser: "@typescript-eslint/parser"
 parserOptions:
-  sourceType: module
-  project:
-    - ./tsconfig.json
-    - ./test/tsconfig.json
-plugins:
-  - "@typescript-eslint"
-  - simple-import-sort
+  ecmaVersion: 2017
 rules:
   no-console: off
-  no-dupe-class-members: off
-  node/no-unsupported-features/es-syntax:
-    - error
-    - ignores:
-        - modules
-  "@typescript-eslint/explicit-function-return-type":
-    - warn
-    - allowExpressions: true
-  "@typescript-eslint/no-inferrable-types": off
-  simple-import-sort/sort: error
   prettier/prettier: error
 overrides:
-  - files:
-      - "*.d.ts"
+  - files: "*.js"
+    extends:
+      - plugin:prettier/recommended
+  - files: "*.ts"
+    extends:
+      - plugin:@typescript-eslint/recommended
+      - plugin:import/typescript
+      - plugin:prettier/recommended
+      - prettier/@typescript-eslint
+    parser: "@typescript-eslint/parser"
+    parserOptions:
+      sourceType: module
+      project:
+        - ./tsconfig.json
+        - ./test/tsconfig.json
+    plugins:
+      - "@typescript-eslint"
+      - simple-import-sort
+    rules:
+      no-dupe-class-members: off
+      node/no-unsupported-features/es-syntax:
+        - error
+        - ignores:
+            - modules
+      "@typescript-eslint/explicit-function-return-type":
+        - warn
+        - allowExpressions: true
+      "@typescript-eslint/no-inferrable-types": off
+      simple-import-sort/sort: error
+  - files: "*.d.ts"
     rules:
       no-useless-constructor: off

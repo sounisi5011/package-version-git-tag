@@ -50,8 +50,8 @@ module.exports = {
       `sort-package-json ${pkgFiles.join(' ')}`,
     ]);
 
-    filterPush(commands, allFiles, extFilter('ts'), (tsFiles) => [
-      `eslint --fix ${tsFiles.join(' ')}`,
+    filterPush(commands, allFiles, extFilter('ts', 'js'), (tsOrJsFiles) => [
+      `eslint --fix ${tsOrJsFiles.join(' ')}`,
     ]);
 
     if (allFiles.some((filename) => path.resolve('README.md') !== filename))
