@@ -1,6 +1,7 @@
-import del from 'del';
-import Server from 'node-git-server';
-import path from 'path';
+import * as path from 'path';
+
+import del = require('del');
+import Server = require('node-git-server');
 
 const PORT = {
     MIN: 49152,

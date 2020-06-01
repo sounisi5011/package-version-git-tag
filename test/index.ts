@@ -1,11 +1,12 @@
 import test from 'ava';
-import del from 'del';
-import escapeRegExp from 'escape-string-regexp';
-import path from 'path';
+import * as path from 'path';
 
 import * as PKG_DATA from '../package.json';
 import { execFileAsync, getRandomInt, writeFile } from './helpers';
 import { initGit } from './helpers/git';
+
+import del = require('del');
+import escapeRegExp = require('escape-string-regexp');
 
 const PROJECT_ROOT = path.resolve(__dirname, '..');
 const FIXTURES_DIR = path.resolve(__dirname, 'fixtures');

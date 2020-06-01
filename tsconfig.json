@@ -3,7 +3,7 @@
     /* Basic Options */
     // Node.js 10+ almost supports features up to ES2018
     // see https://node.green/#ES2018
-    // see https://www.typescriptlang.org/tsconfig#target
+    // see https://www.typescriptlang.org/v2/tsconfig#target
     "target": "ES2018",
     "module": "CommonJS",
     "declaration": true,
@@ -27,14 +27,17 @@
       "*": ["./types.node_modules/*"]
     },
     "types": ["node"],
-    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": false,
+    "esModuleInterop": false,
 
     /* Source Map Options */
     "inlineSources": true,
 
     /* Advanced Options */
     "forceConsistentCasingInFileNames": true,
-    "newLine": "LF"
+    "importsNotUsedAsValues": "error",
+    "newLine": "LF",
+    "useDefineForClassFields": true
   },
   "include": ["./src/**/*"]
 }

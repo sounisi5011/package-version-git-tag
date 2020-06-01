@@ -1,4 +1,4 @@
-import path from 'path';
+import * as path from 'path';
 
 import { isHeadTag, push, setTag, tagExists } from './git';
 import { endPrintVerbose, getConfig, isPkgData, readJSONFile } from './utils';

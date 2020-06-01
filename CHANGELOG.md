@@ -31,6 +31,7 @@
 * [#136] - Pin only devDependencies
 * [#137] - Change project file structure
 * [#139] - Enable compilerOptions.inlineSources
+* [#141] - Update to strict type definition code
 
 [Unreleased]: https://github.com/sounisi5011/package-version-git-tag/compare/v2.1.0...master
 [#136]: https://github.com/sounisi5011/package-version-git-tag/pull/136
@@ -38,6 +39,7 @@
 [#137]: https://github.com/sounisi5011/package-version-git-tag/pull/137
 [#139]: https://github.com/sounisi5011/package-version-git-tag/pull/139
 [#140]: https://github.com/sounisi5011/package-version-git-tag/pull/140
+[#141]: https://github.com/sounisi5011/package-version-git-tag/pull/141
 
 ## [2.1.0] (2020-04-30 UTC)
 

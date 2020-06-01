@@ -1,5 +1,6 @@
-import childProcess from 'child_process';
-import crossSpawn from 'cross-spawn';
+import type * as childProcess from 'child_process';
+
+import crossSpawn = require('cross-spawn');
 
 export interface ExecFunc {
     (cmd: readonly string[], options?: childProcess.ExecFileOptions): Promise<{

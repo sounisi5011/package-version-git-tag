@@ -1,9 +1,10 @@
-import childProcess from 'child_process';
+import type * as childProcess from 'child_process';
 import { commandJoin } from 'command-join';
-import crossSpawn from 'cross-spawn';
-import fs from 'fs';
-import path from 'path';
+import * as fs from 'fs';
+import * as path from 'path';
 import { promisify } from 'util';
+
+import crossSpawn = require('cross-spawn');
 
 const readFileAsync = promisify(fs.readFile);
 
