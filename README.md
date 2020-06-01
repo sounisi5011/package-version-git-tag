@@ -10,7 +10,7 @@
 [![Maintainability Status](https://api.codeclimate.com/v1/badges/ac675a219746d53b79bc/maintainability)](https://codeclimate.com/github/sounisi5011/package-version-git-tag/maintainability)
 
 [npm]: https://www.npmjs.com/package/package-version-git-tag
-[github-license]: https://github.com/sounisi5011/package-version-git-tag/blob/v2.1.0/LICENSE
+[github-license]: https://github.com/sounisi5011/package-version-git-tag/tree/v2.1.0/LICENSE
 
 Add Git tag corresponding to the `version` field of `package.json`.
 
@@ -125,7 +125,7 @@ npm test
 
 ## Contributing
 
-see [CONTRIBUTING.md](https://github.com/sounisi5011/package-version-git-tag/blob/master/CONTRIBUTING.md)
+see [CONTRIBUTING.md](https://github.com/sounisi5011/package-version-git-tag/tree/master/CONTRIBUTING.md)
 
 ## Related
 
