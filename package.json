@@ -56,45 +56,6 @@
     "test:readme": "run-s 'build:readme -- --test'",
     "test:unit-test": "ava"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
-  "lint-staged": {
-    "!(README.md)": [
-      "run-s build:readme --",
-      "git add ./README.md"
-    ],
-    "!(package).json|*.{js,yaml,yml}": [
-      "prettier --write"
-    ],
-    "*.ts": [
-      "eslint --fix"
-    ],
-    "README.md": [
-      "run-s test:readme --"
-    ],
-    "package.json": [
-      "prettier-package-json --write",
-      "sort-package-json"
-    ]
-  },
-  "ava": {
-    "compileEnhancements": false,
-    "extensions": [
-      "ts"
-    ],
-    "files": [
-      "./test/**/*.ts"
-    ],
-    "helpers": [
-      "**/helpers/**/*"
-    ],
-    "require": [
-      "ts-node/register/transpile-only"
-    ]
-  },
   "dependencies": {
     "cac": "^6.5.8",
     "command-join": "^3.0.0",
