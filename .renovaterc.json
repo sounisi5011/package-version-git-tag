@@ -1,7 +1,6 @@
 {
   "extends": ["config:js-lib"],
   "commitMessagePrefix": "⬆️",
-  "ignorePaths": ["script/**/package.json"],
   "ignoreDeps": ["@types/node"],
   "packageRules": [
     {
