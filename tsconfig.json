@@ -27,6 +27,7 @@
       "*": ["./types.node_modules/*"]
     },
     "types": ["node"],
+    "allowSyntheticDefaultImports": false,
     "esModuleInterop": false,
 
     /* Source Map Options */
