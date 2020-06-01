@@ -1,8 +1,11 @@
 {
   "extends": "../tsconfig",
   "compilerOptions": {
-    "resolveJsonModule": true,
-    "noEmit": true
+    /* Basic Options */
+    "noEmit": true,
+
+    /* Advanced Options */
+    "resolveJsonModule": true
   },
   "include": ["./**/*"]
 }
