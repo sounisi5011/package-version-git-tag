@@ -8,6 +8,10 @@
 
 * [#138] - Omit unsupported Node.js
 
+### Documentation
+
+* [#140] - Update markdown syntax
+
 ### Added Dependencies
 
 #### devDependencies
@@ -33,6 +37,7 @@
 [#138]: https://github.com/sounisi5011/package-version-git-tag/pull/138
 [#137]: https://github.com/sounisi5011/package-version-git-tag/pull/137
 [#139]: https://github.com/sounisi5011/package-version-git-tag/pull/139
+[#140]: https://github.com/sounisi5011/package-version-git-tag/pull/140
 
 ## [2.1.0] (2020-04-30 UTC)
 
