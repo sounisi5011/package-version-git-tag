@@ -42,7 +42,6 @@
     },
     {
       "packageNames": [
-        "@sounisi5011/check-peer-deps",
         "can-npm-publish",
         "del-cli",
         "git-branch-is",
