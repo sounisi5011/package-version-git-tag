@@ -35,7 +35,8 @@
     /* Advanced Options */
     "forceConsistentCasingInFileNames": true,
     "importsNotUsedAsValues": "error",
-    "newLine": "LF"
+    "newLine": "LF",
+    "useDefineForClassFields": true
   },
   "include": ["./src/**/*"]
 }
