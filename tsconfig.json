@@ -29,6 +29,9 @@
     "types": ["node"],
     "esModuleInterop": true,
 
+    /* Source Map Options */
+    "inlineSources": true,
+
     /* Advanced Options */
     "forceConsistentCasingInFileNames": true,
     "newLine": "LF"
