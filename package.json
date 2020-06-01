@@ -31,7 +31,7 @@
   ],
   "scripts": {
     "build": "tsc",
-    "build:readme": "readme-generator --template ./readme-template.mustache",
+    "build:readme": "readme-generator --template ./.template/readme.mustache",
     "clean": "del ./dist/ ./test/fixtures/{node_modules/,package-lock.json} ./test/tmp/",
     "fmt-pkg": "run-s fmt-pkg:prettier fmt-pkg:sort",
     "fmt-pkg:prettier": "prettier-package-json --write ./package.json",
