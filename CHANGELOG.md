@@ -2,7 +2,12 @@
 
 ## [Unreleased]
 
+### Others
+
+* [#136] - Pin only devDependencies
+
 [Unreleased]: https://github.com/sounisi5011/package-version-git-tag/compare/v2.1.0...master
+[#136]: https://github.com/sounisi5011/package-version-git-tag/pull/136
 
 ## [2.1.0] (2020-04-30 UTC)
 
