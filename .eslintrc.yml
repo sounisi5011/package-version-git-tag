@@ -50,4 +50,5 @@ overrides:
       simple-import-sort/sort: error
   - files: "*.d.ts"
     rules:
+      no-redeclare: off
       no-useless-constructor: off
