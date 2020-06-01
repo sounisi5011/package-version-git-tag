@@ -22,7 +22,7 @@ npm install package-version-git-tag
 
 ## Usage
 
-```ShellSession
+```console
 $ package-version-git-tag --help
 package-version-git-tag v2.1.0
 
@@ -57,7 +57,7 @@ package-version-git-tag
 
 Equivalent to this operation:
 
-```ShellSession
+```console
 $ git tag v1.2.3 -m 1.2.3
 ```
 
@@ -69,7 +69,7 @@ package-version-git-tag --push
 
 Equivalent to this operation:
 
-```ShellSession
+```console
 $ git tag v1.2.3 -m 1.2.3
 $ git push origin v1.2.3
 ```
