@@ -55,7 +55,7 @@ function execExithandler({
     reject,
 }: {
     command: string;
-    args: ReadonlyArray<string>;
+    args: readonly string[];
     stdoutList: unknown[];
     stderrList: unknown[];
     resolve: (value: { stdout: string; stderr: string }) => void;
@@ -105,7 +105,7 @@ function execErrorhandler({
  * @see https://github.com/nodejs/node/blob/v12.13.0/lib/child_process.js#L178-L390
  */
 export async function execFileAsync(
-    ...args: [string, ReadonlyArray<string>?, childProcess.SpawnOptions?]
+    ...args: [string, (readonly string[])?, childProcess.SpawnOptions?]
 ): Promise<{ readonly stdout: string; readonly stderr: string }> {
     return new Promise((resolve, reject) => {
         const process = crossSpawn(...args);

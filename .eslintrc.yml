@@ -8,6 +8,12 @@ parserOptions:
   ecmaVersion: 2017
 rules:
   no-console: off
+  import/no-extraneous-dependencies:
+    - error
+    - devDependencies:
+        - "*"
+        - .*
+        - test/**
   prettier/prettier: error
 overrides:
   - files: "*.js"
@@ -34,6 +40,7 @@ overrides:
         - error
         - ignores:
             - modules
+      "@typescript-eslint/array-type": warn
       "@typescript-eslint/explicit-function-return-type":
         - warn
         - allowExpressions: true
