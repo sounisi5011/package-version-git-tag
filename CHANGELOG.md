@@ -2,12 +2,28 @@
 
 ## [Unreleased]
 
+### Added Dependencies
+
+#### devDependencies
+
+* [#137] - `@sounisi5011/readme-generator@0.0.2`
+* [#137] - `check-peer-deps@1.1.3`
+* [#137] - `patch-package@6.2.2`
+
+### Removed Dependencies
+
+#### devDependencies
+
+* [#137] - `@sounisi5011/check-peer-deps`
+
 ### Others
 
 * [#136] - Pin only devDependencies
+* [#137] - Change project file structure
 
 [Unreleased]: https://github.com/sounisi5011/package-version-git-tag/compare/v2.1.0...master
 [#136]: https://github.com/sounisi5011/package-version-git-tag/pull/136
+[#137]: https://github.com/sounisi5011/package-version-git-tag/pull/137
 
 ## [2.1.0] (2020-04-30 UTC)
 
