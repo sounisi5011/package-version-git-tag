@@ -1,11 +1,12 @@
-import del from 'del';
-import makeDir from 'make-dir';
-import path from 'path';
+import * as path from 'path';
 
 import { writeFile } from '.';
 import { ExecFunc, execGenerator } from './exec';
 import initGitServer from './git-server';
 import type { PromiseValue } from './types';
+
+import del = require('del');
+import makeDir = require('make-dir');
 
 export type GitRemote = PromiseValue<ReturnType<typeof initGitServer>>;
 
