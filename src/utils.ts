@@ -1,4 +1,4 @@
-import childProcess from 'child_process';
+import type childProcess from 'child_process';
 import { commandJoin } from 'command-join';
 import crossSpawn from 'cross-spawn';
 import fs from 'fs';

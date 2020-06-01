@@ -5,7 +5,7 @@ import path from 'path';
 import { writeFile } from '.';
 import { ExecFunc, execGenerator } from './exec';
 import initGitServer from './git-server';
-import { PromiseValue } from './types';
+import type { PromiseValue } from './types';
 
 export type GitRemote = PromiseValue<ReturnType<typeof initGitServer>>;
 

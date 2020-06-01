@@ -1,4 +1,4 @@
-import childProcess from 'child_process';
+import type childProcess from 'child_process';
 import crossSpawn from 'cross-spawn';
 
 export interface ExecFunc {
