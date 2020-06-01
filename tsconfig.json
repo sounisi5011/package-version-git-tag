@@ -4,7 +4,7 @@
     "types": ["node"],
     "baseUrl": ".",
     "paths": {
-      "*": ["node_modules.types/*"]
+      "*": ["types.node_modules/*"]
     },
     "module": "CommonJS",
     "moduleResolution": "Node",
