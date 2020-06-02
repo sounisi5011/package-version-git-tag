@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+[Unreleased]: https://github.com/sounisi5011/package-version-git-tag/compare/v3.0.0...master
+
+## [3.0.0] (2020-06-02 UTC)
+
+* Drop support for Node.js 8, 9, 11 and 13
+* Don't pin non-dev dependencies
+* Update dev dependencies
+
 ### Supported Node version
 
 `8.3.0 - 14.x` -> `10.x || 12.x || 14.x`
@@ -61,7 +69,7 @@
 * [#141] - Update to strict type definition code
 * [#144] - Fix patch-package config
 
-[Unreleased]: https://github.com/sounisi5011/package-version-git-tag/compare/v2.1.0...master
+[3.0.0]: https://github.com/sounisi5011/package-version-git-tag/compare/v2.1.0...v3.0.0
 [#136]: https://github.com/sounisi5011/package-version-git-tag/pull/136
 [#138]: https://github.com/sounisi5011/package-version-git-tag/pull/138
 [#137]: https://github.com/sounisi5011/package-version-git-tag/pull/137
