@@ -31,25 +31,29 @@ export default async function (
         if (usedPort.has(port)) {
             continue;
         }
-        try {
-            await new Promise((resolve, reject) => {
-                repos.listen(port, resolve);
-                /**
-                 * Note: The try...catch statement does not catch the error for the http/https module.
-                 * @see https://github.com/expressjs/express/issues/2856#issuecomment-172566787
-                 */
-                repos.server?.on('error', reject);
+        const result = await new Promise((resolve, reject) => {
+            repos.listen(port, resolve);
+            /**
+             * Note: The try...catch statement does not catch the error for the http/https module.
+             * @see https://github.com/expressjs/express/issues/2856#issuecomment-172566787
+             */
+            repos.server?.on('error', reject);
+        })
+            .then(() => {
+                usedPort.add(port);
+                return {
+                    remoteURL: `http://localhost:${port}`,
+                    repos,
+                    tagList,
+                };
+            })
+            .catch((error) => {
+                if (error.code !== 'EADDRINUSE') {
+                    errors.push(error);
+                }
             });
-            usedPort.add(port);
-            return {
-                remoteURL: `http://localhost:${port}`,
-                repos,
-                tagList,
-            };
-        } catch (error) {
-            if (error.code !== 'EADDRINUSE') {
-                errors.push(error);
-            }
+        if (result) {
+            return result;
         }
     }
 
