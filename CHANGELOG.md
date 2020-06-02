@@ -22,6 +22,8 @@
     * [#129] - `2.30.0` -> `2.34.0`
 * `@typescript-eslint/parser`
     * [#129] - `2.30.0` -> `2.34.0`
+* `del-cli`
+    * [#134] - `3.0.0` -> `3.0.1`
 * `lint-staged`
     * [#127] - `10.2.0` -> `10.2.7`
 * `sort-package-json`
@@ -64,6 +66,7 @@
 [#129]: https://github.com/sounisi5011/package-version-git-tag/pull/129
 [#127]: https://github.com/sounisi5011/package-version-git-tag/pull/127
 [#128]: https://github.com/sounisi5011/package-version-git-tag/pull/128
+[#134]: https://github.com/sounisi5011/package-version-git-tag/pull/134
 
 ## [2.1.0] (2020-04-30 UTC)
 
