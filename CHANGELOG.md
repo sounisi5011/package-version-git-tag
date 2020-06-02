@@ -14,6 +14,15 @@
 * [#142] - Fix install step in README
 * [#143] - Add Change Log section to README
 
+### Updated Dependencies
+
+#### devDependencies
+
+* `@typescript-eslint/eslint-plugin`
+    * [#129] - `2.30.0` -> `2.34.0`
+* `@typescript-eslint/parser`
+    * [#129] - `2.30.0` -> `2.34.0`
+
 ### Added Dependencies
 
 #### devDependencies
@@ -46,6 +55,7 @@
 [#142]: https://github.com/sounisi5011/package-version-git-tag/pull/142
 [#143]: https://github.com/sounisi5011/package-version-git-tag/pull/143
 [#144]: https://github.com/sounisi5011/package-version-git-tag/pull/144
+[#129]: https://github.com/sounisi5011/package-version-git-tag/pull/129
 
 ## [2.1.0] (2020-04-30 UTC)
 
