@@ -49,6 +49,10 @@
 
 * [#137] - `@sounisi5011/check-peer-deps`
 
+### Tests
+
+* [#146] - Fix error handling of `Git.listen()` method in node-git-server
+
 ### Others
 
 * [#136] - Pin only devDependencies
@@ -73,6 +77,7 @@
 [#134]: https://github.com/sounisi5011/package-version-git-tag/pull/134
 [#131]: https://github.com/sounisi5011/package-version-git-tag/pull/131
 [#133]: https://github.com/sounisi5011/package-version-git-tag/pull/133
+[#146]: https://github.com/sounisi5011/package-version-git-tag/pull/146
 
 ## [2.1.0] (2020-04-30 UTC)
 
