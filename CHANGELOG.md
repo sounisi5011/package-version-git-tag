@@ -34,6 +34,7 @@
 * [#137] - Change project file structure
 * [#139] - Enable compilerOptions.inlineSources
 * [#141] - Update to strict type definition code
+* [#144] - Fix patch-package config
 
 [Unreleased]: https://github.com/sounisi5011/package-version-git-tag/compare/v2.1.0...master
 [#136]: https://github.com/sounisi5011/package-version-git-tag/pull/136
@@ -44,6 +45,7 @@
 [#141]: https://github.com/sounisi5011/package-version-git-tag/pull/141
 [#142]: https://github.com/sounisi5011/package-version-git-tag/pull/142
 [#143]: https://github.com/sounisi5011/package-version-git-tag/pull/143
+[#144]: https://github.com/sounisi5011/package-version-git-tag/pull/144
 
 ## [2.1.0] (2020-04-30 UTC)
 
