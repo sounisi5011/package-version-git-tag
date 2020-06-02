@@ -26,26 +26,43 @@ export default async function (
         tag.accept();
     });
 
+    const errors: Error[] = [];
     for (let port = PORT.MIN; port <= PORT.MAX; port++) {
         if (usedPort.has(port)) {
             continue;
         }
-        try {
-            await new Promise((resolve) => repos.listen(port, resolve));
-            usedPort.add(port);
-            return {
-                remoteURL: `http://localhost:${port}`,
-                repos,
-                tagList,
-            };
-        } catch (error) {
-            if (error.code !== 'EADDRINUSE') {
-                throw error;
-            }
+        const result = await new Promise((resolve, reject) => {
+            repos.listen(port, resolve);
+            /**
+             * Note: The try...catch statement does not catch the error for the http/https module.
+             * @see https://github.com/expressjs/express/issues/2856#issuecomment-172566787
+             */
+            repos.server?.on('error', reject);
+        })
+            .then(() => {
+                usedPort.add(port);
+                return {
+                    remoteURL: `http://localhost:${port}`,
+                    repos,
+                    tagList,
+                };
+            })
+            .catch((error) => {
+                if (error.code !== 'EADDRINUSE') {
+                    errors.push(error);
+                }
+            });
+        if (result) {
+            return result;
         }
     }
 
-    throw new Error(
-        `Could not start git server; no available port in ${PORT.MIN} to ${PORT.MAX}`,
-    );
+    const lastError = errors.pop();
+    if (lastError) {
+        throw lastError;
+    } else {
+        throw new Error(
+            `Could not start git server; no available port in ${PORT.MIN} to ${PORT.MAX}`,
+        );
+    }
 }

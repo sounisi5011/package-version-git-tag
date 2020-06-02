@@ -38,6 +38,8 @@ overrides:
       - simple-import-sort
     rules:
       no-dupe-class-members: off
+      # The no-unused-expressions rule does not support optional chaining operator (`?.`)
+      no-unused-expressions: off
       node/no-unsupported-features/es-syntax:
         - error
         - ignores:
@@ -47,6 +49,13 @@ overrides:
         - warn
         - allowExpressions: true
       "@typescript-eslint/no-inferrable-types": off
+      # Copy the no-unused-expressions rule's option contained in eslint-config-standard
+      # see: https://github.com/standard/eslint-config-standard/blob/v14.1.1/eslintrc.json#L157
+      "@typescript-eslint/no-unused-expressions":
+        - error
+        - allowShortCircuit: true
+          allowTernary: true
+          allowTaggedTemplates: true
       simple-import-sort/sort: error
   - files: "*.d.ts"
     rules:
