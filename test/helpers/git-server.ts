@@ -26,6 +26,7 @@ export default async function (
         tag.accept();
     });
 
+    const errors: Error[] = [];
     for (let port = PORT.MIN; port <= PORT.MAX; port++) {
         if (usedPort.has(port)) {
             continue;
@@ -40,12 +41,17 @@ export default async function (
             };
         } catch (error) {
             if (error.code !== 'EADDRINUSE') {
-                throw error;
+                errors.push(error);
             }
         }
     }
 
-    throw new Error(
-        `Could not start git server; no available port in ${PORT.MIN} to ${PORT.MAX}`,
-    );
+    const lastError = errors.pop();
+    if (lastError) {
+        throw lastError;
+    } else {
+        throw new Error(
+            `Could not start git server; no available port in ${PORT.MIN} to ${PORT.MAX}`,
+        );
+    }
 }
