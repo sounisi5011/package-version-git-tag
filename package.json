@@ -42,6 +42,7 @@
     "lint:eslint": "eslint --ext .ts,.js ./",
     "lint:tsc-src": "tsc --noEmit",
     "lint:tsc-test": "tsc -p ./test/ --noEmit",
+    "prepare": "patch-package",
     "release": "run-s release:validation release:build release:publish",
     "release:build": "run-s clean build",
     "release:publish": "run-s release:publish:git release:publish:npm",
