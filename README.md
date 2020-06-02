@@ -3,14 +3,14 @@
 [![Go to the latest release page on npm](https://img.shields.io/npm/v/package-version-git-tag.svg)][npm]
 [![License: MIT](https://img.shields.io/static/v1?label=license&message=MIT&color=green)][github-license]
 ![Supported Node.js version: 10.x || 12.x || 14.x](https://img.shields.io/static/v1?label=node&message=10.x%20%7C%7C%2012.x%20%7C%7C%2014.x&color=brightgreen)
-[![Minified Bundle Size Details](https://img.shields.io/bundlephobia/min/package-version-git-tag/2.1.0)](https://bundlephobia.com/result?p=package-version-git-tag@2.1.0)
-[![Install Size Details](https://packagephobia.now.sh/badge?p=package-version-git-tag@2.1.0)](https://packagephobia.now.sh/result?p=package-version-git-tag@2.1.0)
+[![Minified Bundle Size Details](https://img.shields.io/bundlephobia/min/package-version-git-tag/3.0.0)](https://bundlephobia.com/result?p=package-version-git-tag@3.0.0)
+[![Install Size Details](https://packagephobia.now.sh/badge?p=package-version-git-tag@3.0.0)](https://packagephobia.now.sh/result?p=package-version-git-tag@3.0.0)
 [![Dependencies Status](https://david-dm.org/sounisi5011/package-version-git-tag/status.svg)](https://david-dm.org/sounisi5011/package-version-git-tag)
 [![Build Status](https://dev.azure.com/sounisi5011/npm%20projects/_apis/build/status/sounisi5011.package-version-git-tag?branchName=master)](https://dev.azure.com/sounisi5011/npm%20projects/_build/latest?definitionId=2&branchName=master)
 [![Maintainability Status](https://api.codeclimate.com/v1/badges/ac675a219746d53b79bc/maintainability)](https://codeclimate.com/github/sounisi5011/package-version-git-tag/maintainability)
 
 [npm]: https://www.npmjs.com/package/package-version-git-tag
-[github-license]: https://github.com/sounisi5011/package-version-git-tag/tree/v2.1.0/LICENSE
+[github-license]: https://github.com/sounisi5011/package-version-git-tag/tree/v3.0.0/LICENSE
 
 Add Git tag corresponding to the `version` field of `package.json`.
 
@@ -24,7 +24,7 @@ npm install --save-dev package-version-git-tag
 
 ```console
 $ package-version-git-tag --help
-package-version-git-tag v2.1.0
+package-version-git-tag v3.0.0
 
 Add Git tag corresponding to the version field of package.json
 
@@ -125,7 +125,7 @@ npm test
 
 ## Change Log
 
-see [CHANGELOG.md](https://github.com/sounisi5011/package-version-git-tag/tree/v2.1.0/CHANGELOG.md)
+see [CHANGELOG.md](https://github.com/sounisi5011/package-version-git-tag/tree/v3.0.0/CHANGELOG.md)
 
 ## Contributing
 
