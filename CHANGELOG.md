@@ -22,6 +22,10 @@
     * [#129] - `2.30.0` -> `2.34.0`
 * `@typescript-eslint/parser`
     * [#129] - `2.30.0` -> `2.34.0`
+* `lint-staged`
+    * [#127] - `10.2.0` -> `10.2.7`
+* `sort-package-json`
+    * [#127] - `1.42.1` -> `1.44.0`
 
 ### Added Dependencies
 
@@ -56,6 +60,7 @@
 [#143]: https://github.com/sounisi5011/package-version-git-tag/pull/143
 [#144]: https://github.com/sounisi5011/package-version-git-tag/pull/144
 [#129]: https://github.com/sounisi5011/package-version-git-tag/pull/129
+[#127]: https://github.com/sounisi5011/package-version-git-tag/pull/127
 
 ## [2.1.0] (2020-04-30 UTC)
 
