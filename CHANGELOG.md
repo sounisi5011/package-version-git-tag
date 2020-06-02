@@ -26,6 +26,8 @@
     * [#127] - `10.2.0` -> `10.2.7`
 * `sort-package-json`
     * [#127] - `1.42.1` -> `1.44.0`
+* `ts-node`
+    * [#128] - `8.9.1` -> `8.10.2`
 
 ### Added Dependencies
 
@@ -61,6 +63,7 @@
 [#144]: https://github.com/sounisi5011/package-version-git-tag/pull/144
 [#129]: https://github.com/sounisi5011/package-version-git-tag/pull/129
 [#127]: https://github.com/sounisi5011/package-version-git-tag/pull/127
+[#128]: https://github.com/sounisi5011/package-version-git-tag/pull/128
 
 ## [2.1.0] (2020-04-30 UTC)
 
