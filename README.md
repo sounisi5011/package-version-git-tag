@@ -123,6 +123,10 @@ npm install
 npm test
 ```
 
+## Change Log
+
+see [CHANGELOG.md](https://github.com/sounisi5011/package-version-git-tag/tree/v2.1.0/CHANGELOG.md)
+
 ## Contributing
 
 see [CONTRIBUTING.md](https://github.com/sounisi5011/package-version-git-tag/tree/master/CONTRIBUTING.md)
