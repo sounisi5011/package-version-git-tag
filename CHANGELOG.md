@@ -18,6 +18,8 @@
 
 #### devDependencies
 
+* `@types/cross-spawn`
+    * [#133] - `6.0.1` -> `6.0.2`
 * `@typescript-eslint/eslint-plugin`
     * [#129] - `2.30.0` -> `2.34.0`
 * `@typescript-eslint/parser`
@@ -70,6 +72,7 @@
 [#128]: https://github.com/sounisi5011/package-version-git-tag/pull/128
 [#134]: https://github.com/sounisi5011/package-version-git-tag/pull/134
 [#131]: https://github.com/sounisi5011/package-version-git-tag/pull/131
+[#133]: https://github.com/sounisi5011/package-version-git-tag/pull/133
 
 ## [2.1.0] (2020-04-30 UTC)
 
