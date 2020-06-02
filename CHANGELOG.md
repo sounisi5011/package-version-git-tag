@@ -30,6 +30,8 @@
     * [#127] - `1.42.1` -> `1.44.0`
 * `ts-node`
     * [#128] - `8.9.1` -> `8.10.2`
+* `typescript`
+    * [#131] - `3.8.3` -> `3.9.3`
 
 ### Added Dependencies
 
@@ -67,6 +69,7 @@
 [#127]: https://github.com/sounisi5011/package-version-git-tag/pull/127
 [#128]: https://github.com/sounisi5011/package-version-git-tag/pull/128
 [#134]: https://github.com/sounisi5011/package-version-git-tag/pull/134
+[#131]: https://github.com/sounisi5011/package-version-git-tag/pull/131
 
 ## [2.1.0] (2020-04-30 UTC)
 
