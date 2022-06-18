@@ -85,7 +85,7 @@
     "eslint-plugin-simple-import-sort": "5.0.3",
     "eslint-plugin-standard": "4.0.1",
     "git-branch-is": "3.1.0",
-    "husky": "4.2.5",
+    "husky": "4.3.7",
     "is-git-status-clean": "1.0.0",
     "lint-staged": "10.2.7",
     "make-dir": "3.1.0",
