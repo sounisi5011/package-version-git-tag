@@ -4,6 +4,12 @@
 
 [Unreleased]: https://github.com/sounisi5011/package-version-git-tag/compare/v3.0.0...master
 
+### Documentation
+
+* [#182] - From now on, use squash merges
+
+[#182]: https://github.com/sounisi5011/package-version-git-tag/pull/182
+
 ## [3.0.0] (2020-06-02 UTC)
 
 * Drop support for Node.js 8, 9, 11 and 13
