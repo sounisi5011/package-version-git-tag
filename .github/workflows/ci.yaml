@@ -1,0 +1,137 @@
+name: CI
+on:
+  push:
+    branches:
+      - main
+    tags-ignore:
+      - "**"
+  pull_request:
+    branches:
+      - "**"
+jobs:
+  # If the "invalid" or "skip ci" labels are added to the Pull Request, do not run CI.
+  # see https://github.com/sounisi5011/npm-packages/blob/2a5ca2de696eeb8b40a38de90580441c4c6c96e0/.github/workflows/ci.yaml#L12-L52
+  if-run-ci:
+    # see https://docs.github.com/en/actions/learn-github-actions/contexts#github-context
+    # see https://stackoverflow.com/a/67532120/4907315
+    if: >-
+      ${{
+        ! (
+             contains(github.event.pull_request.labels.*.name, 'invalid')
+          || contains(github.event.pull_request.labels.*.name, 'skip ci')
+        )
+      }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check GitHub API rate limit
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # https://shogo82148.github.io/blog/2020/10/23/github-bot-using-actions/
+        # https://stackoverflow.com/a/59352240/4907315
+        # https://docs.github.com/ja/actions/learn-github-actions/workflow-commands-for-github-actions
+        # https://qiita.com/ryo0301/items/de8ce43fe61ede66f80a
+        # https://stedolan.github.io/jq/manual/v1.6/#keys,keys_unsorted
+        # https://qiita.com/richmikan@github/items/2aee77ae13bee2c648f4
+        run: |
+          readonly DATE_FORMAT='+%Y/%m/%d %T %Z'
+
+          RATE_LIMIT_JSON="$(gh api 'rate_limit')"
+          echo "${RATE_LIMIT_JSON}" | jq -r '.resources | keys_unsorted[]' | while read -r type; do
+            echo '::group::' "${type}"
+            echo "${RATE_LIMIT_JSON}" | jq ".resources.${type}"
+            echo "::notice::Reset time is $(date -ud "@$(echo "${RATE_LIMIT_JSON}" | jq -r ".resources.${type}.reset")" "${DATE_FORMAT}")"
+            echo '::endgroup::'
+          done
+
+          core_remaining="$(echo "${RATE_LIMIT_JSON}" | jq -r ".resources.core.remaining")"
+          if [ "${core_remaining}" == 0 ]; then
+            core_reset="$(echo "${RATE_LIMIT_JSON}" | jq -r ".resources.core.reset")"
+            echo "::error::Rate limit reached. Please wait until $(date -ud "@${core_reset}" "${DATE_FORMAT}")"
+            exit 1
+          elif [ "${core_remaining}" -lt 10 ]; then
+            echo "::warning::The rate limit is approaching: core.remaining=${core_remaining}"
+          fi
+
+  lint:
+    needs: if-run-ci
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 14.x
+
+      - name: Show node and npm version
+        shell: bash
+        run: |
+          echo node "$(node --version)"
+          echo npm "$(npm --version)"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linter
+        run: npm run test:other-than-unit-test
+
+  unit-test:
+    needs: if-run-ci
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node-version:
+          - 10.0.0
+          - 10.x
+          - 12.0.0
+          - 12.x
+          - 14.0.0
+          - 14.x
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Show node and npm version
+        shell: bash
+        run: |
+          echo node "$(node --version)"
+          echo npm "$(npm --version)"
+
+      - name: Install dependencies
+        run: npm ci || npm install
+
+      - name: Run unit test
+        run: npm run test:unit-test
+
+  # Successfully complete this job when all jobs have been completed.
+  # Only by checking this job, it is possible to determine if CI is complete or not.
+  # So we can simplify our GitHub status check configuration.
+  # see https://github.com/orgs/community/discussions/26822
+  # see https://github.com/sounisi5011/npm-packages/blob/2a5ca2de696eeb8b40a38de90580441c4c6c96e0/.github/workflows/ci.yaml#L482-L498
+  complete:
+    name: Complete CI
+    needs: [lint, unit-test]
+    if:
+      ${{ always() && github.event.pull_request }}
+      # This job is required only for Pull Requests.
+      # It does not need to be run on other branches.
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check all job status
+        # see https://docs.github.com/en/actions/learn-github-actions/contexts#needs-context
+        # see https://docs.github.com/en/actions/learn-github-actions/expressions#contains
+        # see https://stackoverflow.com/a/67532120/4907315
+        if: >-
+          ${{
+               contains(needs.*.result, 'failure')
+            || contains(needs.*.result, 'cancelled')
+            || contains(needs.*.result, 'skipped')
+          }}
+        run: exit 1
