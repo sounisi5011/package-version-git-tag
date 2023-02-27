@@ -2,10 +2,14 @@
 
 * MUST NOT commit to the master branch.
 * MUST NOT merge locally into the master branch. MUST use Pull Request.
-* MUST NOT use "Squash and merge" or "Rebase and merge". MUST use merge commit.
+* MUST NOT use "merge commit" or "Rebase and merge". MUST use "Squash and merge".
 * [SHOULD insert Emoji Prefix in git commit message](#git-commit-message-style).
 * If you make a fix that changes behavior (feature addition, bug fix, etc), you MUST add a test codes that fails before the fixes and succeeds after the fixes.
 * If you want to update the `README.md` file, you MUST edit the `.template/readme.njk` file instead.
+
+## Brunch Workflow
+
+We use [GitHub Flow](https://guides.github.com/introduction/flow/).
 
 ## Git Commit Message Style
 

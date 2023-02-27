@@ -1,6 +1,6 @@
 ---
-azurePipelinesBadgeURL: https://dev.azure.com/sounisi5011/npm%20projects/_apis/build/status/sounisi5011.package-version-git-tag?branchName=master
-azurePipelinesPageURL: https://dev.azure.com/sounisi5011/npm%20projects/_build/latest?definitionId=2&branchName=master
+ciBadgeURL: https://github.com/sounisi5011/package-version-git-tag/actions/workflows/ci.yaml/badge.svg
+ciPageURL: https://github.com/sounisi5011/package-version-git-tag/actions/workflows/ci.yaml?query=branch%3Amaster
 codeclimateBadgeURL: https://api.codeclimate.com/v1/badges/ac675a219746d53b79bc/maintainability
 ---
 # {{ pkg.name }}
@@ -11,7 +11,7 @@ codeclimateBadgeURL: https://api.codeclimate.com/v1/badges/ac675a219746d53b79bc/
 [![Minified Bundle Size Details](https://img.shields.io/bundlephobia/min/{{ pkg.name }}/{{ pkg.version }})](https://bundlephobia.com/result?p={{ pkg.name }}@{{ pkg.version }})
 [![Install Size Details](https://packagephobia.now.sh/badge?p={{ pkg.name }}@{{ pkg.version }})](https://packagephobia.now.sh/result?p={{ pkg.name }}@{{ pkg.version }})
 [![Dependencies Status](https://david-dm.org/{{ repo.user }}/{{ repo.project }}/status.svg)](https://david-dm.org/{{ repo.user }}/{{ repo.project }})
-[![Build Status]({{ azurePipelinesBadgeURL }})]({{ azurePipelinesPageURL }})
+[![Build Status]({{ ciBadgeURL }})]({{ ciPageURL }})
 [![Maintainability Status]({{ codeclimateBadgeURL }})](https://codeclimate.com/github/{{ repo.user }}/{{ repo.project }}/maintainability)
 
 [npm]: {{ pkg.name | npmURL }}

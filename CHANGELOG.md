@@ -4,6 +4,17 @@
 
 [Unreleased]: https://github.com/sounisi5011/package-version-git-tag/compare/v3.0.0...master
 
+### Documentation
+
+* [#182] - From now on, use squash merges
+
+### Others
+
+* [#183] - Change used CI service from Azure Pipelines to GitHub Actions
+
+[#182]: https://github.com/sounisi5011/package-version-git-tag/pull/182
+[#183]: https://github.com/sounisi5011/package-version-git-tag/pull/183
+
 ## [3.0.0] (2020-06-02 UTC)
 
 * Drop support for Node.js 8, 9, 11 and 13
