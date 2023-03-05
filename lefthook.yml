@@ -11,12 +11,41 @@ pre-commit:
       # Note: README.md files in subdirectories are not included
       files: git diff --name-only --cached | grep -Fx README.md || true
       run: npm run test:readme
-    1_prettier:
-      glob: "*.{js,json,yaml,yml}"
+    1_format:
+      # Call the "lefthook run ..." command within lefthook to perform parallel execution in the middle of a serial execution
+      # see https://github.com/evilmartians/lefthook/issues/66#issuecomment-1313279972
+      env:
+        LEFTHOOK_QUIET: meta,summary,success
+      run: npx lefthook run _pre-commit__format
+    2_build-readme:
+      # If any file other than "{REPO_ROOT}/README.md" is staged, build README.md
+      # Note: README.md files in subdirectories are included
+      files: git diff --name-only --cached | grep -Fvx README.md || true
+      run: >-
+        npm run build:readme
+        && git add ./README.md
+
+_pre-commit__format:
+  parallel: true
+  commands:
+    format/config:
+      env:
+        LEFTHOOK_QUIET: meta,summary,success
+      run: lefthook run _pre-commit__format__config
+    format/ts&js:
+      env:
+        LEFTHOOK_QUIET: meta,summary,success
+      run: lefthook run '_pre-commit__format__ts&js'
+
+_pre-commit__format__config:
+  piped: true
+  commands:
+    format/config/0_prettier:
+      glob: "*.{json,yaml,yml}"
       run: >-
         npx prettier --write {staged_files}
         && git add {staged_files}
-    2_format-package-json:
+    format/config/1_format-package-json:
       # Note: If "package.json" is specified, only the root package.json file will be included.
       #       If "**/package.json" is specified, only package.json files in subdirectories will be included.
       #       To include both, it appears that the "{,**/}package.json" pattern should be used.
@@ -25,15 +54,17 @@ pre-commit:
         npx prettier-package-json --write {staged_files}
         && npx sort-package-json {staged_files}
         && git add {staged_files}
-    3_eslint:
+
+_pre-commit__format__ts&js:
+  piped: true
+  commands:
+    format/ts&js/0_prettier:
+      glob: "*.{ts,js}"
+      run: >-
+        npx prettier --write {staged_files}
+        && git add {staged_files}
+    format/ts&js/1_eslint:
       glob: "*.{ts,js}"
       run: >-
         npx eslint --fix {staged_files}
         && git add {staged_files}
-    4_build-readme:
-      # If any file other than "{REPO_ROOT}/README.md" is staged, build README.md
-      # Note: README.md files in subdirectories are included
-      files: git diff --name-only --cached | grep -Fvx README.md || true
-      run: >-
-        npm run build:readme
-        && git add ./README.md
