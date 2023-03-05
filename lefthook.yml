@@ -10,7 +10,7 @@ pre-commit:
       # If "{REPO_ROOT}/README.md" is staged, test it
       # Note: README.md files in subdirectories are not included
       files: git diff --name-only --cached | grep -Fx README.md || true
-      run: npx run-s test:readme
+      run: npm run test:readme
     1_prettier:
       glob: "*.{js,json,yaml,yml}"
       run: >-
@@ -35,5 +35,5 @@ pre-commit:
       # Note: README.md files in subdirectories are included
       files: git diff --name-only --cached | grep -Fvx README.md || true
       run: >-
-        npx run-s build:readme
+        npm run build:readme
         && git add ./README.md
