@@ -1,0 +1,39 @@
+pre-commit:
+  piped: true
+
+  # Always prints the output of each command.
+  # This allows the error log to be checked even if the command becomes busy.
+  follow: true
+
+  commands:
+    0_test-readme:
+      # If "{REPO_ROOT}/README.md" is staged, test it
+      # Note: README.md files in subdirectories are not included
+      files: git diff --name-only --cached | grep -Fx README.md || true
+      run: npx run-s test:readme
+    1_prettier:
+      glob: "*.{js,json,yaml,yml}"
+      run: >-
+        npx prettier --write {staged_files}
+        && git add {staged_files}
+    2_format-package-json:
+      # Note: If "package.json" is specified, only the root package.json file will be included.
+      #       If "**/package.json" is specified, only package.json files in subdirectories will be included.
+      #       To include both, it appears that the "{,**/}package.json" pattern should be used.
+      glob: "{,**/}package.json"
+      run: >-
+        npx prettier-package-json --write {staged_files}
+        && npx sort-package-json {staged_files}
+        && git add {staged_files}
+    3_eslint:
+      glob: "*.{ts,js}"
+      run: >-
+        npx eslint --fix {staged_files}
+        && git add {staged_files}
+    4_build-readme:
+      # If any file other than "{REPO_ROOT}/README.md" is staged, build README.md
+      # Note: README.md files in subdirectories are included
+      files: git diff --name-only --cached | grep -Fvx README.md || true
+      run: >-
+        npx run-s build:readme
+        && git add ./README.md
