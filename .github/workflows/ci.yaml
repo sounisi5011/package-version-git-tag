@@ -53,6 +53,17 @@ jobs:
             echo "::warning::The rate limit is approaching: core.remaining=${core_remaining}"
           fi
 
+  detect-supported-node:
+    needs: if-run-ci
+    runs-on: ubuntu-latest
+    outputs:
+      versions-json: ${{ steps.detector.outputs.versions-json }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - id: detector
+        uses: sounisi5011/npm-packages@actions/get-nodejs-versions-array-v0
+
   lint:
     needs: if-run-ci
     runs-on: ubuntu-latest
@@ -78,18 +89,12 @@ jobs:
         run: npm run test:other-than-unit-test
 
   unit-test:
-    needs: if-run-ci
+    needs: detect-supported-node
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-        node-version:
-          - 10.0.0
-          - 10.x
-          - 12.0.0
-          - 12.x
-          - 14.0.0
-          - 14.x
+        node-version: ${{ fromJson(needs.detect-supported-node.outputs.versions-json) }}
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
