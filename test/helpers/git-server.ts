@@ -1,6 +1,6 @@
-import * as path from 'path';
+import * as fs from 'fs/promises';
 
-import del = require('del');
+import { rmrf } from '.';
 import Server = require('node-git-server');
 
 const PORT = {
@@ -15,7 +15,8 @@ export default async function (
 ): Promise<{ remoteURL: string; repos: Server; tagList: string[] }> {
     const tagList: string[] = [];
 
-    await del(path.join(dirpath, '*'), { dot: true });
+    await rmrf(dirpath);
+    await fs.mkdir(dirpath, { recursive: true });
 
     const repos = new Server(dirpath, {
         autoCreate: true,
