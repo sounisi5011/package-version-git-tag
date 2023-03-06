@@ -19,6 +19,13 @@ This project will support Node.js 14.0.0 or later from now on.
 
 * [#182] - From now on, use squash merges
 
+### Updated Dependencies
+
+#### devDependencies
+
+* `@types/node`
+    * [#186] - `12.x` -> `14.x`
+
 ### Added Dependencies
 
 #### devDependencies
