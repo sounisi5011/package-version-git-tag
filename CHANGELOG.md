@@ -42,10 +42,12 @@ This project will support Node.js 14.0.0 or later from now on.
 ### Others
 
 * [#183] - Change used CI service from Azure Pipelines to GitHub Actions
+* [#187] - Auto approve Pull Requests from admins who do not have any friends
 
 [#182]: https://github.com/sounisi5011/package-version-git-tag/pull/182
 [#183]: https://github.com/sounisi5011/package-version-git-tag/pull/183
 [#186]: https://github.com/sounisi5011/package-version-git-tag/pull/186
+[#187]: https://github.com/sounisi5011/package-version-git-tag/pull/187
 
 ## [3.0.0] (2020-06-02 UTC)
 
