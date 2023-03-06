@@ -1,11 +1,11 @@
 import test from 'ava';
+import * as fs from 'fs/promises';
 import * as path from 'path';
 
 import * as PKG_DATA from '../package.json';
-import { execFileAsync, getRandomInt, writeFile } from './helpers';
+import { execFileAsync, getRandomInt, rmrf } from './helpers';
 import { initGit } from './helpers/git';
 
-import del = require('del');
 import escapeRegExp = require('escape-string-regexp');
 
 const PROJECT_ROOT = path.resolve(__dirname, '..');
@@ -23,7 +23,10 @@ function tmpDir(dirname: string): string {
 
 test.before(async () => {
     await execFileAsync('npm', ['run', 'build'], { cwd: PROJECT_ROOT });
-    await del(path.resolve(FIXTURES_DIR, '{package-lock.json,node_modules}'));
+    await Promise.all([
+        rmrf(path.resolve(FIXTURES_DIR, 'package-lock.json')),
+        rmrf(path.resolve(FIXTURES_DIR, 'node_modules')),
+    ]);
     await execFileAsync('npm', ['install'], { cwd: FIXTURES_DIR });
 
     /*
@@ -247,7 +250,7 @@ test('CLI should read version and add tag', async (t) => {
 
     await exec(['git', 'tag', 'v0.0.0']);
 
-    await writeFile(
+    await fs.writeFile(
         path.join(gitDirpath, 'package.json'),
         JSON.stringify({ version }),
     );
@@ -556,11 +559,11 @@ test('CLI should add Git tag with customized tag prefix by npm', async (t) => {
     const customPrefix = 'npm-tag-';
 
     await t.notThrowsAsync(exec(['npm', 'install', PROJECT_ROOT]));
-    await writeFile(
+    await fs.writeFile(
         path.join(gitDirpath, '.npmrc'),
         `tag-version-prefix=${customPrefix}`,
     );
-    await writeFile(
+    await fs.writeFile(
         path.join(gitDirpath, '.yarnrc'),
         'version-tag-prefix this-is-yarn-tag-prefix-',
     );
@@ -599,17 +602,17 @@ test('CLI should add Git tag with customized tag prefix by npm / run npm-script'
     const customPrefix = 'npm-tag-';
 
     await t.notThrowsAsync(exec(['npm', 'install', PROJECT_ROOT]));
-    await writeFile(
+    await fs.writeFile(
         path.join(gitDirpath, '.npmrc'),
         `tag-version-prefix=${customPrefix}`,
     );
-    await writeFile(
+    await fs.writeFile(
         path.join(gitDirpath, '.yarnrc'),
         'version-tag-prefix this-is-yarn-tag-prefix-',
     );
     const version = '1.1.0';
     const npmScriptName = 'xxx-run-cli';
-    await writeFile(
+    await fs.writeFile(
         path.join(gitDirpath, 'package.json'),
         JSON.stringify({
             version,
@@ -653,11 +656,11 @@ test('CLI should add Git tag with customized tag prefix by yarn', async (t) => {
     const customPrefix = 'yarn-tag-';
 
     await t.notThrowsAsync(exec(['npm', 'install', PROJECT_ROOT]));
-    await writeFile(
+    await fs.writeFile(
         path.join(gitDirpath, '.npmrc'),
         'tag-version-prefix=this-is-npm-tag-prefix-',
     );
-    await writeFile(
+    await fs.writeFile(
         path.join(gitDirpath, '.yarnrc'),
         `version-tag-prefix ${customPrefix}`,
     );
@@ -696,17 +699,17 @@ test('CLI should add Git tag with customized tag prefix by yarn / run npm-script
     const customPrefix = 'yarn-tag-';
 
     await t.notThrowsAsync(exec(['npm', 'install', PROJECT_ROOT]));
-    await writeFile(
+    await fs.writeFile(
         path.join(gitDirpath, '.npmrc'),
         'tag-version-prefix=this-is-npm-tag-prefix-',
     );
-    await writeFile(
+    await fs.writeFile(
         path.join(gitDirpath, '.yarnrc'),
         `version-tag-prefix ${customPrefix}`,
     );
     const version = '1.0.2';
     const npmScriptName = 'xxx-run-cli';
-    await writeFile(
+    await fs.writeFile(
         path.join(gitDirpath, 'package.json'),
         JSON.stringify({
             version,

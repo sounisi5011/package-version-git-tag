@@ -1,12 +1,10 @@
+import * as fs from 'fs/promises';
 import * as path from 'path';
 
-import { writeFile } from '.';
+import { rmrf } from '.';
 import { ExecFunc, execGenerator } from './exec';
 import initGitServer from './git-server';
 import type { PromiseValue } from './types';
-
-import del = require('del');
-import makeDir = require('make-dir');
 
 export type GitRemote = PromiseValue<ReturnType<typeof initGitServer>>;
 
@@ -47,14 +45,14 @@ export async function initGit(
 
     const [, remote] = await Promise.all([
         (async () => {
-            await del(path.join(gitDirpath, '*'), { dot: true });
-            await makeDir(gitDirpath);
+            await rmrf(gitDirpath);
+            await fs.mkdir(gitDirpath, { recursive: true });
 
             await exec(['git', 'init']);
             await exec(['git', 'config', 'user.email', 'foo@example.com']);
             await exec(['git', 'config', 'user.name', 'bar']);
 
-            await writeFile(
+            await fs.writeFile(
                 path.join(gitDirpath, 'package.json'),
                 JSON.stringify({ version: '0.0.0' }),
             );
