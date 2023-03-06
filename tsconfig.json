@@ -1,11 +1,7 @@
 {
+  "extends": "@tsconfig/node14/tsconfig.json",
   "compilerOptions": {
     /* Basic Options */
-    // Node.js 10+ almost supports features up to ES2018
-    // see https://node.green/#ES2018
-    // see https://www.typescriptlang.org/v2/tsconfig#target
-    "target": "ES2018",
-    "module": "CommonJS",
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
@@ -21,7 +17,6 @@
     "noFallthroughCasesInSwitch": true,
 
     /* Module Resolution Options */
-    "moduleResolution": "node",
     "baseUrl": "./",
     "paths": {
       "*": ["./types.node_modules/*"]
