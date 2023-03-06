@@ -19,6 +19,13 @@ This project will support Node.js 14.0.0 or later from now on.
 
 * [#182] - From now on, use squash merges
 
+### Removed Dependencies
+
+#### devDependencies
+
+* [#186] - `del`
+* [#186] - `make-dir`
+
 ### Others
 
 * [#183] - Change used CI service from Azure Pipelines to GitHub Actions
