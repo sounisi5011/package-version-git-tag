@@ -4,6 +4,17 @@
 
 [Unreleased]: https://github.com/sounisi5011/package-version-git-tag/compare/v3.0.0...master
 
+* Drop support for Node.js 10 and 12
+
+### Supported Node version
+
+`10.x || 12.x || 14.x` -> `14.x`
+
+[Node.js 10 and Node.js 12 are now End-of-Life](https://github.com/nodejs/Release/tree/54e615d89bf2e056644e138e7e33714bfd1b67ee#end-of-life-releases).
+This project will support Node.js 14.0.0 or later from now on.
+
+* [#186] - Drop support for Node.js 10 and 12
+
 ### Documentation
 
 * [#182] - From now on, use squash merges
@@ -14,6 +25,7 @@
 
 [#182]: https://github.com/sounisi5011/package-version-git-tag/pull/182
 [#183]: https://github.com/sounisi5011/package-version-git-tag/pull/183
+[#186]: https://github.com/sounisi5011/package-version-git-tag/pull/186
 
 ## [3.0.0] (2020-06-02 UTC)
 
