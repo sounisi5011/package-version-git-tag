@@ -1,12 +1,9 @@
 import type * as childProcess from 'child_process';
 import { commandJoin } from 'command-join';
-import * as fs from 'fs';
+import * as fs from 'fs/promises';
 import * as path from 'path';
-import { promisify } from 'util';
 
 import crossSpawn = require('cross-spawn');
-
-const readFileAsync = promisify(fs.readFile);
 
 export interface PkgDataInterface {
     version: string;
@@ -33,7 +30,7 @@ export function isPkgData(value: unknown): value is PkgDataInterface {
 
 export async function readJSONFile(filepath: string): Promise<unknown> {
     try {
-        const dataText = await readFileAsync(filepath, 'utf8');
+        const dataText = await fs.readFile(filepath, 'utf8');
         try {
             return JSON.parse(dataText);
         } catch (error) {
