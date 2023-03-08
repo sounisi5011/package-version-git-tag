@@ -86,7 +86,9 @@ jobs:
           cache: npm
 
       - name: Enable Corepack (Automatically setup a package manager for Node.js)
-        run: corepack enable npm
+        run: |
+          corepack enable
+          corepack enable npm
 
       - name: Show node and npm version
         shell: bash
@@ -127,7 +129,23 @@ jobs:
           cache: npm
 
       - name: Enable Corepack (Automatically setup a package manager for Node.js)
-        run: corepack enable npm
+        shell: bash
+        run: |
+          # If Corepack is not installed, install it.
+          # Note: Corepack is already installed on GitHub Actions.
+          #       But it does not manage npm versions.
+          if npm ls --global corepack; then
+            echo Corepack "$(corepack --version)" is builtin to Node.js
+          else
+            echo '::group::Install' Corepack
+            # Corepack 0.11.0 and later only supports Node.js 14.14.0 and later
+            # see https://github.com/nodejs/corepack/pull/227
+            npm install --global 'corepack@<0.11'
+            echo '::endgroup::'
+          fi
+
+          corepack enable
+          corepack enable npm
 
       - name: Show node and npm version
         shell: bash
