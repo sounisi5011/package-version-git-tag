@@ -145,6 +145,26 @@ jobs:
           # Note: Corepack is already installed on GitHub Actions.
           #       But it does not manage npm versions.
           packageManager="$(cat "${GITHUB_WORKSPACE}/package.json" | jq --raw-output '.packageManager')"
+
+          echo '::group::' Debug
+
+          echo '$' type yarn '>'/dev/null
+          type yarn >/dev/null && echo $? || echo $?
+          echo '$' yarn --version
+          yarn --version && echo $? || echo $?
+
+          echo '$' type pnpm '>'/dev/null
+          type pnpm >/dev/null && echo $? || echo $?
+          echo '$' pnpm --version
+          pnpm --version && echo $? || echo $?
+
+          echo "packageManager: '${packageManager%%+*}'"
+          echo "npm ver: 'npm@$(npm --version)'" && echo $? || echo $?
+          echo '$' '[ "npm@$(npm --version)" == "${packageManager%%+*}" ]'
+          [ "npm@$(npm --version)" == "${packageManager%%+*}" ] && echo $? || echo $?
+
+          echo '::endgroup::'
+
           if type yarn >/dev/null 2>&1 && yarn --version | grep -qF 'This project is configured to use npm' \
               && type pnpm >/dev/null 2>&1 && pnpm --version | grep -qF 'This project is configured to use npm' \
               && [ "npm@$(npm --version)" == "${packageManager%%+*}" ]; then
