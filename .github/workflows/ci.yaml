@@ -142,6 +142,8 @@ jobs:
           fi
 
           # If Corepack is not available, manually update npm
+          # Note: I have tried to enable Corepack, but could not use Corepack in older Node.js or Windows environments.
+          #       You can see what I did here: https://github.com/sounisi5011/package-version-git-tag/compare/24791b6ddab5cd2b8fdc735855556640746cc863~1...349c11acb35cfc0096bc6e9324bd9748e429ca17~1
           packageManager="$(< "${GITHUB_WORKSPACE}/package.json" jq --raw-output '.packageManager')"
           if [ "npm@$(npm --version)" != "${packageManager%%+*}" ]; then
             # Disable the built-in Corepack in GitHub Actions.
