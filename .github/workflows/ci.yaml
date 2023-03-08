@@ -86,7 +86,7 @@ jobs:
           cache: npm
 
       - name: Enable Corepack (Automatically setup a package manager for Node.js)
-        run: corepack enable
+        run: corepack enable npm
 
       - name: Show node and npm version
         shell: bash
@@ -127,7 +127,7 @@ jobs:
           cache: npm
 
       - name: Enable Corepack (Automatically setup a package manager for Node.js)
-        run: corepack enable
+        run: corepack enable npm
 
       - name: Show node and npm version
         shell: bash
