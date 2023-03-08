@@ -141,44 +141,11 @@ jobs:
             echo '::endgroup::'
           fi
 
-          # If Corepack is not builtin to Node.js, install it.
-          # Note: Corepack is already installed on GitHub Actions.
-          #       But it does not manage npm versions.
-          #       To manage npm, Corepack must be installed via npm, which is builtin to the installed Node.js.
-          # Note: On Windows, the `npm ls --global corepack` command cannot be used to detect the builtin Corepack.
-          #       So, use this complex conditional expression.
+          # If Corepack is not available, manually update npm
           packageManager="$(< "${GITHUB_WORKSPACE}/package.json" jq --raw-output '.packageManager')"
-          if type yarn >/dev/null 2>&1 && { yarn --version || true; } | grep -qF 'This project is configured to use npm' \
-              && type pnpm >/dev/null 2>&1 && { pnpm --version || true; } | grep -qF 'This project is configured to use npm' \
-              && [ "npm@$(npm --version)" == "${packageManager%%+*}" ]; then
-            :
-          else
-            # Delete Corepack cache directories to avoid ENOTEMPTY errors
-            # see https://github.com/nodejs/corepack/issues/110
-            rm -rf ~/.node/corepack
-
-            echo '::group::Install' Corepack
-            # Corepack 0.11.0 and later only supports Node.js 14.14.0 and later
-            # see https://github.com/nodejs/corepack/pull/227
-            # Note: On Windows, a conflict occurs with yarn already installed and an EEXIST error is thrown.
-            #       To avoid this, specify the "--force" option.
-            npm install --global --force 'corepack@<0.11'
-            echo '::endgroup::'
-
-            echo '::group::' corepack enable
-            corepack enable
-            echo '::endgroup::'
-
-            echo '::group::' corepack enable npm
-            corepack enable npm
-            echo '::endgroup::'
-          fi
-
-          # If the npm version has not changed, overwrite this.
-          # Note: On Windows, the old Corepack does not seem to be able to manage npm.
           if [ "npm@$(npm --version)" != "${packageManager%%+*}" ]; then
-            echo '::group::' Install specified npm
-            npm install --global "${packageManager%%+*}"
+            echo '::group::' Update to the specified npm
+            npm install --global --force "${packageManager%%+*}"
             echo '::endgroup::'
           fi
 
