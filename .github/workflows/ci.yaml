@@ -137,6 +137,10 @@ jobs:
           if npm ls --global corepack; then
             echo Corepack "$(corepack --version)" is builtin to Node.js
           else
+            # Delete Corepack cache directories to avoid ENOTEMPTY errors
+            # see https://github.com/nodejs/corepack/issues/110
+            rm -rf ~/.node/corepack
+
             echo '::group::Install' Corepack
             # Corepack 0.11.0 and later only supports Node.js 14.14.0 and later
             # see https://github.com/nodejs/corepack/pull/227
