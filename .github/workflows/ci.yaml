@@ -131,11 +131,24 @@ jobs:
       - name: Enable Corepack (Automatically setup a package manager for Node.js)
         shell: bash
         run: |
+          if type corepack >/dev/null 2>&1; then
+            echo '::group::' corepack enable
+            corepack enable
+            echo '::endgroup::'
+
+            echo '::group::' corepack enable npm
+            corepack enable npm
+            echo '::endgroup::'
+          fi
+
           # If Corepack is not installed, install it.
           # Note: Corepack is already installed on GitHub Actions.
           #       But it does not manage npm versions.
-          if npm ls --global corepack; then
-            echo Corepack "$(corepack --version)" is builtin to Node.js
+          packageManager="$(cat "${GITHUB_WORKSPACE}/package.json" | jq --raw-output '.packageManager')"
+          if type yarn >/dev/null 2>&1 && yarn --version | grep -qF 'This project is configured to use npm' \
+              && type pnpm >/dev/null 2>&1 && pnpm --version | grep -qF 'This project is configured to use npm' \
+              && [ "npm@$(npm --version)" == "${packageManager%%+*}" ]; then
+            :
           else
             # Delete Corepack cache directories to avoid ENOTEMPTY errors
             # see https://github.com/nodejs/corepack/issues/110
@@ -146,10 +159,15 @@ jobs:
             # see https://github.com/nodejs/corepack/pull/227
             npm install --global 'corepack@<0.11'
             echo '::endgroup::'
-          fi
 
-          corepack enable
-          corepack enable npm
+            echo '::group::' corepack enable
+            corepack enable
+            echo '::endgroup::'
+
+            echo '::group::' corepack enable npm
+            corepack enable npm
+            echo '::endgroup::'
+          fi
 
       - name: Show node and npm version
         shell: bash
