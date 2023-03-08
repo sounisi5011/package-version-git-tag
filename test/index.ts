@@ -580,7 +580,7 @@ test('CLI should add Git tag with customized tag prefix by npm', async (t) => {
     );
 
     await t.notThrowsAsync(
-        exec(['npx', '--no-install', PKG_DATA.name]),
+        exec(['npm', 'exec', '--no', PKG_DATA.name]),
         'CLI should exits successfully',
     );
 
@@ -664,6 +664,14 @@ test('CLI should add Git tag with customized tag prefix by yarn', async (t) => {
         path.join(gitDirpath, '.yarnrc'),
         `version-tag-prefix ${customPrefix}`,
     );
+    const version = '0.0.0';
+    await fs.writeFile(
+        path.join(gitDirpath, 'package.json'),
+        JSON.stringify({
+            version,
+            packageManager: 'yarn@1.22.19',
+        }),
+    );
 
     t.is(
         (await exec(['yarn', 'config', 'get', 'version-tag-prefix'])).stdout,
@@ -681,7 +689,7 @@ test('CLI should add Git tag with customized tag prefix by yarn', async (t) => {
         'CLI should exits successfully',
     );
 
-    const tagName = `${customPrefix}0.0.0`;
+    const tagName = `${customPrefix}${version}`;
     const versionTagRegExp = new RegExp(
         String.raw`^\w+\s+tag\s+refs/tags/${escapeRegExp(tagName)}\n$`,
     );
@@ -716,6 +724,7 @@ test('CLI should add Git tag with customized tag prefix by yarn / run npm-script
             scripts: {
                 [npmScriptName]: PKG_DATA.name,
             },
+            packageManager: 'yarn@1.22.19',
         }),
     );
 
