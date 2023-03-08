@@ -152,15 +152,15 @@ jobs:
           type yarn >/dev/null && echo $? || echo $?
           echo '$' yarn --version
           yarn --version && echo $? || echo $?
-          echo '$' 'yarn --version | grep -F "This project is configured to use npm"'
-          yarn --version | grep -F 'This project is configured to use npm' && echo $? || echo $?
+          echo '$' '{ yarn --version || true; } | grep -F "This project is configured to use npm"'
+          { yarn --version || true; } | grep -F 'This project is configured to use npm' && echo $? || echo $?
 
           echo '$' type pnpm '>'/dev/null
           type pnpm >/dev/null && echo $? || echo $?
           echo '$' pnpm --version
           pnpm --version && echo $? || echo $?
-          echo '$' 'pnpm --version | grep -qF "This project is configured to use npm"'
-          pnpm --version | grep -qF 'This project is configured to use npm' && echo $? || echo $?
+          echo '$' '{ pnpm --version || true; } | grep -qF "This project is configured to use npm"'
+          { pnpm --version || true; } | grep -qF 'This project is configured to use npm' && echo $? || echo $?
 
           echo "packageManager: '${packageManager%%+*}'"
           echo "npm ver: 'npm@$(npm --version)'" && echo $? || echo $?
