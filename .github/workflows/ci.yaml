@@ -141,10 +141,13 @@ jobs:
             echo '::endgroup::'
           fi
 
-          # If Corepack is not installed, install it.
+          # If Corepack is not builtin to Node.js, install it.
           # Note: Corepack is already installed on GitHub Actions.
           #       But it does not manage npm versions.
-          packageManager="$(cat "${GITHUB_WORKSPACE}/package.json" | jq --raw-output '.packageManager')"
+          #       To manage npm, Corepack must be installed via npm, which is builtin to the installed Node.js.
+          # Note: On Windows, the `npm ls --global corepack` command cannot be used to detect the builtin Corepack.
+          #       So, use this complex conditional expression.
+          packageManager="$(< "${GITHUB_WORKSPACE}/package.json" jq --raw-output '.packageManager')"
           if type yarn >/dev/null 2>&1 && { yarn --version || true; } | grep -qF 'This project is configured to use npm' \
               && type pnpm >/dev/null 2>&1 && { pnpm --version || true; } | grep -qF 'This project is configured to use npm' \
               && [ "npm@$(npm --version)" == "${packageManager%%+*}" ]; then
