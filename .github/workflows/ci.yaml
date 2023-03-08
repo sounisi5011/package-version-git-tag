@@ -128,6 +128,29 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: npm
 
+      - name: Debug / Try to detect Corepack already installed
+        shell: bash
+        run: |
+          echo '::group::' npm ls --global
+          npm ls --global && echo $? || echo $?
+          echo '::endgroup::'
+
+          echo '::group::' npm ls --global corepack
+          npm ls --global corepack && echo $? || echo $?
+          echo '::endgroup::'
+
+          echo '::group::' npm root --global
+          npm root --global && echo $? || echo $?
+          echo '::endgroup::'
+
+          echo '::group::' ls -lhpa '$(npm root --global)'
+          ls -lhpa "$(npm root --global)" && echo $? || echo $?
+          echo '::endgroup::'
+
+          echo '::group::' test -d '$(npm root --global)/corepack'
+          test -d "$(npm root --global)/corepack" && echo $? || echo $?
+          echo '::endgroup::'
+
       - name: Enable Corepack (Automatically setup a package manager for Node.js)
         shell: bash
         run: |
