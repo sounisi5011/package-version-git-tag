@@ -2,12 +2,13 @@ import type * as childProcess from 'child_process';
 
 import crossSpawn = require('cross-spawn');
 
-export interface ExecFunc {
-    (cmd: readonly string[], options?: childProcess.ExecFileOptions): Promise<{
-        stdout: string;
-        stderr: string;
-    }>;
-}
+export type ExecFunc = (
+    cmd: readonly [string, ...string[]],
+    options?: childProcess.ExecFileOptions | undefined,
+) => Promise<{
+    stdout: string;
+    stderr: string;
+}>;
 
 export function execGenerator(gitDirpath: string): ExecFunc {
     return ([command, ...args], options) => {
@@ -40,7 +41,9 @@ export function execGenerator(gitDirpath: string): ExecFunc {
                 } else {
                     const err = new Error(
                         [
-                            `Command failed code=${code} signal=${signal}`,
+                            `Command failed code=${String(
+                                code,
+                            )} signal=${String(signal)}`,
                             '',
                             'stdout:',
                             stdout.replace(/^|\r\n?|\n/g, '$&o '),

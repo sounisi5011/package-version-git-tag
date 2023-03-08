@@ -1,4 +1,5 @@
 import { commandJoin } from 'command-join';
+import { inspect } from 'util';
 
 import { execFileAsync, printVerbose } from './utils';
 
@@ -7,7 +8,7 @@ export async function tagExists(tagName: string): Promise<boolean> {
         const { stdout } = await execFileAsync('git', ['tag', '-l', tagName]);
         return stdout.split(/[\r\n]+/).includes(tagName);
     } catch (error) {
-        throw new Error(`tagExists() Error: ${error}`);
+        throw new Error(`tagExists() Error: ${inspect(error)}`);
     }
 }
 
@@ -22,13 +23,13 @@ export async function isHeadTag(tagName: string): Promise<boolean> {
         ]);
         return stdout.split(/[\r\n]+/).includes(tagName);
     } catch (error) {
-        throw new Error(`isHeadTag() Error: ${error}`);
+        throw new Error(`isHeadTag() Error: ${inspect(error)}`);
     }
 }
 
 function genTagCmdArgs(
     tagName: string,
-    message?: string,
+    message?: string | undefined,
     sign: boolean = false,
 ): { command: string; args: string[]; commandText: string } {
     const command = 'git';
@@ -37,7 +38,7 @@ function genTagCmdArgs(
             ? /**
                * @see https://github.com/npm/cli/blob/v6.13.0/lib/version.js#L304
                */
-              ['tag', tagName, sign ? '-sm' : '-m', message || '']
+              ['tag', tagName, sign ? '-sm' : '-m', message ?? '']
             : ['tag', tagName];
 
     return {
@@ -57,10 +58,10 @@ export async function setTag(
         debug = false,
         dryRun = false,
     }: {
-        message?: string;
-        sign?: boolean;
-        debug?: boolean | ((commandText: string) => string);
-        dryRun?: boolean;
+        message?: string | undefined;
+        sign?: boolean | undefined;
+        debug?: boolean | ((commandText: string) => string) | undefined;
+        dryRun?: boolean | undefined;
     } = {},
 ): Promise<void> {
     const cmd = genTagCmdArgs(tagName, message, sign);
@@ -75,7 +76,7 @@ export async function setTag(
         try {
             await execFileAsync(cmd.command, cmd.args);
         } catch (error) {
-            throw new Error(`setTag() Error: ${error}`);
+            throw new Error(`setTag() Error: ${inspect(error)}`);
         }
     }
 }
@@ -86,7 +87,11 @@ export async function push(
         repository = 'origin',
         debug = false,
         dryRun = false,
-    }: { repository?: string; debug?: boolean; dryRun?: boolean } = {},
+    }: {
+        repository?: string | undefined;
+        debug?: boolean | undefined;
+        dryRun?: boolean | undefined;
+    } = {},
 ): Promise<void> {
     try {
         const args = ['push', repository, src];
@@ -97,6 +102,6 @@ export async function push(
             await execFileAsync('git', args);
         }
     } catch (error) {
-        throw new Error(`push() Error: ${error}`);
+        throw new Error(`push() Error: ${inspect(error)}`);
     }
 }

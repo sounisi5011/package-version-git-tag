@@ -19,14 +19,7 @@ export async function initGit(
 }>;
 export async function initGit(
     dirpath: string,
-    useRemoteRepo: false,
-): Promise<{
-    exec: ExecFunc;
-    gitDirpath: string;
-    remote: null;
-}>;
-export async function initGit(
-    dirpath: string,
+    useRemoteRepo?: false | undefined,
 ): Promise<{
     exec: ExecFunc;
     gitDirpath: string;

@@ -4,9 +4,9 @@ import { isHeadTag, push, setTag, tagExists } from './git';
 import { endPrintVerbose, getConfig, isPkgData, readJSONFile } from './utils';
 
 export interface Options {
-    push?: boolean;
-    verbose?: boolean;
-    dryRun?: boolean;
+    push?: boolean | undefined;
+    verbose?: boolean | undefined;
+    dryRun?: boolean | undefined;
 }
 
 async function getVersionTagData(): Promise<{

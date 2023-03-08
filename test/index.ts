@@ -36,6 +36,7 @@ test.before(async () => {
     Object.keys(process.env)
         .filter((key) => /^npm_/i.test(key))
         .forEach((key) => {
+            // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
             delete process.env[key];
         });
 });
@@ -309,84 +310,73 @@ test('CLI push flag should fail if there is no remote repository', async (t) => 
 });
 
 test('CLI should add and push Git tag', async (t) => {
-    const { exec, remote } = await initGit(
-        tmpDir('push-success-git-tag'),
-        true,
+    const {
+        exec,
+        remote: { tagList },
+    } = await initGit(tmpDir('push-success-git-tag'), true);
+
+    await t.notThrowsAsync(
+        exec(['git', 'push', '--dry-run', 'origin', 'HEAD']),
+        'Git push should success',
     );
 
-    if (remote) {
-        const { tagList } = remote;
+    await t.notThrowsAsync(
+        async () =>
+            t.deepEqual(
+                await exec([CLI_PATH, '--push']),
+                { stdout: '', stderr: '' },
+                'CLI should not output anything',
+            ),
+        'CLI should exits successfully',
+    );
 
-        await t.notThrowsAsync(
-            exec(['git', 'push', '--dry-run', 'origin', 'HEAD']),
-            'Git push should success',
-        );
+    t.regex(
+        (await exec(['git', 'for-each-ref', 'refs/tags'])).stdout,
+        /^\w+\s+tag\s+refs\/tags\/v0\.0\.0\n$/,
+        'Git annotated tag v0.0.0 should be added',
+    );
 
-        await t.notThrowsAsync(
-            async () =>
-                t.deepEqual(
-                    await exec([CLI_PATH, '--push']),
-                    { stdout: '', stderr: '' },
-                    'CLI should not output anything',
-                ),
-            'CLI should exits successfully',
-        );
-
-        t.regex(
-            (await exec(['git', 'for-each-ref', 'refs/tags'])).stdout,
-            /^\w+\s+tag\s+refs\/tags\/v0\.0\.0\n$/,
-            'Git annotated tag v0.0.0 should be added',
-        );
-
-        t.deepEqual(
-            tagList,
-            ['v0.0.0'],
-            'Git tag v0.0.0 should have been pushed',
-        );
-    }
+    t.deepEqual(tagList, ['v0.0.0'], 'Git tag v0.0.0 should have been pushed');
 });
 
 test('CLI should add and push Git tag with verbose output', async (t) => {
-    const { exec, remote } = await initGit(
-        tmpDir('push-success-git-tag-with-verbose'),
-        true,
+    const {
+        exec,
+        remote: { tagList },
+    } = await initGit(tmpDir('push-success-git-tag-with-verbose'), true);
+
+    await t.notThrowsAsync(
+        exec(['git', 'push', '--dry-run', 'origin', 'HEAD']),
+        'Git push should success',
     );
 
-    if (remote) {
-        const { tagList } = remote;
+    await t.notThrowsAsync(async () => {
+        const { stdout, stderr } = await exec([
+            CLI_PATH,
+            '--push',
+            '--verbose',
+        ]);
 
-        await t.notThrowsAsync(
-            exec(['git', 'push', '--dry-run', 'origin', 'HEAD']),
-            'Git push should success',
+        t.is(stdout, '');
+        t.is(
+            stderr,
+            [
+                '',
+                '> git tag v0.0.0 -m 0.0.0',
+                '> git push origin v0.0.0',
+                '',
+                '',
+            ].join('\n'),
         );
+    }, 'CLI should exits successfully');
 
-        await t.notThrowsAsync(async () => {
-            const { stdout, stderr } = await exec([
-                CLI_PATH,
-                '--push',
-                '--verbose',
-            ]);
+    t.regex(
+        (await exec(['git', 'for-each-ref', 'refs/tags'])).stdout,
+        /^\w+\s+tag\s+refs\/tags\/v0\.0\.0\n$/,
+        'Git annotated tag v0.0.0 should be added',
+    );
 
-            t.is(stdout, '');
-            t.is(
-                stderr,
-                '\n> git tag v0.0.0 -m 0.0.0\n' +
-                    '> git push origin v0.0.0\n\n',
-            );
-        }, 'CLI should exits successfully');
-
-        t.regex(
-            (await exec(['git', 'for-each-ref', 'refs/tags'])).stdout,
-            /^\w+\s+tag\s+refs\/tags\/v0\.0\.0\n$/,
-            'Git annotated tag v0.0.0 should be added',
-        );
-
-        t.deepEqual(
-            tagList,
-            ['v0.0.0'],
-            'Git tag v0.0.0 should have been pushed',
-        );
-    }
+    t.deepEqual(tagList, ['v0.0.0'], 'Git tag v0.0.0 should have been pushed');
 });
 
 test('CLI should not add and not push Git tag with dry-run', async (t) => {
