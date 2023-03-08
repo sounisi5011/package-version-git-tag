@@ -157,7 +157,9 @@ jobs:
             echo '::group::Install' Corepack
             # Corepack 0.11.0 and later only supports Node.js 14.14.0 and later
             # see https://github.com/nodejs/corepack/pull/227
-            npm install --global 'corepack@<0.11'
+            # Note: On Windows, a conflict occurs with yarn already installed and an EEXIST error is thrown.
+            #       To avoid this, specify the "--force" option.
+            npm install --global --force 'corepack@<0.11'
             echo '::endgroup::'
 
             echo '::group::' corepack enable
