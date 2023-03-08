@@ -24,7 +24,7 @@ npm install --save-dev package-version-git-tag
 
 ```console
 $ package-version-git-tag --help
-package-version-git-tag/3.0.0
+package-version-git-tag v3.0.0
 
 Add Git tag corresponding to the version field of package.json
 
