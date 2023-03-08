@@ -161,6 +161,15 @@ jobs:
             echo '::endgroup::'
           fi
 
+          # If yarn is not available, install it
+          if type yarn >/dev/null 2>&1; then
+            :
+          else
+            echo '::group::' Install yarn
+            npm install --global --force 'yarn@1.x'
+            echo '::endgroup::'
+          fi
+
       - name: Show node and npm version
         shell: bash
         run: |
