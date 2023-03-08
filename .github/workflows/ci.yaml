@@ -144,7 +144,17 @@ jobs:
           # If Corepack is not available, manually update npm
           packageManager="$(< "${GITHUB_WORKSPACE}/package.json" jq --raw-output '.packageManager')"
           if [ "npm@$(npm --version)" != "${packageManager%%+*}" ]; then
+            # Disable the built-in Corepack in GitHub Actions.
+            # If enabled, problems will occur when the yarn command is executed.
+            if type corepack >/dev/null 2>&1; then
+              echo '::group::$' corepack disable
+              corepack disable
+              echo '::endgroup::'
+            fi
+
             echo '::group::' Update to the specified npm
+            # Note: On Windows, a conflict occurs with npm already installed and an EEXIST error is thrown.
+            #       To avoid this, specify the "--force" option.
             npm install --global --force "${packageManager%%+*}"
             echo '::endgroup::'
           fi
