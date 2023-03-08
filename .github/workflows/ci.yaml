@@ -131,8 +131,12 @@ jobs:
       - name: Debug / Try to detect Corepack already installed
         shell: bash
         run: |
-          echo '::group::' npm ls --global
-          npm ls --global && echo $? || echo $?
+          echo '::group::' which corepack
+          which corepack && echo $? || echo $?
+          echo '::endgroup::'
+
+          echo '::group::' npm ls --global --depth 0
+          npm ls --global --depth 0 && echo $? || echo $?
           echo '::endgroup::'
 
           echo '::group::' npm ls --global corepack
