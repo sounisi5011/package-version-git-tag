@@ -25,6 +25,8 @@ This project will support Node.js 14.0.0 or later from now on.
 
 * `@types/node`
     * [#186] - `12.x` -> `14.x`
+* `ava`
+    * [#185] - `2.4.0` -> `3.15.0`
 
 ### Added Dependencies
 
@@ -48,6 +50,7 @@ This project will support Node.js 14.0.0 or later from now on.
 [#183]: https://github.com/sounisi5011/package-version-git-tag/pull/183
 [#186]: https://github.com/sounisi5011/package-version-git-tag/pull/186
 [#187]: https://github.com/sounisi5011/package-version-git-tag/pull/187
+[#185]: https://github.com/sounisi5011/package-version-git-tag/pull/185
 
 ## [3.0.0] (2020-06-02 UTC)
 

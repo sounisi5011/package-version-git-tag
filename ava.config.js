@@ -1,7 +1,5 @@
 export default {
-  compileEnhancements: false,
   extensions: ['ts'],
-  files: ['./test/**/*.ts'],
-  helpers: ['**/helpers/**/*'],
+  files: ['./test/**/*.ts', '!**/helpers/**/*'],
   require: ['ts-node/register/transpile-only'],
 };
