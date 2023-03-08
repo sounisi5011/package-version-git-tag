@@ -71,14 +71,14 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Reconfigure git to use HTTP authentication
+        # see https://stackoverflow.com/a/69634516
+        # see https://github.com/actions/setup-node/issues/214#issuecomment-810829250
         shell: bash
         run: |
           git config --global \
             'url.https://${{ secrets.GITHUB_TOKEN }}@github.com/.insteadOf' \
             'ssh://git@github.com/'
 
-        # see https://stackoverflow.com/a/69634516
-        # see https://github.com/actions/setup-node/issues/214#issuecomment-810829250
       - name: Install Node.js
         uses: actions/setup-node@v3
         with:
@@ -112,14 +112,14 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Reconfigure git to use HTTP authentication
+        # see https://stackoverflow.com/a/69634516
+        # see https://github.com/actions/setup-node/issues/214#issuecomment-810829250
         shell: bash
         run: |
           git config --global \
             'url.https://${{ secrets.GITHUB_TOKEN }}@github.com/.insteadOf' \
             'ssh://git@github.com/'
 
-        # see https://stackoverflow.com/a/69634516
-        # see https://github.com/actions/setup-node/issues/214#issuecomment-810829250
       - name: Install Node.js
         uses: actions/setup-node@v3
         with:
