@@ -132,11 +132,11 @@ jobs:
         shell: bash
         run: |
           if type corepack >/dev/null 2>&1; then
-            echo '::group::' corepack enable
+            echo '::group::$' corepack enable
             corepack enable
             echo '::endgroup::'
 
-            echo '::group::' corepack enable npm
+            echo '::group::$' corepack enable npm
             corepack enable npm
             echo '::endgroup::'
           fi
