@@ -7,10 +7,6 @@
     "useDefineForClassFields": true,
 
     /* Modules */
-    "baseUrl": "./",
-    "paths": {
-      "*": ["./types.node_modules/*"]
-    },
     "types": ["node"],
 
     /* Emit */
