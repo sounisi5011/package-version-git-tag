@@ -27,6 +27,8 @@ This project will support Node.js 14.0.0 or later from now on.
     * [#186] - `12.x` -> `14.x`
 * `ava`
     * [#185] - `2.4.0` -> `3.15.0`
+* `typescript`
+    * [#185] - `3.9.3` -> `4.9.5`
 
 ### Added Dependencies
 

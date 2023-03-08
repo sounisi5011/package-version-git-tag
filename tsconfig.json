@@ -1,39 +1,45 @@
 {
   "extends": "@tsconfig/node14/tsconfig.json",
   "compilerOptions": {
-    /* Basic Options */
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
-    "outDir": "./dist",
+    /* Visit https://aka.ms/tsconfig to read more about this file */
 
-    /* Strict Type-Checking Options */
-    "strict": true,
+    /* Language and Environment */
+    "useDefineForClassFields": true,
 
-    /* Additional Checks */
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-
-    /* Module Resolution Options */
+    /* Modules */
     "baseUrl": "./",
     "paths": {
       "*": ["./types.node_modules/*"]
     },
     "types": ["node"],
+
+    /* Emit */
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "outDir": "./dist",
+    "importsNotUsedAsValues": "error",
+    "inlineSources": true,
+    "newLine": "LF",
+
+    /* Interop Constraints */
     "allowSyntheticDefaultImports": false,
     "esModuleInterop": false,
-
-    /* Source Map Options */
-    "inlineSources": true,
-
-    /* Advanced Options */
-    "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "importsNotUsedAsValues": "error",
-    "newLine": "LF",
-    "useDefineForClassFields": true
+
+    /* Type Checking */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+
+    /* Completeness */
+    "skipLibCheck": true
   },
   "include": ["./src/**/*"]
 }
