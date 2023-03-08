@@ -175,8 +175,8 @@ jobs:
           [ "npm@$(npm --version)" == "${packageManager%%+*}" ] && echo $? || echo $?
 
           echo final cond
-          type yarn >/dev/null 2>&1 && yarn --version | grep -qF 'This project is configured to use npm' \
-              && type pnpm >/dev/null 2>&1 && pnpm --version | grep -qF 'This project is configured to use npm' \
+          type yarn >/dev/null 2>&1 && { yarn --version || true; } | grep -qF 'This project is configured to use npm' \
+              && type pnpm >/dev/null 2>&1 && { pnpm --version || true; } | grep -qF 'This project is configured to use npm' \
               && [ "npm@$(npm --version)" == "${packageManager%%+*}" ] && echo $? || echo $?
 
           echo '::endgroup::'
