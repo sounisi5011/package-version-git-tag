@@ -25,8 +25,26 @@ This project will support Node.js 14.0.0 or later from now on.
 
 * `@types/node`
     * [#186] - `12.x` -> `14.x`
+* `@typescript-eslint/eslint-plugin`
+    * [#185] - `2.34.0` -> `5.54.1`
+* `@typescript-eslint/parser`
+    * [#185] - `2.34.0` -> `5.54.1`
 * `ava`
     * [#185] - `2.4.0` -> `3.15.0`
+* `eslint`
+    * [#185] - `6.8.0` -> `8.35.0`
+* `eslint-config-prettier`
+    * [#185] - `6.11.0` -> `8.7.0`
+* `eslint-config-standard`
+    * [#185] - `14.1.1` -> `17.0.0`
+* `eslint-plugin-import`
+    * [#185] - `2.20.2` -> `2.27.5`
+* `eslint-plugin-prettier`
+    * [#185] - `3.1.3` -> `4.2.1`
+* `eslint-plugin-promise`
+    * [#185] - `4.2.1` -> `6.1.1`
+* `eslint-plugin-simple-import-sort`
+    * [#185] - `5.0.3` -> `10.0.0`
 * `typescript`
     * [#185] - `3.9.3` -> `4.9.5`
 
@@ -35,12 +53,15 @@ This project will support Node.js 14.0.0 or later from now on.
 #### devDependencies
 
 * [#186] - `@tsconfig/node14@1.0.3`
+* [#185] - `eslint-plugin-n@15.6.1`
 
 ### Removed Dependencies
 
 #### devDependencies
 
 * [#186] - `del`
+* [#185] - `eslint-plugin-node`
+* [#185] - `eslint-plugin-standard`
 * [#186] - `make-dir`
 
 ### Others
