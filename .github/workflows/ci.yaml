@@ -176,6 +176,14 @@ jobs:
           echo node "$(node --version)"
           echo npm "$(npm --version)"
 
+      - name: Show npm comand path (Bash)
+        shell: bash
+        run: type npm
+
+      - name: Show npm comand path (PowerShell Core)
+        shell: pwsh
+        run: gcm npm | fl
+
       - name: Show npm version (Default shell)
         run: npm --version
 
