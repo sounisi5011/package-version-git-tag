@@ -176,6 +176,28 @@ jobs:
           echo node "$(node --version)"
           echo npm "$(npm --version)"
 
+      - name: Show npm version (Default shell)
+        run: npm --version
+
+      - name: Show npm version (sh)
+        if: runner.os == 'Linux'
+        shell: sh
+        run: npm --version
+
+      - name: Show npm version (cmd.exe)
+        if: runner.os == 'Windows'
+        shell: cmd
+        run: npm --version
+
+      - name: Show npm version (PowerShell Core)
+        shell: pwsh
+        run: npm --version
+
+      - name: Show npm version (PowerShell Desktop)
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: npm --version
+
       - name: Install dependencies
         run: npm ci || npm install
 
