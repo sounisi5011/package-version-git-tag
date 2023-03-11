@@ -557,7 +557,7 @@ test('CLI should not work with unknown options', async (t) => {
     );
 });
 
-test.only('CLI should add Git tag with customized tag prefix by npm', async (t) => {
+test('CLI should add Git tag with customized tag prefix by npm', async (t) => {
     const { exec, gitDirpath } = await initGit(tmpDir('custom-tag-prefix-npm'));
     const customPrefix = 'npm-tag-';
 
@@ -582,7 +582,6 @@ test.only('CLI should add Git tag with customized tag prefix by npm', async (t) 
         'Git tag should not exist yet',
     );
 
-    t.like(await exec(['npm', '--version']), { stdout: '7.24.2' });
     await t.notThrowsAsync(
         exec(['npm', 'exec', '--no', PKG_DATA.name]),
         'CLI should exits successfully',
