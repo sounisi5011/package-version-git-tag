@@ -132,15 +132,15 @@ jobs:
       - name: Enable Corepack (Automatically setup a package manager for Node.js)
         shell: bash
         run: |
-          if type corepack >/dev/null 2>&1; then
-            echo '::group::$' corepack enable
-            corepack enable
-            echo '::endgroup::'
+          # if type corepack >/dev/null 2>&1; then
+          #   echo '::group::$' corepack enable
+          #   corepack enable
+          #   echo '::endgroup::'
 
-            echo '::group::$' corepack enable npm
-            corepack enable npm
-            echo '::endgroup::'
-          fi
+          #   echo '::group::$' corepack enable npm
+          #   corepack enable npm
+          #   echo '::endgroup::'
+          # fi
 
           # If Corepack is not available, manually update npm
           # Note: I have tried to enable Corepack, but could not use Corepack in older Node.js or Windows environments.
@@ -149,11 +149,11 @@ jobs:
           if [[ "${packageManager}" == 'npm@'* && "npm@$(npm --version)" != "${packageManager%%+*}" ]]; then
             # Disable the built-in Corepack in GitHub Actions.
             # If enabled, problems will occur when the yarn command is executed.
-            if type corepack >/dev/null 2>&1; then
-              echo '::group::$' corepack disable
-              corepack disable
-              echo '::endgroup::'
-            fi
+            # if type corepack >/dev/null 2>&1; then
+            #   echo '::group::$' corepack disable
+            #   corepack disable
+            #   echo '::endgroup::'
+            # fi
 
             readonly npmSemver="${packageManager##npm@}"
             echo "required-npm-version=${npmSemver%%+*}" >> "${GITHUB_ENV}"
@@ -168,30 +168,30 @@ jobs:
             echo '::endgroup::'
           fi
 
-      - uses: madhead/semver-utils@v3
-        if: ${{ env.required-npm-version }}
-        id: is-nodejs-14-or-below
-        with:
-          version: ${{ steps.setup-node.outputs.node-version }}
-          satisfies: < 16.x
+      # - uses: madhead/semver-utils@v3
+      #   if: ${{ env.required-npm-version }}
+      #   id: is-nodejs-14-or-below
+      #   with:
+      #     version: ${{ steps.setup-node.outputs.node-version }}
+      #     satisfies: < 16.x
 
-      - name: Update to the specified npm (Using "npx npm-windows-upgrade")
-        # see https://stackoverflow.com/a/67532120/4907315
-        if: >-
-          ${{
-               env.required-npm-version
-            && runner.os == 'Windows'
-            && steps.is-nodejs-14-or-below.outputs.satisfies
-            && steps.is-nodejs-14-or-below.outputs.satisfies != 'false'
-          }}
-        # If using Node.js 14 or lower on Windows, the "npm install --global npm" command will not update npm correctly.
-        # see https://stackoverflow.com/a/31520672
-        shell: pwsh
-        run: |
-          Set-ExecutionPolicy Unrestricted -Scope CurrentUser -Force
-          npx npm-windows-upgrade --npm-version '${{ env.required-npm-version }}'
-          # see https://github.com/orgs/community/discussions/26641
-          echo 'required-npm-version=' >> $Env:GITHUB_ENV
+      # - name: Update to the specified npm (Using "npx npm-windows-upgrade")
+      #   # see https://stackoverflow.com/a/67532120/4907315
+      #   if: >-
+      #     ${{
+      #          env.required-npm-version
+      #       && runner.os == 'Windows'
+      #       && steps.is-nodejs-14-or-below.outputs.satisfies
+      #       && steps.is-nodejs-14-or-below.outputs.satisfies != 'false'
+      #     }}
+      #   # If using Node.js 14 or lower on Windows, the "npm install --global npm" command will not update npm correctly.
+      #   # see https://stackoverflow.com/a/31520672
+      #   shell: pwsh
+      #   run: |
+      #     Set-ExecutionPolicy Unrestricted -Scope CurrentUser -Force
+      #     npx npm-windows-upgrade --npm-version '${{ env.required-npm-version }}'
+      #     # see https://github.com/orgs/community/discussions/26641
+      #     echo 'required-npm-version=' >> $Env:GITHUB_ENV
 
       - name: Update to the specified npm (Using "npm install --global npm")
         if: ${{ env.required-npm-version }}
