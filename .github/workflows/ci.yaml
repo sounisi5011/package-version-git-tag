@@ -123,6 +123,7 @@ jobs:
             'ssh://git@github.com/'
 
       - name: Install Node.js
+        id: setup-node
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
@@ -145,7 +146,7 @@ jobs:
           # Note: I have tried to enable Corepack, but could not use Corepack in older Node.js or Windows environments.
           #       You can see what I did here: https://github.com/sounisi5011/package-version-git-tag/compare/24791b6ddab5cd2b8fdc735855556640746cc863~1...349c11acb35cfc0096bc6e9324bd9748e429ca17~1
           packageManager="$(< "${GITHUB_WORKSPACE}/package.json" jq --raw-output '.packageManager')"
-          if [ "npm@$(npm --version)" != "${packageManager%%+*}" ]; then
+          if [[ "${packageManager}" == 'npm@'* && "npm@$(npm --version)" != "${packageManager%%+*}" ]]; then
             # Disable the built-in Corepack in GitHub Actions.
             # If enabled, problems will occur when the yarn command is executed.
             if type corepack >/dev/null 2>&1; then
@@ -154,11 +155,8 @@ jobs:
               echo '::endgroup::'
             fi
 
-            echo '::group::' Update to the specified npm
-            # Note: On Windows, a conflict occurs with npm already installed and an EEXIST error is thrown.
-            #       To avoid this, specify the "--force" option.
-            npm install --global --force "${packageManager%%+*}"
-            echo '::endgroup::'
+            readonly npmSemver="${packageManager##npm@}"
+            echo "required-npm-version=${npmSemver%%+*}" >> "${GITHUB_ENV}"
           fi
 
           # If yarn is not available, install it
@@ -169,6 +167,30 @@ jobs:
             npm install --global --force 'yarn@1.x'
             echo '::endgroup::'
           fi
+
+      - uses: madhead/semver-utils@v3
+        if: ${{ env.required-npm-version }}
+        id: is-nodejs-14-or-below
+        with:
+          version: ${{ steps.setup-node.outputs.node-version }}
+          satisfies: < 16.x
+
+      - name: Update to the specified npm
+        if: ${{ env.required-npm-version && ( runner.os != 'Windows' || ! steps.is-nodejs-14-or-below.outputs.satisfies || steps.is-nodejs-14-or-below.outputs.satisfies == 'false' ) }}
+        shell: bash
+        run: |
+          npm install --global --force 'npm@${{ env.required-npm-version }}'
+          echo "required-npm-version=" >> "${GITHUB_ENV}"
+
+      - name: Update to the specified npm (on Windows)
+        if: ${{ env.required-npm-version }}
+        # If using Node.js 14 or lower on Windows, the "npm install --global npm" command will not update npm correctly.
+        # see https://stackoverflow.com/a/31520672
+        shell: pwsh
+        run: |
+          Set-ExecutionPolicy Unrestricted -Scope CurrentUser -Force
+          npm install --global npm-windows-upgrade
+          npm-windows-upgrade --npm-version '${{ env.required-npm-version }}'
 
       - name: Show node and npm version
         shell: bash
