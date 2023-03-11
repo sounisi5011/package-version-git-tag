@@ -64,43 +64,43 @@ jobs:
       - id: detector
         uses: sounisi5011/npm-packages@actions/get-nodejs-versions-array-v0
 
-  # lint:
-  #   needs: if-run-ci
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v3
+  lint:
+    needs: if-run-ci
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
 
-  #     - name: Reconfigure git to use HTTP authentication
-  #       # see https://stackoverflow.com/a/69634516
-  #       # see https://github.com/actions/setup-node/issues/214#issuecomment-810829250
-  #       shell: bash
-  #       run: |
-  #         git config --global \
-  #           'url.https://${{ secrets.GITHUB_TOKEN }}@github.com/.insteadOf' \
-  #           'ssh://git@github.com/'
+      - name: Reconfigure git to use HTTP authentication
+        # see https://stackoverflow.com/a/69634516
+        # see https://github.com/actions/setup-node/issues/214#issuecomment-810829250
+        shell: bash
+        run: |
+          git config --global \
+            'url.https://${{ secrets.GITHUB_TOKEN }}@github.com/.insteadOf' \
+            'ssh://git@github.com/'
 
-  #     - name: Install Node.js
-  #       uses: actions/setup-node@v3
-  #       with:
-  #         node-version: 14.x
-  #         cache: npm
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 14.x
+          cache: npm
 
-  #     - name: Enable Corepack (Automatically setup a package manager for Node.js)
-  #       run: |
-  #         corepack enable
-  #         corepack enable npm
+      - name: Enable Corepack (Automatically setup a package manager for Node.js)
+        run: |
+          corepack enable
+          corepack enable npm
 
-  #     - name: Show node and npm version
-  #       shell: bash
-  #       run: |
-  #         echo node "$(node --version)"
-  #         echo npm "$(npm --version)"
+      - name: Show node and npm version
+        shell: bash
+        run: |
+          echo node "$(node --version)"
+          echo npm "$(npm --version)"
 
-  #     - name: Install dependencies
-  #       run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-  #     - name: Run linter
-  #       run: npm run test:other-than-unit-test
+      - name: Run linter
+        run: npm run test:other-than-unit-test
 
   unit-test:
     needs: detect-supported-node
@@ -204,13 +204,11 @@ jobs:
           echo node "$(node --version)"
           echo npm "$(npm --version)"
 
-      - name: Show npm version in npm-scripts
-        run: npm run npm-ver
+      - name: Install dependencies
+        run: npm ci || npm install
 
-      # - name: Install dependencies
-      #   run: npm ci || npm install
-      # - name: Run unit test
-      #   run: npm run test:unit-test
+      - name: Run unit test
+        run: npm run test:unit-test
 
   # Successfully complete this job when all jobs have been completed.
   # Only by checking this job, it is possible to determine if CI is complete or not.
@@ -219,8 +217,7 @@ jobs:
   # see https://github.com/sounisi5011/npm-packages/blob/2a5ca2de696eeb8b40a38de90580441c4c6c96e0/.github/workflows/ci.yaml#L482-L498
   complete:
     name: Complete CI
-    # needs: [lint, unit-test]
-    needs: unit-test
+    needs: [lint, unit-test]
     if:
       ${{ always() && github.event.pull_request }}
       # This job is required only for Pull Requests.

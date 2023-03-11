@@ -42,7 +42,6 @@
     "lint:eslint": "eslint --ext .ts,.js ./",
     "lint:tsc-src": "tsc --noEmit",
     "lint:tsc-test": "tsc -p ./test/ --noEmit",
-    "npm-ver": "npm --version && npm i execa@5.1.1 && node -p \"require('execa').sync('npm', ['--version'])\"",
     "prepare": "patch-package",
     "release": "run-s release:validation release:build release:publish",
     "release:build": "run-s clean build",
@@ -98,7 +97,7 @@
     "typescript": "4.9.5"
   },
   "engines": {
-    "node": "14.x - 19.x"
+    "node": "14.x"
   },
   "packageManager": "npm@7.24.2"
 }
