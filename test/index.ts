@@ -582,9 +582,7 @@ test.only('CLI should add Git tag with customized tag prefix by npm', async (t) 
         'Git tag should not exist yet',
     );
 
-    console.log(
-        await exec(['npm', '--version']).catch((error: unknown) => error),
-    );
+    t.like(await exec(['npm', '--version']), { stdout: '7.24.2' });
     await t.notThrowsAsync(
         exec(['npm', 'exec', '--no', PKG_DATA.name]),
         'CLI should exits successfully',
