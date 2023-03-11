@@ -175,21 +175,27 @@ jobs:
           version: ${{ steps.setup-node.outputs.node-version }}
           satisfies: < 16.x
 
-      - name: Update to the specified npm
-        if: ${{ env.required-npm-version && ( runner.os != 'Windows' || ! steps.is-nodejs-14-or-below.outputs.satisfies || steps.is-nodejs-14-or-below.outputs.satisfies == 'false' ) }}
-        shell: bash
-        run: |
-          npm install --global --force 'npm@${{ env.required-npm-version }}'
-          echo "required-npm-version=" >> "${GITHUB_ENV}"
-
       - name: Update to the specified npm (on Windows)
-        if: ${{ env.required-npm-version }}
+        # see https://stackoverflow.com/a/67532120/4907315
+        if: >-
+          ${{
+               env.required-npm-version
+            && runner.os == 'Windows'
+            && steps.is-nodejs-14-or-below.outputs.satisfies
+            && steps.is-nodejs-14-or-below.outputs.satisfies != 'false'
+          }}
         # If using Node.js 14 or lower on Windows, the "npm install --global npm" command will not update npm correctly.
         # see https://stackoverflow.com/a/31520672
         shell: pwsh
         run: |
           Set-ExecutionPolicy Unrestricted -Scope CurrentUser -Force
           npx npm-windows-upgrade --npm-version '${{ env.required-npm-version }}'
+          # see https://github.com/orgs/community/discussions/26641
+          echo 'required-npm-version=' >> $Env:GITHUB_ENV
+
+      - name: Update to the specified npm
+        if: ${{ env.required-npm-version }}
+        run: npm install --global --force 'npm@${{ env.required-npm-version }}'
 
       - name: Show node and npm version
         shell: bash
