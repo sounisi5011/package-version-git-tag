@@ -175,7 +175,7 @@ jobs:
           version: ${{ steps.setup-node.outputs.node-version }}
           satisfies: < 16.x
 
-      - name: Update to the specified npm (on Windows)
+      - name: Update to the specified npm (Using "npx npm-windows-upgrade")
         # see https://stackoverflow.com/a/67532120/4907315
         if: >-
           ${{
@@ -193,7 +193,7 @@ jobs:
           # see https://github.com/orgs/community/discussions/26641
           echo 'required-npm-version=' >> $Env:GITHUB_ENV
 
-      - name: Update to the specified npm
+      - name: Update to the specified npm (Using "npm install --global npm")
         if: ${{ env.required-npm-version }}
         run: npm install --global --force 'npm@${{ env.required-npm-version }}'
 
