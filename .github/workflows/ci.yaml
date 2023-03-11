@@ -189,7 +189,8 @@ jobs:
         shell: pwsh
         run: |
           Set-ExecutionPolicy Unrestricted -Scope CurrentUser -Force
-          npx npm-windows-upgrade --npm-version '${{ env.required-npm-version }}'
+          #npx npm-windows-upgrade --npm-version '${{ env.required-npm-version }}'
+          npm install --global --force 'npm@${{ env.required-npm-version }}'
 
       - name: Show node and npm version
         shell: bash
