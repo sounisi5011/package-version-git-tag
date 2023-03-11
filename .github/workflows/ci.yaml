@@ -123,7 +123,6 @@ jobs:
             'ssh://git@github.com/'
 
       - name: Install Node.js
-        id: setup-node
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
@@ -168,24 +167,13 @@ jobs:
             echo '::endgroup::'
           fi
 
-      - uses: madhead/semver-utils@v3
-        if: ${{ env.required-npm-version }}
-        id: is-nodejs-14-or-below
-        with:
-          version: ${{ steps.setup-node.outputs.node-version }}
-          satisfies: < 16.x
-
       - name: Update to the specified npm (Using "npx npm-windows-upgrade")
-        # see https://stackoverflow.com/a/67532120/4907315
-        if: >-
-          ${{
-               env.required-npm-version
-            && runner.os == 'Windows'
-            && steps.is-nodejs-14-or-below.outputs.satisfies
-            && steps.is-nodejs-14-or-below.outputs.satisfies != 'false'
-          }}
-        # If using Node.js 14 or lower on Windows, the "npm install --global npm" command will not update npm correctly.
+        if: ${{ env.required-npm-version && runner.os == 'Windows' }}
+        # On Windows, the "npm install --global npm" command does not properly overwrite npm.
+        # Instead of the "npm install --global npm" command, "npx npm-windows-upgrade" can be used to correctly overwrite npm.
         # see https://stackoverflow.com/a/31520672
+        # Note: The referenced answer says that the "npm install --global npm" command is available for Node.js v16 or later.
+        #       However, when I tried, this problem occurred in all versions of Node.js v14 or later.
         shell: pwsh
         run: |
           Set-ExecutionPolicy Unrestricted -Scope CurrentUser -Force
