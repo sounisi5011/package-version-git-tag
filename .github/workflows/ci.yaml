@@ -222,9 +222,6 @@ jobs:
       - name: Install dependencies
         run: npm ci || npm install
 
-      - name: Show npm version (Node.js execa)
-        run: node -p "require('execa').sync('npm', ['--version'])"
-
       - name: Run unit test
         run: npm run test:unit-test
 
