@@ -44,7 +44,7 @@ _pre-commit__format__config:
   piped: true
   commands:
     format/config/0_prettier:
-      glob: "*.{json,yaml,yml}"
+      glob: "*.{json,json5,yaml,yml}"
       run: npx prettier --write {staged_files}
     format/config/1_format-package-json:
       # Note: If "package.json" is specified, only the root package.json file will be included.
