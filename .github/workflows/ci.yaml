@@ -157,7 +157,7 @@ jobs:
             readonly npmSemver="${packageManager##npm@}"
             echo "required-npm-version=${npmSemver%%+*}" >> "${GITHUB_ENV}"
           else
-            # Old Corepack throws ENOTEMPTY error when running package managers in parallel.
+            # Old Corepack throws ENOTEMPTY errors (or EPERM errors on Windows) when running package managers in parallel.
             # This has been fixed in Corepack v0.11, so if the old Corepack is detected, this will be updated.
             # see https://github.com/nodejs/corepack/issues/110
             # see https://github.com/nodejs/corepack/pull/84
