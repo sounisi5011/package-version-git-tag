@@ -110,20 +110,24 @@ This project will support Node.js 14.0.0 or later from now on.
 ### Others
 
 * [#183] - Change used CI service from Azure Pipelines to GitHub Actions
+* [#184] - Auto-detect Node.js version to run unit tests
 * [#187] - Auto approve Pull Requests from admins who do not have any friends
 * [#185] - Migrating from husky and lint-staged to lefthook
 * [#185] - Use npm v7 in this project
 * [#185] - Fix patch file to make `check-peer-deps@1.1.3` detect peerDependenciesMeta
 * [#188] - Run unit tests on the master branch
 * [#193] - Update `.renovaterc.json` file
+* [#194] - Ignore `.node-version` files
 
 [#182]: https://github.com/sounisi5011/package-version-git-tag/pull/182
 [#183]: https://github.com/sounisi5011/package-version-git-tag/pull/183
+[#184]: https://github.com/sounisi5011/package-version-git-tag/pull/184
 [#186]: https://github.com/sounisi5011/package-version-git-tag/pull/186
 [#187]: https://github.com/sounisi5011/package-version-git-tag/pull/187
 [#185]: https://github.com/sounisi5011/package-version-git-tag/pull/185
 [#188]: https://github.com/sounisi5011/package-version-git-tag/pull/188
 [#193]: https://github.com/sounisi5011/package-version-git-tag/pull/193
+[#194]: https://github.com/sounisi5011/package-version-git-tag/pull/194
 
 ## [3.0.0] (2020-06-02 UTC)
 

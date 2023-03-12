@@ -54,5 +54,8 @@ typings/
 # direnv environment variables file
 .envrc
 
+# nodenv local version define file
+.node-version
+
 # Output directory
 /dist/
