@@ -8,12 +8,15 @@
 
 ### Supported Node version
 
-`10.x || 12.x || 14.x` -> `14.x`
+`10.x || 12.x || 14.x` -> `14.x || 16.x`
 
 [Node.js 10 and Node.js 12 are now End-of-Life](https://github.com/nodejs/Release/tree/54e615d89bf2e056644e138e7e33714bfd1b67ee#end-of-life-releases).
 This project will support Node.js 14.0.0 or later from now on.
 
 * [#186] - Drop support for Node.js 10 and 12
+* [#171] by [@johnschult][contributor:johnschult] - Add LTS node version (16) to acceptable engines. Thanks to [johnschult][contributor:johnschult]!
+
+[contributor:johnschult]: https://github.com/johnschult
 
 ### Documentation
 
@@ -128,6 +131,7 @@ This project will support Node.js 14.0.0 or later from now on.
 [#188]: https://github.com/sounisi5011/package-version-git-tag/pull/188
 [#193]: https://github.com/sounisi5011/package-version-git-tag/pull/193
 [#194]: https://github.com/sounisi5011/package-version-git-tag/pull/194
+[#171]: https://github.com/sounisi5011/package-version-git-tag/pull/171
 
 ## [3.0.0] (2020-06-02 UTC)
 
