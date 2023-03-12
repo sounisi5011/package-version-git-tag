@@ -121,6 +121,7 @@ This project will support Node.js 14.0.0 or later from now on.
 * [#188] - Run unit tests on the master branch
 * [#193] - Update `.renovaterc.json` file
 * [#194] - Ignore `.node-version` files
+* [#196] - Auto-check if CHANGELOG is updated
 
 [#182]: https://github.com/sounisi5011/package-version-git-tag/pull/182
 [#183]: https://github.com/sounisi5011/package-version-git-tag/pull/183
@@ -132,6 +133,7 @@ This project will support Node.js 14.0.0 or later from now on.
 [#193]: https://github.com/sounisi5011/package-version-git-tag/pull/193
 [#194]: https://github.com/sounisi5011/package-version-git-tag/pull/194
 [#171]: https://github.com/sounisi5011/package-version-git-tag/pull/171
+[#196]: https://github.com/sounisi5011/package-version-git-tag/pull/196
 
 ## [3.0.0] (2020-06-02 UTC)
 
