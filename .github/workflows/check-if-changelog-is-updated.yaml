@@ -1,8 +1,6 @@
 name: Check if CHANGELOG is updated
 on:
   pull_request:
-    branches:
-      - "**"
     types:
       - opened
       - reopened
