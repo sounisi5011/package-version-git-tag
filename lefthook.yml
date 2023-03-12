@@ -24,6 +24,8 @@ pre-commit:
       run: >-
         npm run build:readme
         && git add ./README.md
+    3_git-add:
+      run: git add {staged_files}
 
 _pre-commit__format:
   parallel: true
@@ -32,19 +34,18 @@ _pre-commit__format:
       env:
         LEFTHOOK_QUIET: meta,summary,success
       run: lefthook run _pre-commit__format__config
-    format/ts&js:
-      env:
-        LEFTHOOK_QUIET: meta,summary,success
-      run: lefthook run '_pre-commit__format__ts&js'
+    format/eslint:
+      # Note: ".js" and ".ts" files are formatted by ESLint's "eslint-plugin-prettier" plugin.
+      #       So there is no need to use Prettier for these files.
+      glob: "*.{ts,js,cjs,mjs}"
+      run: npx eslint --fix {staged_files}
 
 _pre-commit__format__config:
   piped: true
   commands:
     format/config/0_prettier:
       glob: "*.{json,yaml,yml}"
-      run: >-
-        npx prettier --write {staged_files}
-        && git add {staged_files}
+      run: npx prettier --write {staged_files}
     format/config/1_format-package-json:
       # Note: If "package.json" is specified, only the root package.json file will be included.
       #       If "**/package.json" is specified, only package.json files in subdirectories will be included.
@@ -53,18 +54,3 @@ _pre-commit__format__config:
       run: >-
         npx prettier-package-json --write {staged_files}
         && npx sort-package-json {staged_files}
-        && git add {staged_files}
-
-_pre-commit__format__ts&js:
-  piped: true
-  commands:
-    format/ts&js/0_prettier:
-      glob: "*.{ts,js,cjs,mjs}"
-      run: >-
-        npx prettier --write {staged_files}
-        && git add {staged_files}
-    format/ts&js/1_eslint:
-      glob: "*.{ts,js,cjs,mjs}"
-      run: >-
-        npx eslint --fix {staged_files}
-        && git add {staged_files}
