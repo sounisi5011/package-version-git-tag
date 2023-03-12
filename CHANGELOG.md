@@ -21,6 +21,14 @@ This project will support Node.js 14.0.0 or later from now on.
 
 ### Updated Dependencies
 
+#### dependencies
+
+* `cac`
+    * [#185] - `^6.5.8` -> `6.6.1`
+
+        The format of help messages has changed since cac 6.7.0.
+        see https://github.com/cacjs/cac/commit/e565b2ae5d4a3256ed4d56a64d91356e7d6cbce6
+
 #### devDependencies
 
 * `@types/node`
@@ -75,6 +83,7 @@ This project will support Node.js 14.0.0 or later from now on.
 * [#186] - `@tsconfig/node14@1.0.3`
 * [#185] - `eslint-plugin-n@15.6.1`
 * [#185] - `execa@5.1.1`
+* [#185] - `lefthook@1.3.3`
 
 ### Removed Dependencies
 
@@ -83,6 +92,8 @@ This project will support Node.js 14.0.0 or later from now on.
 * [#186] - `del`
 * [#185] - `eslint-plugin-node`
 * [#185] - `eslint-plugin-standard`
+* [#185] - `husky`
+* [#185] - `lint-staged`
 * [#186] - `make-dir`
 
 ### Others
