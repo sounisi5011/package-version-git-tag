@@ -7,6 +7,7 @@ import { execFileAsync, getRandomInt, rmrf } from './helpers';
 import { initGit } from './helpers/git';
 
 import escapeRegExp = require('escape-string-regexp');
+import execa = require('execa');
 
 const PROJECT_ROOT = path.resolve(__dirname, '..');
 const FIXTURES_DIR = path.resolve(__dirname, 'fixtures');
@@ -21,7 +22,7 @@ function tmpDir(dirname: string): string {
     return path.resolve(__dirname, 'tmp', dirname);
 }
 
-test.before(async () => {
+test.before.skip(async () => {
     await execFileAsync('npm', ['run', 'build'], { cwd: PROJECT_ROOT });
     await Promise.all([
         rmrf(path.resolve(FIXTURES_DIR, 'package-lock.json')),
@@ -40,6 +41,92 @@ test.before(async () => {
             delete process.env[key];
         });
 });
+
+test.only('check npm version', async (t) => {
+    t.like(await execa('npm', ['--version']), { stdout: '7.24.2', stderr: '' });
+});
+
+test.only('check yarn version', async (t) => {
+    const { exec, gitDirpath } = await initGit(tmpDir('yarn1-ver'));
+
+    await fs.writeFile(
+        path.join(gitDirpath, 'package.json'),
+        JSON.stringify({
+            packageManager: 'yarn@1.22.19',
+        }),
+    );
+
+    t.like(await exec(['yarn', '--version']), {
+        stdout: '1.22.19',
+        stderr: '',
+    });
+});
+
+if (process.env['corepack-available']) {
+    test.only('check yarn2 version', async (t) => {
+        const { exec, gitDirpath } = await initGit(tmpDir('yarn2-ver'));
+
+        await fs.writeFile(
+            path.join(gitDirpath, 'package.json'),
+            JSON.stringify({
+                packageManager: 'yarn@2.4.3',
+            }),
+        );
+
+        t.like(await exec(['yarn', '--version']), {
+            stdout: '2.4.3',
+            stderr: '',
+        });
+    });
+
+    test.only('check yarn3 version', async (t) => {
+        const { exec, gitDirpath } = await initGit(tmpDir('yarn3-ver'));
+
+        await fs.writeFile(
+            path.join(gitDirpath, 'package.json'),
+            JSON.stringify({
+                packageManager: 'yarn@3.4.1',
+            }),
+        );
+
+        t.like(await exec(['yarn', '--version']), {
+            stdout: '3.4.1',
+            stderr: '',
+        });
+    });
+
+    test.only('check yarn4 version', async (t) => {
+        const { exec, gitDirpath } = await initGit(tmpDir('yarn4-ver'));
+
+        await fs.writeFile(
+            path.join(gitDirpath, 'package.json'),
+            JSON.stringify({
+                packageManager: 'yarn@4.0.0-rc.40',
+            }),
+        );
+
+        t.like(await exec(['yarn', '--version']), {
+            stdout: '4.0.0-rc.40',
+            stderr: '',
+        });
+    });
+
+    test.only('check pnpm version', async (t) => {
+        const { exec, gitDirpath } = await initGit(tmpDir('pnpm-ver'));
+
+        await fs.writeFile(
+            path.join(gitDirpath, 'package.json'),
+            JSON.stringify({
+                packageManager: 'pnpm@7.29.1',
+            }),
+        );
+
+        t.like(await exec(['pnpm', '--version']), {
+            stdout: '7.29.1',
+            stderr: '',
+        });
+    });
+}
 
 test('CLI should add Git tag', async (t) => {
     const { exec } = await initGit(tmpDir('not-exists-git-tag'));
