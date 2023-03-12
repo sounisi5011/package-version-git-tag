@@ -7,13 +7,13 @@ on:
       - ready_for_review
 jobs:
   check:
+    name: Did you update CHANGELOG?
     if: ${{ ! github.event.pull_request.draft }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Did you update CHANGELOG?
-        shell: bash
+      - shell: bash
         run: |
           readonly PR_URL='${{ github.server_url }}/${{ github.repository }}/pull/${{ github.event.pull_request.number }}'
           readonly PR_URL_REGEX="\b${PR_URL//./\\.}\b"
