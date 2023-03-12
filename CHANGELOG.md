@@ -44,7 +44,9 @@ This project will support Node.js 14.0.0 or later from now on.
 * `del-cli`
     * [#185] - `3.0.1` -> `5.0.0`
 * `escape-string-regexp`
-    * [#185] - `2.0.0` -> `5.0.0`
+    * [#185] - `2.0.0` -> `4.0.0`
+
+    We will not update to v5 because we cannot yet use ESM for unit testing on this project.
 * `eslint`
     * [#185] - `6.8.0` -> `8.36.0`
 * `eslint-config-prettier`
