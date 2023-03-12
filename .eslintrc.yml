@@ -18,15 +18,15 @@ rules:
         - test/**
   prettier/prettier: error
 overrides:
-  - files: "*.js"
+  - files: "*.{js,cjs,mjs}"
     extends:
       - plugin:prettier/recommended
   - files: "*.ts"
     extends:
-      - plugin:@typescript-eslint/recommended
+      - plugin:@typescript-eslint/recommended-requiring-type-checking
+      - plugin:@typescript-eslint/strict
       - plugin:import/typescript
       - plugin:prettier/recommended
-      - prettier/@typescript-eslint
     parser: "@typescript-eslint/parser"
     parserOptions:
       sourceType: module
@@ -40,7 +40,7 @@ overrides:
       no-dupe-class-members: off
       # The no-unused-expressions rule does not support optional chaining operator (`?.`)
       no-unused-expressions: off
-      node/no-unsupported-features/es-syntax:
+      n/no-unsupported-features/es-syntax:
         - error
         - ignores:
             - modules
@@ -56,7 +56,7 @@ overrides:
         - allowShortCircuit: true
           allowTernary: true
           allowTaggedTemplates: true
-      simple-import-sort/sort: error
+      simple-import-sort/imports: error
   - files: "*.d.ts"
     rules:
       no-redeclare: off

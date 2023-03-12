@@ -1,12 +1,9 @@
 import type * as childProcess from 'child_process';
 import { commandJoin } from 'command-join';
-import * as fs from 'fs';
+import * as fs from 'fs/promises';
 import * as path from 'path';
-import { promisify } from 'util';
 
 import crossSpawn = require('cross-spawn');
-
-const readFileAsync = promisify(fs.readFile);
 
 export interface PkgDataInterface {
     version: string;
@@ -26,16 +23,16 @@ export function relativePath(pathStr: string): string {
 
 export function isPkgData(value: unknown): value is PkgDataInterface {
     if (isObject(value)) {
-        return typeof value.version === 'string';
+        return typeof value['version'] === 'string';
     }
     return false;
 }
 
 export async function readJSONFile(filepath: string): Promise<unknown> {
     try {
-        const dataText = await readFileAsync(filepath, 'utf8');
+        const dataText = await fs.readFile(filepath, 'utf8');
         try {
-            return JSON.parse(dataText);
+            return JSON.parse(dataText) as unknown;
         } catch (error) {
             throw new Error(`Invalid JSON: ${relativePath(filepath)}`);
         }
@@ -61,7 +58,7 @@ function execExithandler({
     stderrList: unknown[];
     resolve: (value: { stdout: string; stderr: string }) => void;
     reject: (reason: Error) => void;
-}): (code: number, signal: string) => void {
+}): (code: number, signal: string | null) => void {
     return (code, signal) => {
         const stdout = stdoutList.join('');
         const stderr = stderrList.join('');
@@ -124,7 +121,7 @@ export async function execFileAsync(
             'close',
             execExithandler({
                 command: args[0],
-                args: args[1] || [],
+                args: args[1] ?? [],
                 stdoutList,
                 stderrList,
                 resolve,
@@ -160,11 +157,11 @@ export function getNpmExecPath(): {
     spawnArgs: string[];
     isYarn: boolean;
 } {
-    const npmPath = process.env.npm_execpath;
-    const npmPathIsJs =
-        typeof npmPath === 'string' && /^\.m?js$/.test(path.extname(npmPath));
-    const execPath = npmPathIsJs ? process.execPath : npmPath || 'npm';
-    const isYarn = path.basename(npmPath || 'npm').startsWith('yarn');
+    // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+    const npmPath = process.env['npm_execpath'] || 'npm';
+    const npmPathIsJs = /^\.m?js$/.test(path.extname(npmPath));
+    const execPath = npmPathIsJs ? process.execPath : npmPath;
+    const isYarn = path.basename(npmPath).startsWith('yarn');
 
     return {
         execPath,
@@ -175,7 +172,7 @@ export function getNpmExecPath(): {
 
 export async function getConfig(keyMap: {
     npm: string;
-    yarn?: string;
+    yarn?: string | undefined;
 }): Promise<string> {
     const { execPath, spawnArgs, isYarn } = getNpmExecPath();
 

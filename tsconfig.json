@@ -1,43 +1,41 @@
 {
+  "extends": "@tsconfig/node14/tsconfig.json",
   "compilerOptions": {
-    /* Basic Options */
-    // Node.js 10+ almost supports features up to ES2018
-    // see https://node.green/#ES2018
-    // see https://www.typescriptlang.org/v2/tsconfig#target
-    "target": "ES2018",
-    "module": "CommonJS",
+    /* Visit https://aka.ms/tsconfig to read more about this file */
+
+    /* Language and Environment */
+    "useDefineForClassFields": true,
+
+    /* Modules */
+    "types": ["node"],
+
+    /* Emit */
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
     "outDir": "./dist",
+    "importsNotUsedAsValues": "error",
+    "inlineSources": true,
+    "newLine": "LF",
 
-    /* Strict Type-Checking Options */
-    "strict": true,
-
-    /* Additional Checks */
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-
-    /* Module Resolution Options */
-    "moduleResolution": "node",
-    "baseUrl": "./",
-    "paths": {
-      "*": ["./types.node_modules/*"]
-    },
-    "types": ["node"],
+    /* Interop Constraints */
     "allowSyntheticDefaultImports": false,
     "esModuleInterop": false,
-
-    /* Source Map Options */
-    "inlineSources": true,
-
-    /* Advanced Options */
     "forceConsistentCasingInFileNames": true,
-    "importsNotUsedAsValues": "error",
-    "newLine": "LF",
-    "useDefineForClassFields": true
+
+    /* Type Checking */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+
+    /* Completeness */
+    "skipLibCheck": true
   },
   "include": ["./src/**/*"]
 }

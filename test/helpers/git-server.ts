@@ -1,7 +1,8 @@
-import * as path from 'path';
+import * as fs from 'fs/promises';
+import { Git, GitEvents } from 'node-git-server';
 
-import del = require('del');
-import Server = require('node-git-server');
+import { isObject } from '../../src/utils';
+import { rmrf } from '.';
 
 const PORT = {
     MIN: 49152,
@@ -12,12 +13,13 @@ const usedPort = new Set<number>();
 
 export default async function (
     dirpath: string,
-): Promise<{ remoteURL: string; repos: Server; tagList: string[] }> {
+): Promise<{ remoteURL: string; repos: Git; tagList: string[] }> {
     const tagList: string[] = [];
 
-    await del(path.join(dirpath, '*'), { dot: true });
+    await rmrf(dirpath);
+    await fs.mkdir(dirpath, { recursive: true });
 
-    const repos = new Server(dirpath, {
+    const repos: Git & GitEvents = new Git(dirpath, {
         autoCreate: true,
     });
 
@@ -31,12 +33,13 @@ export default async function (
         if (usedPort.has(port)) {
             continue;
         }
-        const result = await new Promise((resolve, reject) => {
-            repos.listen(port, resolve);
+        const result = await new Promise<void>((resolve, reject) => {
+            repos.listen(port, { type: 'http' }, resolve);
             /**
              * Note: The try...catch statement does not catch the error for the http/https module.
              * @see https://github.com/expressjs/express/issues/2856#issuecomment-172566787
              */
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
             repos.server?.on('error', reject);
         })
             .then(() => {
@@ -47,8 +50,12 @@ export default async function (
                     tagList,
                 };
             })
-            .catch((error) => {
-                if (error.code !== 'EADDRINUSE') {
+            .catch((error: unknown) => {
+                if (
+                    isObject(error) &&
+                    error instanceof Error &&
+                    error['code'] !== 'EADDRINUSE'
+                ) {
                     errors.push(error);
                 }
             });

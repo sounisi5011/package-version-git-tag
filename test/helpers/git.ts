@@ -1,13 +1,15 @@
+import * as fs from 'fs/promises';
 import * as path from 'path';
 
-import { writeFile } from '.';
-import { ExecFunc, execGenerator } from './exec';
+import { rmrf } from '.';
+import execa = require('execa');
 import initGitServer from './git-server';
 import type { PromiseValue } from './types';
 
-import del = require('del');
-import makeDir = require('make-dir');
-
+export type ExecFunc = (
+    cmd: readonly [string, ...string[]],
+    options?: execa.Options,
+) => execa.ExecaChildProcess;
 export type GitRemote = PromiseValue<ReturnType<typeof initGitServer>>;
 
 /* eslint-disable import/export */
@@ -21,14 +23,7 @@ export async function initGit(
 }>;
 export async function initGit(
     dirpath: string,
-    useRemoteRepo: false,
-): Promise<{
-    exec: ExecFunc;
-    gitDirpath: string;
-    remote: null;
-}>;
-export async function initGit(
-    dirpath: string,
+    useRemoteRepo?: false | undefined,
 ): Promise<{
     exec: ExecFunc;
     gitDirpath: string;
@@ -43,18 +38,22 @@ export async function initGit(
     remote: null | GitRemote;
 }> {
     const gitDirpath = path.resolve(dirpath);
-    const exec = execGenerator(gitDirpath);
+    const exec: ExecFunc = ([command, ...args], options) =>
+        execa(command, args, {
+            cwd: gitDirpath,
+            ...options,
+        });
 
     const [, remote] = await Promise.all([
         (async () => {
-            await del(path.join(gitDirpath, '*'), { dot: true });
-            await makeDir(gitDirpath);
+            await rmrf(gitDirpath);
+            await fs.mkdir(gitDirpath, { recursive: true });
 
             await exec(['git', 'init']);
             await exec(['git', 'config', 'user.email', 'foo@example.com']);
             await exec(['git', 'config', 'user.name', 'bar']);
 
-            await writeFile(
+            await fs.writeFile(
                 path.join(gitDirpath, 'package.json'),
                 JSON.stringify({ version: '0.0.0' }),
             );
