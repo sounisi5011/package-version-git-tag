@@ -167,7 +167,10 @@ jobs:
               esac
             done
 
+            # Use the sleep command together because the prefix "[command]" may shift the display
+            sleep 1
             echo '[command]' "${quoted_args[*]}" >&2
+            sleep 1
             "$@"
           }
 
