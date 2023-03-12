@@ -196,23 +196,16 @@ jobs:
             echo '::endgroup::'
           fi
 
-      - name: Update to the specified npm (Using "npx npm-windows-upgrade")
-        if: ${{ env.required-npm-version && runner.os == 'Windows' }}
-        # On Windows, the "npm install --global npm" command does not properly overwrite npm.
-        # Instead of the "npm install --global npm" command, "npx npm-windows-upgrade" can be used to correctly overwrite npm.
-        # see https://stackoverflow.com/a/31520672
-        # Note: The referenced answer says that the "npm install --global npm" command is available for Node.js v16 or later.
-        #       However, when I tried, this problem occurred in all versions of Node.js v14 or later.
-        shell: pwsh
-        run: |
-          Set-ExecutionPolicy Unrestricted -Scope CurrentUser -Force
-          npx npm-windows-upgrade --npm-version '${{ env.required-npm-version }}'
-          # see https://github.com/orgs/community/discussions/26641
-          echo 'required-npm-version=' >> $Env:GITHUB_ENV
-
-      - name: Update to the specified npm (Using "npm install --global npm")
+      - name: Update to the specified npm
         if: ${{ env.required-npm-version }}
-        run: npm install --global --force 'npm@${{ env.required-npm-version }}'
+        shell: bash
+        run: |
+          npm install --global --force 'npm@${{ env.required-npm-version }}'
+          if [[ '${{ runner.os }}' == 'Windows' ]]; then
+            # Windows installs global packages to a directory that has lower priority than the default node install so we also need to edit $PATH
+            # see https://github.com/vercel/turbo/pull/1632/files#diff-b92a3120126a9ffe46d7d5ec3a8496ef1eac951db09e1972fac7c78438e36c42R69
+            npm config get prefix >> "${GITHUB_PATH}"
+          fi
 
       - name: Show node and npm version
         shell: bash
