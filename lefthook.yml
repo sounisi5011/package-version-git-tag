@@ -59,12 +59,12 @@ _pre-commit__format__ts&js:
   piped: true
   commands:
     format/ts&js/0_prettier:
-      glob: "*.{ts,js}"
+      glob: "*.{ts,js,cjs,mjs}"
       run: >-
         npx prettier --write {staged_files}
         && git add {staged_files}
     format/ts&js/1_eslint:
-      glob: "*.{ts,js}"
+      glob: "*.{ts,js,cjs,mjs}"
       run: >-
         npx eslint --fix {staged_files}
         && git add {staged_files}
