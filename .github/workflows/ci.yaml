@@ -1,0 +1,224 @@
+name: CI
+on:
+  push:
+    branches:
+      - master
+    tags-ignore:
+      - "**"
+  pull_request:
+    branches:
+      - "**"
+jobs:
+  # If the "invalid" or "skip ci" labels are added to the Pull Request, do not run CI.
+  # see https://github.com/sounisi5011/npm-packages/blob/2a5ca2de696eeb8b40a38de90580441c4c6c96e0/.github/workflows/ci.yaml#L12-L52
+  if-run-ci:
+    # see https://docs.github.com/en/actions/learn-github-actions/contexts#github-context
+    # see https://stackoverflow.com/a/67532120/4907315
+    if: >-
+      ${{
+        ! (
+             contains(github.event.pull_request.labels.*.name, 'invalid')
+          || contains(github.event.pull_request.labels.*.name, 'skip ci')
+        )
+      }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check GitHub API rate limit
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # https://shogo82148.github.io/blog/2020/10/23/github-bot-using-actions/
+        # https://stackoverflow.com/a/59352240/4907315
+        # https://docs.github.com/ja/actions/learn-github-actions/workflow-commands-for-github-actions
+        # https://qiita.com/ryo0301/items/de8ce43fe61ede66f80a
+        # https://stedolan.github.io/jq/manual/v1.6/#keys,keys_unsorted
+        # https://qiita.com/richmikan@github/items/2aee77ae13bee2c648f4
+        run: |
+          readonly DATE_FORMAT='+%Y/%m/%d %T %Z'
+
+          RATE_LIMIT_JSON="$(gh api 'rate_limit')"
+          echo "${RATE_LIMIT_JSON}" | jq -r '.resources | keys_unsorted[]' | while read -r type; do
+            echo '::group::' "${type}"
+            echo "${RATE_LIMIT_JSON}" | jq ".resources.${type}"
+            echo "::notice::Reset time is $(date -ud "@$(echo "${RATE_LIMIT_JSON}" | jq -r ".resources.${type}.reset")" "${DATE_FORMAT}")"
+            echo '::endgroup::'
+          done
+
+          core_remaining="$(echo "${RATE_LIMIT_JSON}" | jq -r ".resources.core.remaining")"
+          if [ "${core_remaining}" == 0 ]; then
+            core_reset="$(echo "${RATE_LIMIT_JSON}" | jq -r ".resources.core.reset")"
+            echo "::error::Rate limit reached. Please wait until $(date -ud "@${core_reset}" "${DATE_FORMAT}")"
+            exit 1
+          elif [ "${core_remaining}" -lt 10 ]; then
+            echo "::warning::The rate limit is approaching: core.remaining=${core_remaining}"
+          fi
+
+  detect-supported-node:
+    needs: if-run-ci
+    runs-on: ubuntu-latest
+    outputs:
+      versions-json: ${{ steps.detector.outputs.versions-json }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - id: detector
+        uses: sounisi5011/npm-packages@actions/get-nodejs-versions-array-v0
+
+  lint:
+    needs: if-run-ci
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Reconfigure git to use HTTP authentication
+        # see https://stackoverflow.com/a/69634516
+        # see https://github.com/actions/setup-node/issues/214#issuecomment-810829250
+        shell: bash
+        run: |
+          git config --global \
+            'url.https://${{ secrets.GITHUB_TOKEN }}@github.com/.insteadOf' \
+            'ssh://git@github.com/'
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 14.x
+          cache: npm
+
+      - name: Enable Corepack (Automatically setup a package manager for Node.js)
+        run: |
+          corepack enable
+          corepack enable npm
+
+      - name: Show node and npm version
+        shell: bash
+        run: |
+          echo node "$(node --version)"
+          echo npm "$(npm --version)"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linter
+        run: npm run test:other-than-unit-test
+
+  unit-test:
+    needs: detect-supported-node
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node-version: ${{ fromJson(needs.detect-supported-node.outputs.versions-json) }}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Reconfigure git to use HTTP authentication
+        # see https://stackoverflow.com/a/69634516
+        # see https://github.com/actions/setup-node/issues/214#issuecomment-810829250
+        shell: bash
+        run: |
+          git config --global \
+            'url.https://${{ secrets.GITHUB_TOKEN }}@github.com/.insteadOf' \
+            'ssh://git@github.com/'
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+
+      - name: Enable Corepack (Automatically setup a package manager for Node.js)
+        shell: bash
+        run: |
+          if type corepack >/dev/null 2>&1; then
+            echo '::group::$' corepack enable
+            corepack enable
+            echo '::endgroup::'
+
+            echo '::group::$' corepack enable npm
+            corepack enable npm
+            echo '::endgroup::'
+          fi
+
+          # If Corepack is not available, manually update npm
+          # Note: I have tried to enable Corepack, but could not use Corepack in older Node.js or Windows environments.
+          #       You can see what I did here: https://github.com/sounisi5011/package-version-git-tag/compare/24791b6ddab5cd2b8fdc735855556640746cc863~1...349c11acb35cfc0096bc6e9324bd9748e429ca17~1
+          packageManager="$(< "${GITHUB_WORKSPACE}/package.json" jq --raw-output '.packageManager')"
+          if [[ "${packageManager}" == 'npm@'* && "npm@$(npm --version)" != "${packageManager%%+*}" ]]; then
+            # Disable the built-in Corepack in GitHub Actions.
+            # If enabled, problems will occur when the yarn command is executed.
+            if type corepack >/dev/null 2>&1; then
+              echo '::group::$' corepack disable
+              corepack disable
+              echo '::endgroup::'
+            fi
+
+            readonly npmSemver="${packageManager##npm@}"
+            echo "required-npm-version=${npmSemver%%+*}" >> "${GITHUB_ENV}"
+          fi
+
+          # If yarn is not available, install it
+          if type yarn >/dev/null 2>&1; then
+            :
+          else
+            echo '::group::' Install yarn
+            npm install --global --force 'yarn@1.x'
+            echo '::endgroup::'
+          fi
+
+      - name: Update to the specified npm (Using "npx npm-windows-upgrade")
+        if: ${{ env.required-npm-version && runner.os == 'Windows' }}
+        # On Windows, the "npm install --global npm" command does not properly overwrite npm.
+        # Instead of the "npm install --global npm" command, "npx npm-windows-upgrade" can be used to correctly overwrite npm.
+        # see https://stackoverflow.com/a/31520672
+        # Note: The referenced answer says that the "npm install --global npm" command is available for Node.js v16 or later.
+        #       However, when I tried, this problem occurred in all versions of Node.js v14 or later.
+        shell: pwsh
+        run: |
+          Set-ExecutionPolicy Unrestricted -Scope CurrentUser -Force
+          npx npm-windows-upgrade --npm-version '${{ env.required-npm-version }}'
+          # see https://github.com/orgs/community/discussions/26641
+          echo 'required-npm-version=' >> $Env:GITHUB_ENV
+
+      - name: Update to the specified npm (Using "npm install --global npm")
+        if: ${{ env.required-npm-version }}
+        run: npm install --global --force 'npm@${{ env.required-npm-version }}'
+
+      - name: Show node and npm version
+        shell: bash
+        run: |
+          echo node "$(node --version)"
+          echo npm "$(npm --version)"
+
+      - name: Install dependencies
+        run: npm ci || npm install
+
+      - name: Run unit test
+        run: npm run test:unit-test
+
+  # Successfully complete this job when all jobs have been completed.
+  # Only by checking this job, it is possible to determine if CI is complete or not.
+  # So we can simplify our GitHub status check configuration.
+  # see https://github.com/orgs/community/discussions/26822
+  # see https://github.com/sounisi5011/npm-packages/blob/2a5ca2de696eeb8b40a38de90580441c4c6c96e0/.github/workflows/ci.yaml#L482-L498
+  complete:
+    name: Complete CI
+    needs: [lint, unit-test]
+    if:
+      ${{ always() && github.event.pull_request }}
+      # This job is required only for Pull Requests.
+      # It does not need to be run on other branches.
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check all job status
+        # see https://docs.github.com/en/actions/learn-github-actions/contexts#needs-context
+        # see https://docs.github.com/en/actions/learn-github-actions/expressions#contains
+        # see https://stackoverflow.com/a/67532120/4907315
+        if: >-
+          ${{
+               contains(needs.*.result, 'failure')
+            || contains(needs.*.result, 'cancelled')
+            || contains(needs.*.result, 'skipped')
+          }}
+        run: exit 1
