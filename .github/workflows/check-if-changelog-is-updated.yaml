@@ -1,0 +1,23 @@
+name: Check if CHANGELOG is updated
+on:
+  pull_request:
+    branches:
+      - "**"
+jobs:
+  check:
+    if: ${{ ! github.event.pull_request.draft }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Did you update CHANGELOG?
+        shell: bash
+        run: |
+          readonly PR_URL='${{ github.server_url }}/${{ github.repository }}/pull/${{ github.event.pull_request.number }}'
+          readonly PR_URL_REGEX="\b${PR_URL//./\\.}\b"
+          if < "${GITHUB_WORKSPACE}/CHANGELOG.md" grep -Eq "${PR_URL_REGEX}"; then
+            :
+          else
+            echo 'The CHANGELOG.md file has not been updated! You must include this URL:' "${PR_URL}" >&2
+            exit 1
+          fi
