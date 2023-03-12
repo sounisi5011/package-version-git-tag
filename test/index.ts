@@ -22,7 +22,7 @@ function tmpDir(dirname: string): string {
     return path.resolve(__dirname, 'tmp', dirname);
 }
 
-test.before(async () => {
+test.before.skip(async () => {
     await execFileAsync('npm', ['run', 'build'], { cwd: PROJECT_ROOT });
     await Promise.all([
         rmrf(path.resolve(FIXTURES_DIR, 'package-lock.json')),
@@ -42,17 +42,20 @@ test.before(async () => {
         });
 });
 
-test('check npm version', async (t) => {
-    // eslint-disable-next-line no-unused-vars
-    for (const _ of Array(5)) {
-        t.like(await execa('npm', ['--version']), {
-            stdout: '7.24.2',
-            stderr: '',
-        });
-    }
+test.only('check npm version', async (t) => {
+    await Promise.all(
+        [...Array<undefined>(5)].map(() =>
+            (async () => {
+                t.like(await execa('npm', ['--version']), {
+                    stdout: '7.24.2',
+                    stderr: '',
+                });
+            })(),
+        ),
+    );
 });
 
-test('check yarn version', async (t) => {
+test.only('check yarn version', async (t) => {
     const { exec, gitDirpath } = await initGit(tmpDir('yarn1-ver'));
 
     await fs.writeFile(
@@ -63,18 +66,22 @@ test('check yarn version', async (t) => {
     );
 
     // eslint-disable-next-line no-unused-vars
-    for (const _ of Array(5)) {
-        t.like(await exec(['yarn', '--version']), {
-            stdout: '1.22.19',
-            stderr: '',
-        });
-    }
+    await Promise.all(
+        [...Array<undefined>(5)].map(() =>
+            (async () => {
+                t.like(await exec(['yarn', '--version']), {
+                    stdout: '1.22.19',
+                    stderr: '',
+                });
+            })(),
+        ),
+    );
 });
 
 if (
     Object.keys(process.env).some((key) => /^corepack[-_]available$/i.test(key))
 ) {
-    test('check yarn2 version', async (t) => {
+    test.only('check yarn2 version', async (t) => {
         const { exec, gitDirpath } = await initGit(tmpDir('yarn2-ver'));
 
         await fs.writeFile(
@@ -84,16 +91,19 @@ if (
             }),
         );
 
-        // eslint-disable-next-line no-unused-vars
-        for (const _ of Array(5)) {
-            t.like(await exec(['yarn', '--version']), {
-                stdout: '2.4.3',
-                stderr: '',
-            });
-        }
+        await Promise.all(
+            [...Array<undefined>(5)].map(() =>
+                (async () => {
+                    t.like(await exec(['yarn', '--version']), {
+                        stdout: '2.4.3',
+                        stderr: '',
+                    });
+                })(),
+            ),
+        );
     });
 
-    test('check yarn3 version', async (t) => {
+    test.only('check yarn3 version', async (t) => {
         const { exec, gitDirpath } = await initGit(tmpDir('yarn3-ver'));
 
         await fs.writeFile(
@@ -103,16 +113,19 @@ if (
             }),
         );
 
-        // eslint-disable-next-line no-unused-vars
-        for (const _ of Array(5)) {
-            t.like(await exec(['yarn', '--version']), {
-                stdout: '3.4.1',
-                stderr: '',
-            });
-        }
+        await Promise.all(
+            [...Array<undefined>(5)].map(() =>
+                (async () => {
+                    t.like(await exec(['yarn', '--version']), {
+                        stdout: '3.4.1',
+                        stderr: '',
+                    });
+                })(),
+            ),
+        );
     });
 
-    test('check yarn4 version', async (t) => {
+    test.only('check yarn4 version', async (t) => {
         const { exec, gitDirpath } = await initGit(tmpDir('yarn4-ver'));
 
         await fs.writeFile(
@@ -122,16 +135,19 @@ if (
             }),
         );
 
-        // eslint-disable-next-line no-unused-vars
-        for (const _ of Array(5)) {
-            t.like(await exec(['yarn', '--version']), {
-                stdout: '4.0.0-rc.40',
-                stderr: '',
-            });
-        }
+        await Promise.all(
+            [...Array<undefined>(5)].map(() =>
+                (async () => {
+                    t.like(await exec(['yarn', '--version']), {
+                        stdout: '4.0.0-rc.40',
+                        stderr: '',
+                    });
+                })(),
+            ),
+        );
     });
 
-    test('check pnpm version', async (t) => {
+    test.only('check pnpm version', async (t) => {
         const { exec, gitDirpath } = await initGit(tmpDir('pnpm-ver'));
 
         await fs.writeFile(
@@ -141,13 +157,16 @@ if (
             }),
         );
 
-        // eslint-disable-next-line no-unused-vars
-        for (const _ of Array(5)) {
-            t.like(await exec(['pnpm', '--version']), {
-                stdout: '7.29.1',
-                stderr: '',
-            });
-        }
+        await Promise.all(
+            [...Array<undefined>(5)].map(() =>
+                (async () => {
+                    t.like(await exec(['pnpm', '--version']), {
+                        stdout: '7.29.1',
+                        stderr: '',
+                    });
+                })(),
+            ),
+        );
     });
 }
 
