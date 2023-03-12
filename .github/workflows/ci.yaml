@@ -198,12 +198,12 @@ jobs:
 
             exec_with_debug npm install --global --force "${packageManager%%+*}"
 
-            # if [[ '${{ runner.os }}' == 'Windows' ]]; then
-            #   # Windows installs global packages to a directory that has lower priority than the default node install so we also need to edit $PATH
-            #   # see https://github.com/vercel/turbo/pull/1632/files#diff-b92a3120126a9ffe46d7d5ec3a8496ef1eac951db09e1972fac7c78438e36c42R69
-            #   echo '[command]' npm config get prefix '>>' "\$GITHUB_PATH"
-            #   npm config get prefix >> "${GITHUB_PATH}"
-            # fi
+            if [[ '${{ runner.os }}' == 'Windows' ]]; then
+              # Windows installs global packages to a directory that has lower priority than the default node install so we also need to edit $PATH
+              # see https://github.com/vercel/turbo/pull/1632/files#diff-b92a3120126a9ffe46d7d5ec3a8496ef1eac951db09e1972fac7c78438e36c42R69
+              echo '[command]' npm config get prefix '>>' "\$GITHUB_PATH"
+              npm config get prefix >> "${GITHUB_PATH}"
+            fi
 
             echo '::endgroup::'
           elif type corepack >/dev/null 2>&1; then
@@ -225,12 +225,12 @@ jobs:
             ); then
               echo '::group::' Old Corepack is detected "( corepack@$(corepack --version 2>/dev/null || echo '[Execution failed; Unknown version]') )". Update this
               exec_with_debug npm install --global --force 'corepack@0.11.2'
-              # if [[ '${{ runner.os }}' == 'Windows' ]]; then
-              #   # Windows installs global packages to a directory that has lower priority than the default node install so we also need to edit $PATH
-              #   # see https://github.com/vercel/turbo/pull/1632/files#diff-b92a3120126a9ffe46d7d5ec3a8496ef1eac951db09e1972fac7c78438e36c42R69
-              #   echo '[command]' npm config get prefix '>>' "\$GITHUB_PATH"
-              #   npm config get prefix >> "${GITHUB_PATH}"
-              # fi
+              if [[ '${{ runner.os }}' == 'Windows' ]]; then
+                # Windows installs global packages to a directory that has lower priority than the default node install so we also need to edit $PATH
+                # see https://github.com/vercel/turbo/pull/1632/files#diff-b92a3120126a9ffe46d7d5ec3a8496ef1eac951db09e1972fac7c78438e36c42R69
+                echo '[command]' npm config get prefix '>>' "\$GITHUB_PATH"
+                npm config get prefix >> "${GITHUB_PATH}"
+              fi
               echo '::endgroup::'
             fi
             rm -rf "${TEST_COREPACK_DIRPATH}"
