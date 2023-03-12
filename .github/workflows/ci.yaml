@@ -170,13 +170,13 @@ jobs:
             # The "[command]" prefix may cause the display to shift, so use it with the "setTimeout" function.
             # Note: The POSIX-compliant sleep command has a minimum of one second, so we use the node command instead.
             node -e 'setTimeout(()=>0,10)'
-            echo '[command]' "${quoted_args[*]}" >&2
+            echo '[command]'"${quoted_args[*]}" >&2
             node -e 'setTimeout(()=>0,10)'
             "$@"
           }
 
           if type corepack >/dev/null 2>&1; then
-            echo '::group::' Enable Corepack
+            echo '::group::Enable Corepack'
             exec_with_debug corepack enable
             exec_with_debug corepack enable npm
             echo '::endgroup::'
@@ -187,8 +187,8 @@ jobs:
           #       You can see what I did here: https://github.com/sounisi5011/package-version-git-tag/compare/24791b6ddab5cd2b8fdc735855556640746cc863~1...349c11acb35cfc0096bc6e9324bd9748e429ca17~1
           packageManager="$(< "${GITHUB_WORKSPACE}/package.json" jq --raw-output '.packageManager')"
           if [[ "${packageManager}" == 'npm@'* && "npm@$(npm --version)" != "${packageManager%%+*}" ]]; then
-            echo '[warning] Failed to enable Corepack'
-            echo '::group::' Install the specified npm manually
+            echo '::warning::Failed to enable Corepack'
+            echo '::group::Install the specified npm manually'
 
             # Disable the built-in Corepack in GitHub Actions.
             # If enabled, problems will occur when the yarn command is executed.
@@ -201,7 +201,7 @@ jobs:
             if [[ '${{ runner.os }}' == 'Windows' ]]; then
               # Windows installs global packages to a directory that has lower priority than the default node install so we also need to edit $PATH
               # see https://github.com/vercel/turbo/pull/1632/files#diff-b92a3120126a9ffe46d7d5ec3a8496ef1eac951db09e1972fac7c78438e36c42R69
-              echo '[command]' npm config get prefix '>>' "\$GITHUB_PATH"
+              echo "[command]npm config get prefix >> \$GITHUB_PATH"
               npm config get prefix >> "${GITHUB_PATH}"
             fi
 
@@ -223,12 +223,12 @@ jobs:
                 wait
               } | grep -Eq '\b(ENOTEMPTY: directory not empty|EPERM: operation not permitted), rename\b'
             ); then
-              echo '::group::' Old Corepack is detected "( corepack@$(corepack --version 2>/dev/null || echo '[Execution failed; Unknown version]') )". Update this
+              echo "::group::Old Corepack is detected ( corepack@$(corepack --version 2>/dev/null || echo '[Execution failed; Unknown version]') ). Update this"
               exec_with_debug npm install --global --force 'corepack@0.11.2'
               if [[ '${{ runner.os }}' == 'Windows' ]]; then
                 # Windows installs global packages to a directory that has lower priority than the default node install so we also need to edit $PATH
                 # see https://github.com/vercel/turbo/pull/1632/files#diff-b92a3120126a9ffe46d7d5ec3a8496ef1eac951db09e1972fac7c78438e36c42R69
-                echo '[command]' npm config get prefix '>>' "\$GITHUB_PATH"
+                echo "[command]npm config get prefix >> \$GITHUB_PATH"
                 npm config get prefix >> "${GITHUB_PATH}"
               fi
               echo '::endgroup::'
@@ -240,7 +240,7 @@ jobs:
           if type yarn >/dev/null 2>&1; then
             :
           else
-            echo '::group::' Install yarn
+            echo '::group::Install yarn'
             exec_with_debug npm install --global --force 'yarn@1.x'
             echo '::endgroup::'
           fi
