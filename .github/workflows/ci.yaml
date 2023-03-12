@@ -171,7 +171,7 @@ jobs:
                 yarn --version 2>&1 &
                 yarn --version 2>&1 &
                 wait
-              } | grep -Fq ENOTEMPTY
+              } | grep -Eq '\b(ENOTEMPTY: directory not empty|EPERM: operation not permitted), rename\b'
             ); then
               echo '::group::' Old Corepack is detected "( corepack@$(corepack --version 2>/dev/null || echo '[Execution failed; Unknown version]') )". Update this
               npm install --global --force 'corepack@0.11.2'
