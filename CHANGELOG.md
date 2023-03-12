@@ -31,6 +31,8 @@ This project will support Node.js 14.0.0 or later from now on.
     * [#185] - `2.34.0` -> `5.54.1`
 * `ava`
     * [#185] - `2.4.0` -> `3.15.0`
+* `can-npm-publish`
+    * [#185] - `1.3.2` -> `1.3.6`
 * `eslint`
     * [#185] - `6.8.0` -> `8.35.0`
 * `eslint-config-prettier`
