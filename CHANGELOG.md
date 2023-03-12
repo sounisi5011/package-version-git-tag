@@ -102,10 +102,18 @@ This project will support Node.js 14.0.0 or later from now on.
 * [#185] - `lint-staged`
 * [#186] - `make-dir`
 
+### Tests
+
+* [#185] - Use `execa` instead of `cross-spawn`
+* [#185] - Rename `ava.config.js` file to `ava.config.cjs`
+
 ### Others
 
 * [#183] - Change used CI service from Azure Pipelines to GitHub Actions
 * [#187] - Auto approve Pull Requests from admins who do not have any friends
+* [#185] - Migrating from husky and lint-staged to lefthook
+* [#185] - Use npm v7 in this project
+* [#185] - Fix patch file to make `check-peer-deps@1.1.3` detect peerDependenciesMeta
 
 [#182]: https://github.com/sounisi5011/package-version-git-tag/pull/182
 [#183]: https://github.com/sounisi5011/package-version-git-tag/pull/183
