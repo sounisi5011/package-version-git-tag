@@ -167,10 +167,11 @@ jobs:
               esac
             done
 
-            # Use the sleep command together because the prefix "[command]" may shift the display
-            sleep 1
+            # The "[command]" prefix may cause the display to shift, so use it with the "setTimeout" function.
+            # Note: The POSIX-compliant sleep command has a minimum of one second, so we use the node command instead.
+            node -e 'setTimeout(()=>0,10)'
             echo '[command]' "${quoted_args[*]}" >&2
-            sleep 1
+            node -e 'setTimeout(()=>0,10)'
             "$@"
           }
 
