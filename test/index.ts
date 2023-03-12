@@ -21,7 +21,7 @@ function tmpDir(dirname: string): string {
     return path.resolve(__dirname, 'tmp', dirname);
 }
 
-test.before.skip(async () => {
+test.before(async () => {
     await execFileAsync('npm', ['run', 'build'], { cwd: PROJECT_ROOT });
     await Promise.all([
         rmrf(path.resolve(FIXTURES_DIR, 'package-lock.json')),
@@ -39,15 +39,6 @@ test.before.skip(async () => {
             // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
             delete process.env[key];
         });
-});
-
-test.only('check npm version', async (t) => {
-    const { exec } = await initGit(tmpDir('npm-ver'));
-
-    t.like(await exec(['npm', '--version']), {
-        stdout: '7.24.2',
-        stderr: '',
-    });
 });
 
 test('CLI should add Git tag', async (t) => {
