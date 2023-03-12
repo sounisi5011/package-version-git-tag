@@ -43,7 +43,13 @@ test.before.skip(async () => {
 });
 
 test.only('check npm version', async (t) => {
-    t.like(await execa('npm', ['--version']), { stdout: '7.24.2', stderr: '' });
+    // eslint-disable-next-line no-unused-vars
+    for (const _ of Array(5)) {
+        t.like(await execa('npm', ['--version']), {
+            stdout: '7.24.2',
+            stderr: '',
+        });
+    }
 });
 
 test.only('check yarn version', async (t) => {
@@ -56,13 +62,18 @@ test.only('check yarn version', async (t) => {
         }),
     );
 
-    t.like(await exec(['yarn', '--version']), {
-        stdout: '1.22.19',
-        stderr: '',
-    });
+    // eslint-disable-next-line no-unused-vars
+    for (const _ of Array(5)) {
+        t.like(await exec(['yarn', '--version']), {
+            stdout: '1.22.19',
+            stderr: '',
+        });
+    }
 });
 
-if (process.env['corepack-available']) {
+if (
+    Object.keys(process.env).some((key) => /^corepack[-_]available$/i.test(key))
+) {
     test.only('check yarn2 version', async (t) => {
         const { exec, gitDirpath } = await initGit(tmpDir('yarn2-ver'));
 
@@ -73,10 +84,13 @@ if (process.env['corepack-available']) {
             }),
         );
 
-        t.like(await exec(['yarn', '--version']), {
-            stdout: '2.4.3',
-            stderr: '',
-        });
+        // eslint-disable-next-line no-unused-vars
+        for (const _ of Array(5)) {
+            t.like(await exec(['yarn', '--version']), {
+                stdout: '2.4.3',
+                stderr: '',
+            });
+        }
     });
 
     test.only('check yarn3 version', async (t) => {
@@ -89,10 +103,13 @@ if (process.env['corepack-available']) {
             }),
         );
 
-        t.like(await exec(['yarn', '--version']), {
-            stdout: '3.4.1',
-            stderr: '',
-        });
+        // eslint-disable-next-line no-unused-vars
+        for (const _ of Array(5)) {
+            t.like(await exec(['yarn', '--version']), {
+                stdout: '3.4.1',
+                stderr: '',
+            });
+        }
     });
 
     test.only('check yarn4 version', async (t) => {
@@ -105,10 +122,13 @@ if (process.env['corepack-available']) {
             }),
         );
 
-        t.like(await exec(['yarn', '--version']), {
-            stdout: '4.0.0-rc.40',
-            stderr: '',
-        });
+        // eslint-disable-next-line no-unused-vars
+        for (const _ of Array(5)) {
+            t.like(await exec(['yarn', '--version']), {
+                stdout: '4.0.0-rc.40',
+                stderr: '',
+            });
+        }
     });
 
     test.only('check pnpm version', async (t) => {
@@ -121,10 +141,13 @@ if (process.env['corepack-available']) {
             }),
         );
 
-        t.like(await exec(['pnpm', '--version']), {
-            stdout: '7.29.1',
-            stderr: '',
-        });
+        // eslint-disable-next-line no-unused-vars
+        for (const _ of Array(5)) {
+            t.like(await exec(['pnpm', '--version']), {
+                stdout: '7.29.1',
+                stderr: '',
+            });
+        }
     });
 }
 
