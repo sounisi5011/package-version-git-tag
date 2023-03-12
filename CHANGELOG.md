@@ -51,6 +51,8 @@ This project will support Node.js 14.0.0 or later from now on.
     * [#185] - `4.2.1` -> `6.1.1`
 * `eslint-plugin-simple-import-sort`
     * [#185] - `5.0.3` -> `10.0.0`
+* `git-branch-is`
+    * [#185] - `3.1.0` -> `4.0.0`
 * `node-git-server`
     * [#185] - `0.6.1` -> `1.0.0`
 * `patch-package`
