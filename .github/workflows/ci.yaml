@@ -132,46 +132,32 @@ jobs:
         shell: bash
         run: |
           exec_with_debug() {
-            local quoted_args=() apos="'" quot='"'
+            node - "$@" << 'EOS'
+              // These characters cannot be wrapped in double quotes:
+              // - !
+              // - $
+              // - \
+              // - `
+              const cannotInQuotChars = /!$\\`/;
+              const quotedArgs = process.argv.slice(2)
+                .map(arg => {
+                  const wrapApos = `'${arg.replace(new RegExp(`'[^"${cannotInQuotChars.source}]*`, 'g'), `'"$&"'`)}'`.replace(/^''|''$/g, ``);
+                  const wrapQuot = `"${arg.replace(/"[^']*/g, `"'$&'"`)}"`.replace(/^""|""$/g, ``);
 
-            for arg in "$@"; do
-              # If the argument is an empty string or contains spaces or special characters, wrap it in quotes.
-              case "${arg}" in
-                '' | *[' !$&()*;<>?[\]`{|}~'"${apos}${quot}"]* )
-                  case "${arg}" in
-                    # These characters cannot be wrapped in double quotes:
-                    # - !
-                    # - $
-                    # - \
-                    # - `
-                    # - "
-                    *['!$\`'"${quot}"]* )
-                      # see https://qiita.com/kawaz/items/f8d68f11d31aa3ea3d1c
-                      quoted_args+=("${apos}${arg//${apos}/${apos}${quot}${apos}${quot}${apos}}${apos}")
-                      ;;
-                    # Other characters can be wrapped in double quotes,
-                    # so arguments containing single quotes should be wrapped in double quotes.
-                    *"${apos}"* )
-                      quoted_args+=("${quot}${arg}${quot}")
-                      ;;
-                    # Arguments not containing single quotes are wrapped in single quotes.
-                    # Single-quote escaping is not required under this condition.
-                    * )
-                      quoted_args+=("${apos}${arg}${apos}")
-                      ;;
-                  esac
-                  ;;
-                * )
-                  quoted_args+=("${arg}")
-                  ;;
-              esac
-            done
+                  return arg === `` || /[ !"$&'()*;<>?[\]\\`{|}~]/.test(arg) ? (
+                    new RegExp(`[${cannotInQuotChars.source}]`).test(arg) || wrapApos.length <= wrapQuot.length
+                      ? wrapApos
+                      : wrapQuot
+                  ) : arg
+                })
+                .join(' ');
 
-            # The "[command]" prefix may cause the display to shift, so use it with the "setTimeout" function.
-            # Note: The POSIX-compliant sleep command has a minimum of one second, so we use the node command instead.
-            node -e 'setTimeout(()=>0,10)'
-            echo '[command]'"${quoted_args[*]}" >&2
-            node -e 'setTimeout(()=>0,10)'
+              // The "[command]" prefix may cause the display to shift, so use it with the "setTimeout" function.
+              setTimeout(() => {
+                process.stderr.write(`[command]${quotedArgs}`);
+                setTimeout(() => process.stderr.write("\n"), 1);
+              }, 1);
+            EOS
             "$@"
           }
 
