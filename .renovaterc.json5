@@ -55,6 +55,11 @@
       groupName: "dependencies: npm-scripts packages",
       groupSlug: "npm-scripts-packages",
     },
+    {
+      matchPackageNames: ["npm"],
+      matchUpdateTypes: ["major"],
+      enabled: false,
+    },
     // `ava@>=4.0.0` doesn't work with old Node.js.
     // We should only update if the Node.js support range: `>=14.17`
     {
