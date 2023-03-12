@@ -38,7 +38,7 @@ This project will support Node.js 14.0.0 or later from now on.
 * `escape-string-regexp`
     * [#185] - `2.0.0` -> `4.0.0`
 * `eslint`
-    * [#185] - `6.8.0` -> `8.35.0`
+    * [#185] - `6.8.0` -> `8.36.0`
 * `eslint-config-prettier`
     * [#185] - `6.11.0` -> `8.7.0`
 * `eslint-config-standard`
