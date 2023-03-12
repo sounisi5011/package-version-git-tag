@@ -18,7 +18,7 @@ rules:
         - test/**
   prettier/prettier: error
 overrides:
-  - files: "*.{js,cjs,mjs}"
+  - files: "*.js"
     extends:
       - plugin:prettier/recommended
   - files: "*.ts"

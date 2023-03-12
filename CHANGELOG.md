@@ -38,9 +38,9 @@ This project will support Node.js 14.0.0 or later from now on.
 * `@typescript-eslint/parser`
     * [#185] - `2.34.0` -> `5.54.1`
 * `ava`
-    * [#185] - `2.4.0` -> `4.3.3`
+    * [#185] - `2.4.0` -> `3.15.0`
 
-    This project supports Node.js 14.0.0 so we will not update to v5 which is not available in Node.js 14.0.0.
+    This project supports Node.js 14.0.0 so we will not update to v4 or later which is not available in Node.js 14.0.0.
 * `can-npm-publish`
     * [#185] - `1.3.2` -> `1.3.6`
 * `del-cli`

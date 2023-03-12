@@ -1,8 +1,5 @@
 overrides:
-  - files:
-      - "*.js"
-      - "*.cjs"
-      - "*.mjs"
+  - files: "*.js"
     options:
       singleQuote: true
       trailingComma: all
