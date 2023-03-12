@@ -201,11 +201,11 @@ jobs:
         shell: bash
         run: |
           npm install --global --force 'npm@${{ env.required-npm-version }}'
-          if [[ '${{ runner.os }}' == 'Windows' ]]; then
-            # Windows installs global packages to a directory that has lower priority than the default node install so we also need to edit $PATH
-            # see https://github.com/vercel/turbo/pull/1632/files#diff-b92a3120126a9ffe46d7d5ec3a8496ef1eac951db09e1972fac7c78438e36c42R69
-            npm config get prefix >> "${GITHUB_PATH}"
-          fi
+          # if [[ '${{ runner.os }}' == 'Windows' ]]; then
+          #   # Windows installs global packages to a directory that has lower priority than the default node install so we also need to edit $PATH
+          #   # see https://github.com/vercel/turbo/pull/1632/files#diff-b92a3120126a9ffe46d7d5ec3a8496ef1eac951db09e1972fac7c78438e36c42R69
+          #   npm config get prefix >> "${GITHUB_PATH}"
+          # fi
 
       - name: Show node and npm version
         shell: bash
