@@ -2,10 +2,14 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 
 import { rmrf } from '.';
-import { ExecFunc, execGenerator } from './exec';
+import execa = require('execa');
 import initGitServer from './git-server';
 import type { PromiseValue } from './types';
 
+export type ExecFunc = (
+    cmd: readonly [string, ...string[]],
+    options?: execa.Options,
+) => execa.ExecaChildProcess;
 export type GitRemote = PromiseValue<ReturnType<typeof initGitServer>>;
 
 /* eslint-disable import/export */
@@ -19,14 +23,7 @@ export async function initGit(
 }>;
 export async function initGit(
     dirpath: string,
-    useRemoteRepo: false,
-): Promise<{
-    exec: ExecFunc;
-    gitDirpath: string;
-    remote: null;
-}>;
-export async function initGit(
-    dirpath: string,
+    useRemoteRepo?: false | undefined,
 ): Promise<{
     exec: ExecFunc;
     gitDirpath: string;
@@ -41,7 +38,11 @@ export async function initGit(
     remote: null | GitRemote;
 }> {
     const gitDirpath = path.resolve(dirpath);
-    const exec = execGenerator(gitDirpath);
+    const exec: ExecFunc = ([command, ...args], options) =>
+        execa(command, args, {
+            cwd: gitDirpath,
+            ...options,
+        });
 
     const [, remote] = await Promise.all([
         (async () => {

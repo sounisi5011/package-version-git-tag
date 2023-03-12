@@ -1,8 +1,237 @@
 diff --git a/node_modules/check-peer-deps/check-peer-deps.js b/node_modules/check-peer-deps/check-peer-deps.js
-index 58c073b..43191b2 100644
+index 58c073b..5895e7f 100644
 --- a/node_modules/check-peer-deps/check-peer-deps.js
 +++ b/node_modules/check-peer-deps/check-peer-deps.js
-@@ -215,6 +215,8 @@ const checkPeerDependencies = async (peerDependencies, name) =>
+@@ -1,3 +1,5 @@
++// @ts-check
++
+ const { exec: execCP } = require('child_process');
+ const { promisify } = require('util');
+ const { readFile: readFileFS } = require('fs');
+@@ -57,19 +59,34 @@ const usageSections = [
+   },
+ ];
+ 
++/** @type {commandLineArgs.CommandLineOptions} */
+ let options;
+ 
+ // Internal vars
++/** @type {Map<string, string>} */
+ const deps = new Map();
++/** @type {Map<string, { versions: readonly string[], minimum: string, maximum: string }>} */
+ const npmVers = new Map();
++/**
++ * @typedef {Map<string, { range: string, meta: { optional: boolean } & Object.<string, unknown> }>} PeerDependenciesMap
++ * @type {Map<string, PeerDependenciesMap>}
++ */
+ const peerDeps = new Map();
+ 
++/**
++ * @param {string} value
++ * @returns {void}
++ */
+ const log = (value) => {
+   if (options.debug) {
+     console.log(value);
+   }
+ };
+ 
++/**
++ * @param {Object.<string, string> | null | undefined} dependencies
++ * @returns {void}
++ */
+ const addDeps = (dependencies) => {
+   if (!dependencies) {
+     return;
+@@ -80,7 +97,16 @@ const addDeps = (dependencies) => {
+   });
+ };
+ 
++/**
++ * @typedef {JsonPrimitive | JsonObject | JsonArray} JsonValue
++ * @typedef {string | number | boolean | null} JsonPrimitive
++ * @typedef {readonly JsonValue[]} JsonArray
++ * @typedef {{readonly [Key in string]?: JsonValue}} JsonObject
++ * @param {import('fs').PathLike} path
++ * @returns {Promise<JsonValue>}
++ */
+ const readPackageConfig = async (path) => {
++  /** @type {JsonValue} */
+   let packageConfig = {};
+   try {
+     const contents = await readFile(path, { encoding: 'utf8' });
+@@ -91,6 +117,11 @@ const readPackageConfig = async (path) => {
+   return packageConfig;
+ };
+ 
++/**
++ * @param {string} name
++ * @param {string | readonly string[]} keys
++ * @returns {Promise<JsonValue>}
++ */
+ const npmView = async (name, keys) => {
+   const opts = ['view', '--json', name].concat(keys);
+   const command = ['npm'].concat(opts).join(' ');
+@@ -114,8 +145,15 @@ const npmView = async (name, keys) => {
+   return JSON.parse(output);
+ };
+ 
++/**
++ * @param {string} range
++ * @param {string} name
++ * @returns {Promise<void>}
++ */
+ const gatherNpmVer = async (range, name) => {
+   log(`Getting versions for ${name}@${range}...`);
++  /** @type {readonly string[]} */
++  // @ts-ignore
+   const versions = await npmView(name, 'versions');
+   const ranges = {
+     versions,
+@@ -123,14 +161,19 @@ const gatherNpmVer = async (range, name) => {
+     maximum: semver.maxSatisfying(versions, range),
+   };
+   log(`${name}@${range}: '${ranges.minimum}' to '${ranges.maximum}'`);
++  // @ts-ignore
+   npmVers.set(name, ranges);
+ };
+ 
++/**
++ * @returns {Promise<void[]>}
++ */
+ const getNpmVersions = async () => {
+   // Gather the unique package names
++  /** @type {Set<string>} */
+   const toCheck = new Set();
+   peerDeps.forEach((peerDependencies) => {
+-    peerDependencies.forEach((range, name) => {
++    peerDependencies.forEach(({ range }, name) => {
+       toCheck.add(name);
+     });
+   });
+@@ -138,34 +181,61 @@ const getNpmVersions = async () => {
+   // Grab the versions from NPM
+   return Promise.all(Array.from(toCheck.values()).map(async (name) => {
+     if (deps.has(name) && !npmVers.has(name)) {
++      // @ts-ignore
+       await gatherNpmVer(deps.get(name), name);
+     }
+   }));
+ };
+ 
+-const addPeerDeps = (name, peerDependencies) => {
++/**
++ * @param {string} name
++ * @param {Object.<string, string>} peerDependencies
++ * @param {Object.<string, Object.<string, unknown>>} [peerDependenciesMeta]
++ * @returns {void}
++ */
++const addPeerDeps = (name, peerDependencies, peerDependenciesMeta = {}) => {
+   if (!peerDeps.has(name)) {
+     peerDeps.set(name, new Map());
+   }
+   const currDeps = peerDeps.get(name);
+   Object.entries(peerDependencies).forEach((entry) => {
+     const [depName, depRange] = entry;
+-    log(`${name} peerDependency: ${depName}@${depRange}`);
+-    currDeps.set(depName, depRange);
++    const meta = peerDependenciesMeta[depName] ?? {};
++    const depData = {
++      range: depRange,
++      meta: {
++        ...meta,
++        optional: meta?.optional === true,
++      },
++    };
++    log(`${name} peerDependency: ${depName}@${depData.range}` + (depData.meta.optional ? ' (optional)' : ''));
++    currDeps?.set(depName, depData);
+   });
+ };
+ 
+ // Get the peerDependencies
++/**
++ * @param {unknown} range
++ * @param {string} name
++ * @returns {Promise<void>}
++ */
+ const getNpmPeerDep = async (range, name) => {
+   log(`Getting NPM peerDependencies for ${name}`);
+-  const npmPeerDeps = await npmView(name, 'peerDependencies');
+-  addPeerDeps(name, npmPeerDeps);
++  const npmPeerDeps = await npmView(name, ['peerDependencies', 'peerDependenciesMeta']);
++  addPeerDeps(name, npmPeerDeps?.['peerDependencies'] ?? {}, npmPeerDeps?.['peerDependenciesMeta']);
+ };
+ 
++/**
++ * @param {string} range
++ * @param {string} name
++ * @returns {Promise<void>}
++ */
+ const getPeerDep = async (range, name) => {
+   log(`Getting peerDependencies for ${name}`);
+   // Hacktown, USA.
+   const packagePath = `${options.directory}/node_modules/${name}/package.json`;
++  /** @type {{ version: string, peerDependencies?: Object.<string, string>, peerDependenciesMeta?: Object.<string, Object.<string, unknown>> }} */
++  // @ts-ignore
+   const packageInfo = await readPackageConfig(packagePath);
+   if (!packageInfo.peerDependencies) {
+     return;
+@@ -174,17 +244,19 @@ const getPeerDep = async (range, name) => {
+   if (!npmVers.has(name)) {
+     await gatherNpmVer(range, name);
+   }
++  // @ts-ignore
+   if (semver.lt(packageInfo.version, npmVers.get(name).maximum)) {
+     // The installed version isn't the highest allowed, check the latest from NPM
+     log(`${name}: Installed version lower than allowed version. Using NPM to determine peerDependencies.`);
+     await getNpmPeerDep(range, name);
+   } else {
+     log(`${name}: Using local package.json's to determine peerDependencies.`);
+-    addPeerDeps(name, packageInfo.peerDependencies);
++    addPeerDeps(name, packageInfo?.peerDependencies, packageInfo?.peerDependenciesMeta);
+   }
+ };
+ 
+ const getPeerDeps = async () => {
++  /** @type {ReturnType<typeof getPeerDep>[]} */
+   const promises = [];
+   deps.forEach((range, name) => {
+     promises.push(getPeerDep(range, name));
+@@ -193,32 +265,44 @@ const getPeerDeps = async () => {
+ };
+ 
+ // peerDependencies checks
++/**
++ * @param {PeerDependenciesMap} peerDependencies
++ * @param {string} name
++ */
+ const checkPeerDependencies = async (peerDependencies, name) =>
+   Promise.all(Array.from(peerDependencies.entries()).map(async (entry) => {
+-    const [peerDepName, peerDepRange] = entry;
+-    log(`Checking ${name}'s peerDependency of '${peerDepName}@${peerDepRange}'`);
++    const [peerDepName, { range: peerDepRange, meta: { optional: peerDepOptional } }] = entry;
++    log(`Checking ${name}'s peerDependency of '${peerDepName}@${peerDepRange}'` + (peerDepOptional ? ' (optional)' : ''));
+     let found = false;
+     if (deps.has(peerDepName)) {
+       // Verify that the minimum allowed version still satisfies the peerDep
++      // @ts-ignore
+       const minAllowedVer = npmVers.get(peerDepName).minimum;
+       if (semver.satisfies(minAllowedVer, peerDepRange)) {
+         found = true;
+       }
++    } else if (peerDepOptional) {
++      found = true;
+     }
+ 
+     if (!found) {
+-      console.error(`A dependency satisfying ${name}'s peerDependency of '${peerDepName}@${peerDepRange}' was not found!`);
++      console.error(`A dependency satisfying ${name}'s peerDependency of '${peerDepName}@${peerDepRange}'${(peerDepOptional ? ' (optional)' : '')} was not found!`);
+ 
+       if (deps.has(peerDepName)) {
+         console.log(`Current: ${peerDepName}@${deps.get(peerDepName)}`);
++        /** @type {Exclude<ReturnType<typeof npmVers.get>, undefined>} */
++        // @ts-ignore
+         const { versions } = npmVers.get(peerDepName);
          const maxUsable = semver.maxSatisfying(versions, peerDepRange);
          console.log(`Package dependencies can satisfy the peerDependency? ${maxUsable ? 'Yes' : 'No'}`);
        }
@@ -11,3 +240,17 @@ index 58c073b..43191b2 100644
      }
    }));
  
+ const checkAllPeerDeps = async () => {
++  /** @type {ReturnType<typeof checkPeerDependencies>[]} */
+   const promises = [];
+   peerDeps.forEach((peerDependencies, name) => {
+     promises.push(checkPeerDependencies(peerDependencies, name));
+@@ -227,6 +311,8 @@ const checkAllPeerDeps = async () => {
+ };
+ 
+ const findDependencies = async () => {
++  /** @type {{ dependencies?: Object.<string, string>, devDependencies?: Object.<string, string> }} */
++  // @ts-ignore
+   const packageConfig = await readPackageConfig(`${options.directory}/package.json`);
+ 
+   // Get the dependencies to process

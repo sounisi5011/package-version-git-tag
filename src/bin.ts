@@ -12,9 +12,10 @@ let pkgName: string | undefined;
 let pkgVersion: string | undefined;
 let pkgDescription = '';
 if (isObject(PKG)) {
-    if (typeof PKG.name === 'string') pkgName = PKG.name;
-    if (typeof PKG.version === 'string') pkgVersion = PKG.version;
-    if (typeof PKG.description === 'string') pkgDescription = PKG.description;
+    if (typeof PKG['name'] === 'string') pkgName = PKG['name'];
+    if (typeof PKG['version'] === 'string') pkgVersion = PKG['version'];
+    if (typeof PKG['description'] === 'string')
+        pkgDescription = PKG['description'];
 }
 
 const cli = cac(pkgName);
@@ -40,7 +41,7 @@ if (cli.commands.length <= 0) {
 (() => {
     const { options } = cli.parse();
 
-    if (options.version || options.help) {
+    if (options['version'] || options['help']) {
         return;
     }
 
@@ -62,9 +63,9 @@ if (cli.commands.length <= 0) {
     }
 
     main({
-        push: options.push,
-        verbose: options.verbose,
-        dryRun: options.dryRun,
+        push: Boolean(options['push']),
+        verbose: Boolean(options['verbose']),
+        dryRun: Boolean(options['dryRun']),
     }).catch((error) => {
         process.exitCode = 1;
         console.error(error instanceof Error ? error.message : error);

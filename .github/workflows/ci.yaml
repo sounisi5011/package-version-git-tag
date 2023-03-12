@@ -70,11 +70,25 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Reconfigure git to use HTTP authentication
+        # see https://stackoverflow.com/a/69634516
+        # see https://github.com/actions/setup-node/issues/214#issuecomment-810829250
+        shell: bash
+        run: |
+          git config --global \
+            'url.https://${{ secrets.GITHUB_TOKEN }}@github.com/.insteadOf' \
+            'ssh://git@github.com/'
+
       - name: Install Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 14.x
           cache: npm
+
+      - name: Enable Corepack (Automatically setup a package manager for Node.js)
+        run: |
+          corepack enable
+          corepack enable npm
 
       - name: Show node and npm version
         shell: bash
@@ -99,11 +113,77 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Reconfigure git to use HTTP authentication
+        # see https://stackoverflow.com/a/69634516
+        # see https://github.com/actions/setup-node/issues/214#issuecomment-810829250
+        shell: bash
+        run: |
+          git config --global \
+            'url.https://${{ secrets.GITHUB_TOKEN }}@github.com/.insteadOf' \
+            'ssh://git@github.com/'
+
       - name: Install Node.js
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
           cache: npm
+
+      - name: Enable Corepack (Automatically setup a package manager for Node.js)
+        shell: bash
+        run: |
+          if type corepack >/dev/null 2>&1; then
+            echo '::group::$' corepack enable
+            corepack enable
+            echo '::endgroup::'
+
+            echo '::group::$' corepack enable npm
+            corepack enable npm
+            echo '::endgroup::'
+          fi
+
+          # If Corepack is not available, manually update npm
+          # Note: I have tried to enable Corepack, but could not use Corepack in older Node.js or Windows environments.
+          #       You can see what I did here: https://github.com/sounisi5011/package-version-git-tag/compare/24791b6ddab5cd2b8fdc735855556640746cc863~1...349c11acb35cfc0096bc6e9324bd9748e429ca17~1
+          packageManager="$(< "${GITHUB_WORKSPACE}/package.json" jq --raw-output '.packageManager')"
+          if [[ "${packageManager}" == 'npm@'* && "npm@$(npm --version)" != "${packageManager%%+*}" ]]; then
+            # Disable the built-in Corepack in GitHub Actions.
+            # If enabled, problems will occur when the yarn command is executed.
+            if type corepack >/dev/null 2>&1; then
+              echo '::group::$' corepack disable
+              corepack disable
+              echo '::endgroup::'
+            fi
+
+            readonly npmSemver="${packageManager##npm@}"
+            echo "required-npm-version=${npmSemver%%+*}" >> "${GITHUB_ENV}"
+          fi
+
+          # If yarn is not available, install it
+          if type yarn >/dev/null 2>&1; then
+            :
+          else
+            echo '::group::' Install yarn
+            npm install --global --force 'yarn@1.x'
+            echo '::endgroup::'
+          fi
+
+      - name: Update to the specified npm (Using "npx npm-windows-upgrade")
+        if: ${{ env.required-npm-version && runner.os == 'Windows' }}
+        # On Windows, the "npm install --global npm" command does not properly overwrite npm.
+        # Instead of the "npm install --global npm" command, "npx npm-windows-upgrade" can be used to correctly overwrite npm.
+        # see https://stackoverflow.com/a/31520672
+        # Note: The referenced answer says that the "npm install --global npm" command is available for Node.js v16 or later.
+        #       However, when I tried, this problem occurred in all versions of Node.js v14 or later.
+        shell: pwsh
+        run: |
+          Set-ExecutionPolicy Unrestricted -Scope CurrentUser -Force
+          npx npm-windows-upgrade --npm-version '${{ env.required-npm-version }}'
+          # see https://github.com/orgs/community/discussions/26641
+          echo 'required-npm-version=' >> $Env:GITHUB_ENV
+
+      - name: Update to the specified npm (Using "npm install --global npm")
+        if: ${{ env.required-npm-version }}
+        run: npm install --global --force 'npm@${{ env.required-npm-version }}'
 
       - name: Show node and npm version
         shell: bash

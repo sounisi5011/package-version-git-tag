@@ -21,33 +21,105 @@ This project will support Node.js 14.0.0 or later from now on.
 
 ### Updated Dependencies
 
+#### dependencies
+
+* `cac`
+    * [#185] - `^6.5.8` -> `6.5.8 - 6.6.x`
+
+    The format of help messages has changed since cac 6.7.0.
+    see https://github.com/cacjs/cac/commit/e565b2ae5d4a3256ed4d56a64d91356e7d6cbce6
+
 #### devDependencies
 
 * `@types/node`
     * [#186] - `12.x` -> `14.x`
+* `@typescript-eslint/eslint-plugin`
+    * [#185] - `2.34.0` -> `5.54.1`
+* `@typescript-eslint/parser`
+    * [#185] - `2.34.0` -> `5.54.1`
+* `ava`
+    * [#185] - `2.4.0` -> `3.15.0`
+
+    This project supports Node.js 14.0.0 so we will not update to v4 or later which is not available in Node.js 14.0.0.
+* `can-npm-publish`
+    * [#185] - `1.3.2` -> `1.3.6`
+* `del-cli`
+    * [#185] - `3.0.1` -> `5.0.0`
+* `escape-string-regexp`
+    * [#185] - `2.0.0` -> `4.0.0`
+
+    We will not update to v5 because we cannot yet use ESM for unit testing on this project.
+* `eslint`
+    * [#185] - `6.8.0` -> `8.36.0`
+* `eslint-config-prettier`
+    * [#185] - `6.11.0` -> `8.7.0`
+* `eslint-config-standard`
+    * [#185] - `14.1.1` -> `17.0.0`
+* `eslint-plugin-import`
+    * [#185] - `2.20.2` -> `2.27.5`
+* `eslint-plugin-prettier`
+    * [#185] - `3.1.3` -> `4.2.1`
+* `eslint-plugin-promise`
+    * [#185] - `4.2.1` -> `6.1.1`
+* `eslint-plugin-simple-import-sort`
+    * [#185] - `5.0.3` -> `10.0.0`
+* `git-branch-is`
+    * [#185] - `3.1.0` -> `4.0.0`
+* `node-git-server`
+    * [#185] - `0.6.1` -> `1.0.0`
+* `patch-package`
+    * [#185] - `6.2.2` -> `6.5.1`
+* `prettier`
+    * [#185] - `2.0.5` -> `2.8.4`
+* `prettier-package-json`
+    * [#185] - `2.1.3` -> `2.8.0`
+* `sort-package-json`
+    * [#185] - `1.44.0` -> `2.4.1`
+* `ts-node`
+    * [#185] - `8.10.2` -> `10.9.1`
+* `typescript`
+    * [#185] - `3.9.3` -> `4.9.5`
 
 ### Added Dependencies
 
 #### devDependencies
 
 * [#186] - `@tsconfig/node14@1.0.3`
+* [#185] - `eslint-plugin-n@15.6.1`
+* [#185] - `execa@5.1.1`
+
+    We will not use v6 or later because the ESM cannot yet be used for unit testing in this project.
+* [#185] - `lefthook@1.3.3`
 
 ### Removed Dependencies
 
 #### devDependencies
 
 * [#186] - `del`
+* [#185] - `eslint-plugin-node`
+* [#185] - `eslint-plugin-standard`
+* [#185] - `husky`
+* [#185] - `lint-staged`
 * [#186] - `make-dir`
+
+### Tests
+
+* [#185] - Use `execa` instead of `cross-spawn`
+* [#185] - Rename `ava.config.js` file to `ava.config.cjs`
 
 ### Others
 
 * [#183] - Change used CI service from Azure Pipelines to GitHub Actions
 * [#187] - Auto approve Pull Requests from admins who do not have any friends
+* [#185] - Migrating from husky and lint-staged to lefthook
+* [#185] - Use npm v7 in this project
+* [#185] - Fix patch file to make `check-peer-deps@1.1.3` detect peerDependenciesMeta
 
 [#182]: https://github.com/sounisi5011/package-version-git-tag/pull/182
 [#183]: https://github.com/sounisi5011/package-version-git-tag/pull/183
 [#186]: https://github.com/sounisi5011/package-version-git-tag/pull/186
 [#187]: https://github.com/sounisi5011/package-version-git-tag/pull/187
+[#185]: https://github.com/sounisi5011/package-version-git-tag/pull/185
 
 ## [3.0.0] (2020-06-02 UTC)
 
