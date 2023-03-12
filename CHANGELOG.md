@@ -24,7 +24,7 @@ This project will support Node.js 14.0.0 or later from now on.
 #### dependencies
 
 * `cac`
-    * [#185] - `^6.5.8` -> `6.6.1`
+    * [#185] - `^6.5.8` -> `6.5.8 - 6.6.x`
 
         The format of help messages has changed since cac 6.7.0.
         see https://github.com/cacjs/cac/commit/e565b2ae5d4a3256ed4d56a64d91356e7d6cbce6
