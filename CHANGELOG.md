@@ -84,7 +84,7 @@ This project will support Node.js 14.0.0 or later from now on.
 
 * [#186] - `@tsconfig/node14@1.0.3`
 * [#185] - `eslint-plugin-n@15.6.1`
-* [#185] - `execa@5.1.1`
+* [#185] - `execa@7.1.0`
 * [#185] - `lefthook@1.3.3`
 
 ### Removed Dependencies

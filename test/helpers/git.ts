@@ -1,15 +1,15 @@
+import { execa, ExecaChildProcess, Options as ExecaOptions } from 'execa';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 
 import { rmrf } from '.';
-import execa = require('execa');
 import initGitServer from './git-server';
 import type { PromiseValue } from './types';
 
 export type ExecFunc = (
     cmd: readonly [string, ...string[]],
-    options?: execa.Options,
-) => execa.ExecaChildProcess;
+    options?: ExecaOptions,
+) => ExecaChildProcess;
 export type GitRemote = PromiseValue<ReturnType<typeof initGitServer>>;
 
 /* eslint-disable import/export */
