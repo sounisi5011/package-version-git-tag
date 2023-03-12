@@ -157,7 +157,7 @@ jobs:
                 process.stderr.write(`[command]${quotedArgs}`);
                 setTimeout(() => process.stderr.write("\n"), 1);
               }, 1);
-            EOS
+          EOS
             "$@"
           }
 
