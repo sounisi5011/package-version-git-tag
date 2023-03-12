@@ -22,7 +22,7 @@ function tmpDir(dirname: string): string {
     return path.resolve(__dirname, 'tmp', dirname);
 }
 
-test.before.skip(async () => {
+test.before(async () => {
     await execFileAsync('npm', ['run', 'build'], { cwd: PROJECT_ROOT });
     await Promise.all([
         rmrf(path.resolve(FIXTURES_DIR, 'package-lock.json')),
@@ -42,7 +42,7 @@ test.before.skip(async () => {
         });
 });
 
-test.only('check npm version', async (t) => {
+test('check npm version', async (t) => {
     // eslint-disable-next-line no-unused-vars
     for (const _ of Array(5)) {
         t.like(await execa('npm', ['--version']), {
@@ -52,7 +52,7 @@ test.only('check npm version', async (t) => {
     }
 });
 
-test.only('check yarn version', async (t) => {
+test('check yarn version', async (t) => {
     const { exec, gitDirpath } = await initGit(tmpDir('yarn1-ver'));
 
     await fs.writeFile(
@@ -74,7 +74,7 @@ test.only('check yarn version', async (t) => {
 if (
     Object.keys(process.env).some((key) => /^corepack[-_]available$/i.test(key))
 ) {
-    test.only('check yarn2 version', async (t) => {
+    test('check yarn2 version', async (t) => {
         const { exec, gitDirpath } = await initGit(tmpDir('yarn2-ver'));
 
         await fs.writeFile(
@@ -93,7 +93,7 @@ if (
         }
     });
 
-    test.only('check yarn3 version', async (t) => {
+    test('check yarn3 version', async (t) => {
         const { exec, gitDirpath } = await initGit(tmpDir('yarn3-ver'));
 
         await fs.writeFile(
@@ -112,7 +112,7 @@ if (
         }
     });
 
-    test.only('check yarn4 version', async (t) => {
+    test('check yarn4 version', async (t) => {
         const { exec, gitDirpath } = await initGit(tmpDir('yarn4-ver'));
 
         await fs.writeFile(
@@ -131,7 +131,7 @@ if (
         }
     });
 
-    test.only('check pnpm version', async (t) => {
+    test('check pnpm version', async (t) => {
         const { exec, gitDirpath } = await initGit(tmpDir('pnpm-ver'));
 
         await fs.writeFile(

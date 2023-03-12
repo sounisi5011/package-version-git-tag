@@ -157,7 +157,7 @@ jobs:
             readonly npmSemver="${packageManager##npm@}"
             echo "required-npm-version=${npmSemver%%+*}" >> "${GITHUB_ENV}"
           else
-            echo "corepack-available=1" >> "${GITHUB_ENV}"
+            echo "corepack_available=1" >> "${GITHUB_ENV}"
           fi
 
           # If yarn is not available, install it
