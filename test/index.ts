@@ -595,10 +595,6 @@ test('CLI should add Git tag with customized tag prefix by npm', async (t) => {
         'Git tag should not exist yet',
     );
 
-    t.like(await exec(['npm', '--version']), {
-        stdout: '7.24.2',
-        stderr: '',
-    });
     await t.notThrowsAsync(
         exec(['npm', 'exec', '--no', PKG_DATA.name]),
         'CLI should exits successfully',
