@@ -161,7 +161,7 @@ jobs:
             # This has been fixed in Corepack v0.11, so if the old Corepack is detected, this will be updated.
             # see https://github.com/nodejs/corepack/issues/110
             # see https://github.com/nodejs/corepack/pull/84
-            TEST_COREPACK_DIRPATH="$(mktemp -dt test-corepack-ENOTEMPTY-error)"
+            TEST_COREPACK_DIRPATH="$(mktemp -dt test-corepack-ENOTEMPTY-error-XXXXXXXXXX)"
             readonly TEST_COREPACK_DIRPATH
             echo '{"packageManager":"yarn@1.22.19"}' > "${TEST_COREPACK_DIRPATH}/package.json"
             if (
