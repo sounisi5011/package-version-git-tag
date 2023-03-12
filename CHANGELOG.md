@@ -53,6 +53,8 @@ This project will support Node.js 14.0.0 or later from now on.
     * [#185] - `5.0.3` -> `10.0.0`
 * `node-git-server`
     * [#185] - `0.6.1` -> `1.0.0`
+* `patch-package`
+    * [#185] - `6.2.2` -> `6.5.1`
 * `ts-node`
     * [#185] - `8.10.2` -> `10.9.1`
 * `typescript`
