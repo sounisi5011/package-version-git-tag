@@ -120,7 +120,7 @@ test('CLI should complete successfully if Git tag has been added', async (t) => 
     {
         const message = 'Overwriting tags with git cli should fail';
         const result = exec(['git', 'tag', 'v0.0.0']);
-        await t.throwsAsync(result, null, message);
+        await t.throwsAsync(result, undefined, message);
         await result.catch((error) => {
             t.regex(error.stderr, /tag 'v0\.0\.0' already exists/, message);
         });
@@ -155,7 +155,7 @@ test('CLI should complete successfully if Git tag has been added with verbose ou
     {
         const message = 'Overwriting tags with git cli should fail';
         const result = exec(['git', 'tag', 'v0.0.0']);
-        await t.throwsAsync(result, null, message);
+        await t.throwsAsync(result, undefined, message);
         await result.catch((error) => {
             t.regex(error.stderr, /tag 'v0\.0\.0' already exists/, message);
         });
@@ -190,7 +190,7 @@ test('CLI should complete successfully if Git tag has been added with dry-run', 
     {
         const message = 'Overwriting tags with git cli should fail';
         const result = exec(['git', 'tag', 'v0.0.0']);
-        await t.throwsAsync(result, null, message);
+        await t.throwsAsync(result, undefined, message);
         await result.catch((error) => {
             t.regex(error.stderr, /tag 'v0\.0\.0' already exists/, message);
         });
@@ -222,7 +222,7 @@ test('CLI should fail if Git tag exists on different commits', async (t) => {
     {
         const message = 'Overwriting tags with git cli should fail';
         const result = exec(['git', 'tag', 'v0.0.0']);
-        await t.throwsAsync(result, null, message);
+        await t.throwsAsync(result, undefined, message);
         await result.catch((error) => {
             t.regex(error.stderr, /tag 'v0\.0\.0' already exists/, message);
         });
@@ -230,7 +230,7 @@ test('CLI should fail if Git tag exists on different commits', async (t) => {
 
     {
         const message = 'CLI should fail';
-        const error = await t.throwsAsync(exec([CLI_PATH]), null, message);
+        const error = await t.throwsAsync(exec([CLI_PATH]), undefined, message);
         t.like(
             error,
             {
@@ -292,7 +292,7 @@ test('CLI push flag should fail if there is no remote repository', async (t) => 
     {
         const message = 'Git push should fail';
         const result = exec(['git', 'push', '--dry-run', 'origin', 'HEAD']);
-        await t.throwsAsync(result, null, message);
+        await t.throwsAsync(result, undefined, message);
         await result.catch((error) => {
             t.regex(
                 error.stderr,
@@ -305,7 +305,7 @@ test('CLI push flag should fail if there is no remote repository', async (t) => 
     {
         const message = 'CLI should try git push and should fail';
         const result = exec([CLI_PATH, '--push']);
-        await t.throwsAsync(result, null, message);
+        await t.throwsAsync(result, undefined, message);
         await result.catch((error) => {
             t.regex(
                 error.stderr,
@@ -533,7 +533,7 @@ test('CLI should not work with unknown options', async (t) => {
         const message = 'CLI should fail';
         const error = await t.throwsAsync(
             exec([CLI_PATH, '--lololololololololololololololol']),
-            null,
+            undefined,
             message,
         );
         t.like(
