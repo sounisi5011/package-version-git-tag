@@ -1,7 +1,11 @@
 {
-  "extends": ["config:js-lib"],
+  "extends": [
+    "config:js-lib",
+    ":maintainLockFilesWeekly",
+    "helpers:disableTypesNodeMajor"
+  ],
   "commitMessagePrefix": "⬆️",
-  "ignoreDeps": ["@types/node"],
+  "ignorePresets": ["group:monorepos"],
   "packageRules": [
     {
       "updateTypes": ["pin"],
@@ -19,8 +23,7 @@
     },
     {
       "packageNames": [
-        "husky",
-        "lint-staged",
+        "lefthook",
         "prettier",
         "prettier-package-json",
         "sort-package-json"
@@ -31,9 +34,8 @@
     {
       "packageNames": [
         "ava",
-        "del",
         "escape-string-regexp",
-        "make-dir",
+        "execa",
         "node-git-server",
         "ts-node"
       ],
@@ -52,6 +54,26 @@
       ],
       "groupName": "dependencies: npm-scripts packages",
       "groupSlug": "npm-scripts-packages"
+    },
+    {
+      "matchPackageNames": ["ava"],
+      "matchCurrentVersion": "<4.0.0",
+      "enabled": false
+    },
+    {
+      "matchPackageNames": ["cac"],
+      "matchCurrentVersion": "<6.7.0",
+      "enabled": false
+    },
+    {
+      "matchPackageNames": ["escape-string-regexp"],
+      "matchCurrentVersion": "<5.0.0",
+      "enabled": false
+    },
+    {
+      "matchPackageNames": ["execa"],
+      "matchCurrentVersion": "<6.0.0",
+      "enabled": false
     }
   ]
 }
