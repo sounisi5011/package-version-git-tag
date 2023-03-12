@@ -59,6 +59,8 @@ This project will support Node.js 14.0.0 or later from now on.
     * [#185] - `6.2.2` -> `6.5.1`
 * `prettier`
     * [#185] - `2.0.5` -> `2.8.4`
+* `prettier-package-json`
+    * [#185] - `2.1.3` -> `2.8.0`
 * `ts-node`
     * [#185] - `8.10.2` -> `10.9.1`
 * `typescript`
