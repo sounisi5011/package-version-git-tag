@@ -38,6 +38,7 @@
         "execa",
         "node-git-server",
         "ts-node",
+        "vite", // This is needed for vitest
         "vitest",
       ],
       groupName: "dependencies: test packages",

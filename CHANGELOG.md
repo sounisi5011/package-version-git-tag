@@ -103,6 +103,9 @@ Because it is the minimum version available for Vitest.
 
     We will not use v6 or later because the ESM cannot yet be used for unit testing in this project.
 * [#185] - `lefthook@1.3.3`
+* [#200] - `vite@4.1.4`
+
+    This is needed for vitest.
 * [#200] - `vitest@0.29.2`
 
 ### Removed Dependencies
