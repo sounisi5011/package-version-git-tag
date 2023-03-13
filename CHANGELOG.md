@@ -99,6 +99,7 @@ Because it is the minimum version available for Vitest.
 
 * [#186] - `@tsconfig/node14@1.0.3`
 * [#185] - `eslint-plugin-n@15.6.1`
+* [#200] - `eslint-plugin-vitest@0.0.54`
 * [#185] - `execa@5.1.1`
 
     We will not use v6 or later because the ESM cannot yet be used for unit testing in this project.
