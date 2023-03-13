@@ -8,14 +8,22 @@
 
 ### Supported Node version
 
-`10.x || 12.x || 14.x` -> `14.x || 16.x || >=18.x`
+`10.x || 12.x || 14.x` -> `^14.14.0 || 16.x || >=18.x`
 
 [Node.js 10 and Node.js 12 are now End-of-Life](https://github.com/nodejs/Release/tree/54e615d89bf2e056644e138e7e33714bfd1b67ee#end-of-life-releases).
-This project will support Node.js 14.0.0 or later from now on.
+This project will support Node.js 14.14.0 or later from now on.
+Because it is the minimum version available for Vitest.
+
+> **Note**
+>
+> [The minimum version supported by Vitest v0.29.2 is Node.js 14.16.0](https://github.com/vitest-dev/vitest/blob/v0.29.2/packages/vitest/package.json#L89).
+> However, we have tested and found that the minimum version that can use Vitest v0.29.2 is Node.js 14.14.0.
+> Vitest v0.29.2 uses [the `rm()` function of the `node:fs/promises` module](https://nodejs.org/docs/latest-v14.x/api/fs.html#fs_fspromises_rm_path_options), which is available in Node.js 14.14.0 and later.
 
 * [#186] - Drop support for Node.js 10 and 12
 * [#171] by [@johnschult][contributor:johnschult] - Add LTS node version (16) to acceptable engines. Thanks to [johnschult][contributor:johnschult]!
 * [#197] - Support Node.js 18
+* [#200] - Migrate from AVA to Vitest
 
 [contributor:johnschult]: https://github.com/johnschult
 
@@ -42,10 +50,6 @@ This project will support Node.js 14.0.0 or later from now on.
     * [#185] - `2.34.0` -> `5.54.1`
 * `@typescript-eslint/parser`
     * [#185] - `2.34.0` -> `5.54.1`
-* `ava`
-    * [#185] - `2.4.0` -> `3.15.0`
-
-    This project supports Node.js 14.0.0 so we will not update to v4 or later which is not available in Node.js 14.0.0.
 * `can-npm-publish`
     * [#185] - `1.3.2` -> `1.3.6`
 * `del-cli`
@@ -91,15 +95,21 @@ This project will support Node.js 14.0.0 or later from now on.
 
 * [#186] - `@tsconfig/node14@1.0.3`
 * [#185] - `eslint-plugin-n@15.6.1`
+* [#200] - `eslint-plugin-vitest@0.0.54`
 * [#185] - `execa@5.1.1`
 
     We will not use v6 or later because the ESM cannot yet be used for unit testing in this project.
 * [#185] - `lefthook@1.3.3`
+* [#200] - `vite@4.1.4`
+
+    This is needed for vitest.
+* [#200] - `vitest@0.29.2`
 
 ### Removed Dependencies
 
 #### devDependencies
 
+* [#200] - `ava`
 * [#186] - `del`
 * [#185] - `eslint-plugin-node`
 * [#185] - `eslint-plugin-standard`
@@ -111,6 +121,7 @@ This project will support Node.js 14.0.0 or later from now on.
 
 * [#185] - Use `execa` instead of `cross-spawn`
 * [#185] - Rename `ava.config.js` file to `ava.config.cjs`
+* [#200] - Migrate from AVA to Vitest
 
 ### Others
 
@@ -142,6 +153,7 @@ This project will support Node.js 14.0.0 or later from now on.
 [#198]: https://github.com/sounisi5011/package-version-git-tag/pull/198
 [#197]: https://github.com/sounisi5011/package-version-git-tag/pull/197
 [#199]: https://github.com/sounisi5011/package-version-git-tag/pull/199
+[#200]: https://github.com/sounisi5011/package-version-git-tag/pull/200
 
 ## [3.0.0] (2020-06-02 UTC)
 

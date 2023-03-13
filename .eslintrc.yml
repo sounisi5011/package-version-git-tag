@@ -61,3 +61,16 @@ overrides:
     rules:
       no-redeclare: off
       no-useless-constructor: off
+  - files:
+      - test/*.ts
+      - test/!(helpers!(?))*{,/**}/*.ts
+    extends:
+      - plugin:vitest/all
+    rules:
+      vitest/no-hooks:
+        - warn
+        - allow:
+            - beforeAll
+      vitest/prefer-lowercase-title:
+        - warn
+        - allowedPrefixes: [CLI]

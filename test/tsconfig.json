@@ -1,11 +1,11 @@
 {
   "extends": "../tsconfig",
   "compilerOptions": {
-    /* Basic Options */
-    "noEmit": true,
+    /* Modules */
+    "resolveJsonModule": true,
 
-    /* Advanced Options */
-    "resolveJsonModule": true
+    /* Emit */
+    "noEmit": true
   },
-  "include": ["./**/*"]
+  "include": ["./**/*", "../vitest.config.ts"]
 }

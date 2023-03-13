@@ -33,11 +33,12 @@
     },
     {
       packageNames: [
-        "ava",
         "escape-string-regexp",
         "execa",
         "node-git-server",
         "ts-node",
+        "vite", // This is needed for vitest
+        "vitest",
       ],
       groupName: "dependencies: test packages",
       groupSlug: "tester-packages",
@@ -58,13 +59,6 @@
     {
       matchPackageNames: ["npm"],
       matchUpdateTypes: ["major"],
-      enabled: false,
-    },
-    // `ava@>=4.0.0` doesn't work with old Node.js.
-    // We should only update if the Node.js support range: `>=14.17`
-    {
-      matchPackageNames: ["ava"],
-      matchCurrentVersion: "<4.0.0",
       enabled: false,
     },
     // The format of help messages has changed since cac 6.7.0.
