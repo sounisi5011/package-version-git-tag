@@ -7,5 +7,5 @@
     /* Emit */
     "noEmit": true
   },
-  "include": ["./**/*"]
+  "include": ["./**/*", "../vitest.config.ts"]
 }
