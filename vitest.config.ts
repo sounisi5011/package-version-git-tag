@@ -4,5 +4,9 @@ export default defineConfig({
     test: {
         include: ['test/**/*.ts'],
         exclude: [...configDefaults.exclude, '**/helpers/**'],
+        watchExclude: [
+            ...configDefaults.watchExclude,
+            'test/{fixtures,tmp}/**',
+        ],
     },
 });
