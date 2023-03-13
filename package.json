@@ -56,7 +56,7 @@
     "test:other-than-unit-test": "run-s test:readme test:peer-deps lint",
     "test:peer-deps": "check-peer-deps",
     "test:readme": "run-s 'build:readme -- --test'",
-    "test:unit-test": "ava"
+    "test:unit-test": "vitest"
   },
   "dependencies": {
     "cac": "6.5.8 - 6.6.x",
