@@ -125,6 +125,7 @@ This project will support Node.js 14.0.0 or later from now on.
 * [#194] - Ignore `.node-version` files
 * [#196] - Auto-check if CHANGELOG is updated
 * [#198] - Update old Corepack that throw ENOTEMPTY or EPERM errors
+* [#199] - Lock file maintenance
 
 [#182]: https://github.com/sounisi5011/package-version-git-tag/pull/182
 [#183]: https://github.com/sounisi5011/package-version-git-tag/pull/183
@@ -140,6 +141,7 @@ This project will support Node.js 14.0.0 or later from now on.
 [#196]: https://github.com/sounisi5011/package-version-git-tag/pull/196
 [#198]: https://github.com/sounisi5011/package-version-git-tag/pull/198
 [#197]: https://github.com/sounisi5011/package-version-git-tag/pull/197
+[#199]: https://github.com/sounisi5011/package-version-git-tag/pull/199
 
 ## [3.0.0] (2020-06-02 UTC)
 
