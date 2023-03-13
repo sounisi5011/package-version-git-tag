@@ -38,6 +38,7 @@
         "execa",
         "node-git-server",
         "ts-node",
+        "vitest",
       ],
       groupName: "dependencies: test packages",
       groupSlug: "tester-packages",

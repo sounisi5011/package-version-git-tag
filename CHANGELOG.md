@@ -95,6 +95,7 @@ This project will support Node.js 14.0.0 or later from now on.
 
     We will not use v6 or later because the ESM cannot yet be used for unit testing in this project.
 * [#185] - `lefthook@1.3.3`
+* [#200] - `vitest@0.29.2`
 
 ### Removed Dependencies
 
@@ -142,6 +143,7 @@ This project will support Node.js 14.0.0 or later from now on.
 [#198]: https://github.com/sounisi5011/package-version-git-tag/pull/198
 [#197]: https://github.com/sounisi5011/package-version-git-tag/pull/197
 [#199]: https://github.com/sounisi5011/package-version-git-tag/pull/199
+[#200]: https://github.com/sounisi5011/package-version-git-tag/pull/200
 
 ## [3.0.0] (2020-06-02 UTC)
 
