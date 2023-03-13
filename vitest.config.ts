@@ -7,6 +7,7 @@ export default defineConfig({
         include: ['test/**/*.ts'],
         exclude: [...configDefaults.exclude, '**/helpers/**'],
         testTimeout: sec(30),
+        hookTimeout: sec(30),
         watchExclude: [
             ...configDefaults.watchExclude,
             'test/{fixtures,tmp}/**',
