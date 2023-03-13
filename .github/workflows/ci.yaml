@@ -161,6 +161,43 @@ jobs:
             "$@"
           }
 
+          # On Windows we can't use the CLI we installed just by running the "npm install --global ..." command.
+          # This function allows use of the installed CLI.
+          npm_install_global() {
+            exec_with_debug npm install --global --force "$1"
+
+            if [[ '${{ runner.os }}' == 'Windows' ]]; then
+              # Windows installs global packages to a directory that has lower priority than the default node install so we also need to edit $PATH
+              # see https://github.com/vercel/turbo/pull/1632/files#diff-b92a3120126a9ffe46d7d5ec3a8496ef1eac951db09e1972fac7c78438e36c42R69
+              echo "[command]npm config get prefix >> \$GITHUB_PATH"
+              npm config get prefix >> "${GITHUB_PATH}"
+            fi
+          }
+
+          # Old Corepack throws ENOTEMPTY errors (or EPERM errors on Windows) when running package managers in parallel.
+          # This function detects such old Corepack.
+          # see https://github.com/nodejs/corepack/issues/110
+          # see https://github.com/nodejs/corepack/pull/84
+          is_old_corepack() {
+            local -r TEST_COREPACK_DIRPATH="$(mktemp -dt test-corepack-ENOTEMPTY-error-XXXXXXXXXX)"
+            echo '{"packageManager":"yarn@1.22.19"}' > "${TEST_COREPACK_DIRPATH}/package.json"
+
+            # see https://github.com/nodejs/corepack/pull/84/files#diff-12cd00a89af03f1fc6f74460b886289151edce062c60319b0c58fb8465558ed6
+            (
+              cd "${TEST_COREPACK_DIRPATH}" && \
+              {
+                yarn --version 2>&1 &
+                yarn --version 2>&1 &
+                yarn --version 2>&1 &
+                wait
+              } | grep -Eq '\b(ENOTEMPTY: directory not empty|EPERM: operation not permitted), rename\b'
+            )
+            local -r exitCode="${?}"
+
+            rm -rf "${TEST_COREPACK_DIRPATH}" || true
+            return "${exitCode}"
+          }
+
           if type corepack >/dev/null 2>&1; then
             echo '::group::Enable Corepack'
             exec_with_debug corepack enable
@@ -182,14 +219,7 @@ jobs:
               exec_with_debug corepack disable
             fi
 
-            exec_with_debug npm install --global --force "${packageManager%%+*}"
-
-            if [[ '${{ runner.os }}' == 'Windows' ]]; then
-              # Windows installs global packages to a directory that has lower priority than the default node install so we also need to edit $PATH
-              # see https://github.com/vercel/turbo/pull/1632/files#diff-b92a3120126a9ffe46d7d5ec3a8496ef1eac951db09e1972fac7c78438e36c42R69
-              echo "[command]npm config get prefix >> \$GITHUB_PATH"
-              npm config get prefix >> "${GITHUB_PATH}"
-            fi
+            npm_install_global "${packageManager%%+*}"
 
             echo '::endgroup::'
           elif type corepack >/dev/null 2>&1; then
@@ -197,29 +227,11 @@ jobs:
             # This has been fixed in Corepack v0.11, so if the old Corepack is detected, this will be updated.
             # see https://github.com/nodejs/corepack/issues/110
             # see https://github.com/nodejs/corepack/pull/84
-            TEST_COREPACK_DIRPATH="$(mktemp -dt test-corepack-ENOTEMPTY-error-XXXXXXXXXX)"
-            readonly TEST_COREPACK_DIRPATH
-            echo '{"packageManager":"yarn@1.22.19"}' > "${TEST_COREPACK_DIRPATH}/package.json"
-            if (
-              cd "${TEST_COREPACK_DIRPATH}" && \
-              {
-                yarn --version 2>&1 &
-                yarn --version 2>&1 &
-                yarn --version 2>&1 &
-                wait
-              } | grep -Eq '\b(ENOTEMPTY: directory not empty|EPERM: operation not permitted), rename\b'
-            ); then
+            if is_old_corepack; then
               echo "::group::Old Corepack is detected ( corepack@$(corepack --version 2>/dev/null || echo '[Execution failed; Unknown version]') ). Update this"
-              exec_with_debug npm install --global --force 'corepack@0.11.2'
-              if [[ '${{ runner.os }}' == 'Windows' ]]; then
-                # Windows installs global packages to a directory that has lower priority than the default node install so we also need to edit $PATH
-                # see https://github.com/vercel/turbo/pull/1632/files#diff-b92a3120126a9ffe46d7d5ec3a8496ef1eac951db09e1972fac7c78438e36c42R69
-                echo "[command]npm config get prefix >> \$GITHUB_PATH"
-                npm config get prefix >> "${GITHUB_PATH}"
-              fi
+              npm_install_global 'corepack@0.11.2'
               echo '::endgroup::'
             fi
-            rm -rf "${TEST_COREPACK_DIRPATH}"
           fi
 
           # If yarn is not available, install it
@@ -227,7 +239,7 @@ jobs:
             :
           else
             echo '::group::Install yarn'
-            exec_with_debug npm install --global --force 'yarn@1.x'
+            npm_install_global 'yarn@1.x'
             echo '::endgroup::'
           fi
 
