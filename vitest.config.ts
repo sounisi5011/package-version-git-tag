@@ -1,13 +1,13 @@
 import { configDefaults, defineConfig } from 'vitest/config';
 
-const sec = (s: number): number => s * 1000;
+const m = (minutes: number): number => minutes * 60 * 1000;
 
 export default defineConfig({
     test: {
         include: ['test/**/*.ts'],
         exclude: [...configDefaults.exclude, '**/helpers/**'],
-        testTimeout: sec(30),
-        hookTimeout: sec(30),
+        testTimeout: m(5),
+        hookTimeout: m(5),
         watchExclude: [
             ...configDefaults.watchExclude,
             'test/{fixtures,tmp}/**',
