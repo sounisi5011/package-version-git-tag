@@ -8,14 +8,22 @@
 
 ### Supported Node version
 
-`10.x || 12.x || 14.x` -> `14.x || 16.x || >=18.x`
+`10.x || 12.x || 14.x` -> `^14.14.0 || 16.x || >=18.x`
 
 [Node.js 10 and Node.js 12 are now End-of-Life](https://github.com/nodejs/Release/tree/54e615d89bf2e056644e138e7e33714bfd1b67ee#end-of-life-releases).
-This project will support Node.js 14.0.0 or later from now on.
+This project will support Node.js 14.14.0 or later from now on.
+Because it is the minimum version available for Vitest.
+
+> **Note**
+>
+> [The minimum version supported by Vitest v0.29.2 is Node.js 14.16.0](https://github.com/vitest-dev/vitest/blob/v0.29.2/packages/vitest/package.json#L89).
+> However, we have tested and found that the minimum version that can use Vitest v0.29.2 is Node.js 14.14.0.
+> Vitest v0.29.2 uses [the `rm()` function of the `node:fs/promises` module](https://nodejs.org/docs/latest-v14.x/api/fs.html#fs_fspromises_rm_path_options), which is available in Node.js 14.14.0 and later.
 
 * [#186] - Drop support for Node.js 10 and 12
 * [#171] by [@johnschult][contributor:johnschult] - Add LTS node version (16) to acceptable engines. Thanks to [johnschult][contributor:johnschult]!
 * [#197] - Support Node.js 18
+* [#200] - Migrate from AVA to Vitest
 
 [contributor:johnschult]: https://github.com/johnschult
 
