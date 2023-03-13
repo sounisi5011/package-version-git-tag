@@ -227,11 +227,11 @@ jobs:
             # This has been fixed in Corepack v0.11, so if the old Corepack is detected, this will be updated.
             # see https://github.com/nodejs/corepack/issues/110
             # see https://github.com/nodejs/corepack/pull/84
-            # if is_old_corepack; then
-            #   echo "::group::Old Corepack is detected ( corepack@$(corepack --version 2>/dev/null || echo '[Execution failed; Unknown version]') ). Update this"
-            #   npm_install_global 'corepack@0.11.2'
-            #   echo '::endgroup::'
-            # fi
+            if is_old_corepack; then
+              echo "::group::Old Corepack is detected ( corepack@$(corepack --version 2>/dev/null || echo '[Execution failed; Unknown version]') ). Update this"
+              npm_install_global 'corepack@0.11.2'
+              echo '::endgroup::'
+            fi
 
             echo "corepack_available=1" >> "${GITHUB_ENV}"
           fi
