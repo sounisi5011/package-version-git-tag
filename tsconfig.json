@@ -10,12 +10,8 @@
     "types": ["node"],
 
     /* Emit */
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
-    "outDir": "./dist",
+    "noEmit": true,
     "importsNotUsedAsValues": "error",
-    "inlineSources": true,
     "newLine": "LF",
 
     /* Interop Constraints */
@@ -36,6 +32,5 @@
 
     /* Completeness */
     "skipLibCheck": true
-  },
-  "include": ["./src/**/*"]
+  }
 }

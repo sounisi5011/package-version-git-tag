@@ -30,7 +30,7 @@
     "dist/"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -p ./src/",
     "build:readme": "readme-generator --template ./.template/readme.njk",
     "clean": "del-cli ./dist/ \"./test/{tmp/,fixtures/{node_modules/,package-lock.json}}\"",
     "fmt-js": "eslint --ext .js,.cjs,.mjs --fix ./",
@@ -40,7 +40,7 @@
     "fmt-ts": "eslint --ext .ts --fix ./",
     "lint": "run-p lint:*",
     "lint:eslint": "eslint ./",
-    "lint:tsc-src": "tsc --noEmit",
+    "lint:tsc-src": "tsc -p ./src/ --noEmit",
     "lint:tsc-test": "tsc -p ./test/ --noEmit",
     "prepare": "patch-package",
     "release": "run-s release:validation release:build release:publish",

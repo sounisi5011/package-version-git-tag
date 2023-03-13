@@ -32,6 +32,7 @@ overrides:
       sourceType: module
       project:
         - ./tsconfig.json
+        - ./src/tsconfig.json
         - ./test/tsconfig.json
     plugins:
       - "@typescript-eslint"
