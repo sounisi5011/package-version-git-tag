@@ -1,13 +1,8 @@
 #!/usr/bin/env node
 
-import { cac } from 'cac';
-
 import main from './';
+import { parseArgv } from './bin/argv';
 import { isObject } from './utils';
-
-function isTruthyOpt(option: unknown): boolean {
-    return option !== undefined && option !== false;
-}
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const PKG: unknown = require('../package.json');
@@ -22,55 +17,33 @@ if (isObject(PKG)) {
         pkgDescription = PKG['description'];
 }
 
-const cli = cac(pkgName);
-if (pkgVersion) {
-    cli.version(pkgVersion, '-V, -v, --version');
-}
-cli.help(
-    pkgDescription
-        ? (sections) => {
-              sections.splice(1, 0, { body: pkgDescription });
-          }
-        : undefined,
-);
-
-cli.option('--push', '`git push` the added tag to the remote repository');
-cli.option('--verbose', 'show details of executed git commands');
-cli.option('-n, --dry-run', 'perform a trial run with no changes made');
-
-if (cli.commands.length <= 0) {
-    cli.usage('[options]');
-}
-
 (() => {
-    const { options } = cli.parse();
+    const {
+        isHelpMode,
+        name: cliName,
+        options,
+        unknownOptions,
+    } = parseArgv(process.argv, {
+        name: pkgName,
+        version: pkgVersion,
+        description: pkgDescription,
+    });
 
-    if (options['version'] || options['help']) {
+    if (isHelpMode) {
         return;
     }
 
-    const unknownOptions = Object.keys(options).filter(
-        (name) => name !== '--' && !cli.globalCommand.hasOption(name),
-    );
     if (unknownOptions.length > 0) {
         process.exitCode = 1;
         console.error(
             `unknown ${unknownOptions.length > 1 ? 'options' : 'option'}: ` +
-                `${unknownOptions
-                    .map((name) =>
-                        /^[^-]$/.test(name) ? `-${name}` : `--${name}`,
-                    )
-                    .join(' ')}\n` +
-                `Try \`${cli.name} --help\` for valid options.`,
+                `${unknownOptions.join(' ')}\n` +
+                `Try \`${cliName} --help\` for valid options.`,
         );
         return;
     }
 
-    main({
-        push: isTruthyOpt(options['push']),
-        verbose: isTruthyOpt(options['verbose']),
-        dryRun: isTruthyOpt(options['dryRun']),
-    }).catch((error) => {
+    main(options).catch((error) => {
         process.exitCode = 1;
         console.error(error instanceof Error ? error.message : error);
     });
