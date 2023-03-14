@@ -32,6 +32,25 @@ function isTruthyOpt(option: unknown): boolean {
     return option !== undefined && option !== false;
 }
 
+function genHelpCallback(
+    description: string | undefined,
+): Parameters<ReturnType<typeof cac>['help']>[0] {
+    return description
+        ? (sections) => {
+              sections.splice(1, 0, { body: description });
+          }
+        : undefined;
+}
+
+function getUnknownOptions(
+    cli: ReturnType<typeof cac>,
+    options: Record<string, unknown>,
+): string[] {
+    return Object.keys(options)
+        .filter((name) => name !== '--' && !cli.globalCommand.hasOption(name))
+        .map((name) => (/^[^-]$/.test(name) ? `-${name}` : `--${name}`));
+}
+
 /**
  * Note: If the "--help" or "--version" option is passed to argv, this function writes to `process.stdout`.
  */
@@ -40,27 +59,14 @@ export function parseArgv(
     opts: ParseArgvOptions,
 ): ParseArgvResult {
     const cli = cac(opts.name);
-    if (opts.version) {
-        cli.version(opts.version, '-V, -v, --version');
-    }
-    if (opts.description) {
-        // TypeScript warns: The "description" property may be undefined value inside a function.
-        // So, we assign it to the variable "body" here.
-        const body = opts.description;
-        cli.help((sections) => {
-            sections.splice(1, 0, { body });
-        });
-    } else {
-        cli.help();
-    }
+    if (opts.version) cli.version(opts.version, '-V, -v, --version');
+    cli.help(genHelpCallback(opts.description));
 
     cli.option('--push', '`git push` the added tag to the remote repository');
     cli.option('--verbose', 'show details of executed git commands');
     cli.option('-n, --dry-run', 'perform a trial run with no changes made');
 
-    if (cli.commands.length <= 0) {
-        cli.usage('[options]');
-    }
+    if (cli.commands.length <= 0) cli.usage('[options]');
 
     const { options } = cli.parse([...argv]);
 
@@ -73,10 +79,6 @@ export function parseArgv(
             verbose: isTruthyOpt(options['verbose']),
             dryRun: isTruthyOpt(options['dryRun']),
         },
-        unknownOptions: Object.keys(options)
-            .filter(
-                (name) => name !== '--' && !cli.globalCommand.hasOption(name),
-            )
-            .map((name) => (/^[^-]$/.test(name) ? `-${name}` : `--${name}`)),
+        unknownOptions: getUnknownOptions(cli, options),
     };
 }
