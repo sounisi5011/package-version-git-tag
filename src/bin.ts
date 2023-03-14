@@ -5,6 +5,10 @@ import { cac } from 'cac';
 import main from './';
 import { isObject } from './utils';
 
+function isTruthyOpt(option: unknown): boolean {
+    return option !== undefined && option !== false;
+}
+
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const PKG: unknown = require('../package.json');
 
@@ -63,9 +67,9 @@ if (cli.commands.length <= 0) {
     }
 
     main({
-        push: Boolean(options['push']),
-        verbose: Boolean(options['verbose']),
-        dryRun: Boolean(options['dryRun']),
+        push: isTruthyOpt(options['push']),
+        verbose: isTruthyOpt(options['verbose']),
+        dryRun: isTruthyOpt(options['dryRun']),
     }).catch((error) => {
         process.exitCode = 1;
         console.error(error instanceof Error ? error.message : error);
