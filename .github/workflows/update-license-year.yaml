@@ -3,6 +3,8 @@ on:
   schedule:
     - cron: "5 0 1 1 *" # 20xx-01-01 00:05
   workflow_dispatch: # Allow manual execution as well, in case the update fails.
+env:
+  branch-name-prefix: license/
 jobs:
   update-license-year:
     runs-on: ubuntu-latest
@@ -23,6 +25,16 @@ jobs:
             echo "${delimiter}"
           } >> "${GITHUB_OUTPUT}"
 
+      - name: Fetch already existing branches
+        # FantasticFiasco/action-update-license-year@v2 tries to checkout the remote branch it has detected.
+        # However, since it has not yet been fetched, the "git checkout" command fails.
+        # see https://github.com/FantasticFiasco/action-update-license-year/blob/v2.3.0/src/main.js#L65
+        shell: bash
+        run: |
+          git ls-remote --heads origin '${{ env.branch-name-prefix }}*' | awk '{ print $2 }' | while read -r refspec; do
+            git fetch --no-tags --prune --no-recurse-submodules --depth=1 origin "${refspec#refs/heads/}"
+          done
+
       - uses: FantasticFiasco/action-update-license-year@v2
         with:
           # Use personal access token instead of GITHUB_TOKEN to execute CI for pull requests.
@@ -30,6 +42,7 @@ jobs:
           token: ${{ secrets.TRIGGER_CI_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
           path: |
             ${{ steps.find-all-license-files.outputs.files }}
+          branchName: ${{ format('{0}copyright-to-{1}', env.branch-name-prefix, '{{currentYear}}') }}
           commitTitle: |
             📄 Update copyright year(s)
           prTitle: |
