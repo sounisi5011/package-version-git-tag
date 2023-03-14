@@ -42,7 +42,7 @@ jobs:
           token: ${{ secrets.TRIGGER_CI_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
           path: |
             ${{ steps.find-all-license-files.outputs.files }}
-          branchName: ${{ join([ env.branch-name-prefix, 'copyright-to-{{currentYear}}' ], '') }}
+          branchName: ${{ format('{0}copyright-to-{1}', env.branch-name-prefix, '{{currentYear}}') }}
           commitTitle: |
             📄 Update copyright year(s)
           prTitle: |
