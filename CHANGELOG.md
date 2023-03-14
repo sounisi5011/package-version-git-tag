@@ -139,6 +139,7 @@ Because it is the minimum version available for Vitest.
 * [#199] - Lock file maintenance
 * [#202] - Add a workflow to auto update the license year
 * [#207] - Prevent failure if branch already exists when updating license year
+* [#208] - Update copyright year(s)
 
 [#182]: https://github.com/sounisi5011/package-version-git-tag/pull/182
 [#183]: https://github.com/sounisi5011/package-version-git-tag/pull/183
@@ -158,6 +159,7 @@ Because it is the minimum version available for Vitest.
 [#200]: https://github.com/sounisi5011/package-version-git-tag/pull/200
 [#202]: https://github.com/sounisi5011/package-version-git-tag/pull/202
 [#207]: https://github.com/sounisi5011/package-version-git-tag/pull/207
+[#208]: https://github.com/sounisi5011/package-version-git-tag/pull/208
 
 ## [3.0.0] (2020-06-02 UTC)
 
