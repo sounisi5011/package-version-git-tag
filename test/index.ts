@@ -1,4 +1,3 @@
-import { commandJoin } from 'command-join';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { beforeAll, describe, expect, it, test } from 'vitest';
@@ -20,35 +19,6 @@ const CLI_PATH = path.resolve(
 
 function tmpDir(dirname: string): string {
     return path.resolve(__dirname, 'tmp', dirname);
-}
-
-function boolOptsCases(
-    ...opts: readonly string[]
-): [name: string, options: string[]][] {
-    return opts
-        .flatMap((optionName) => [
-            [optionName],
-            // A number of 0 is a falsy value, but a string of "0" is a truthy value.
-            // The CLI should evaluate all these values as strings and treat them as truthy values.
-            // Note: Exclude "false", since "false" may need to be treated as a falsy value.
-            ...[
-                'foo',
-                'undefined',
-                'null',
-                'true',
-                '1',
-                '0',
-                '+0',
-                '-0',
-                'NaN',
-            ].flatMap((optionValue) => [
-                ...(optionValue.startsWith('-')
-                    ? []
-                    : [[optionName, optionValue]]),
-                [`${optionName}=${optionValue}`],
-            ]),
-        ])
-        .map((options) => [commandJoin(options), options]);
 }
 
 beforeAll(async () => {
@@ -119,7 +89,7 @@ test('CLI should add Git tag with verbose output', async () => {
 });
 
 describe('CLI should not add Git tag with dry-run', () => {
-    it.each(boolOptsCases('-n', '--dry-run'))('%s', async (_, options) => {
+    it.each(['-n', '--dry-run'])('%s', async (option) => {
         const { exec } = await initGit(
             tmpDir('not-exists-git-tag-with-dry-run'),
         );
@@ -132,7 +102,7 @@ describe('CLI should not add Git tag with dry-run', () => {
         const { stdout: gitTags } = await gitTagsResult;
 
         await expect(
-            exec([CLI_PATH, ...options]),
+            exec([CLI_PATH, option]),
             'CLI should exits successfully',
         ).resolves.toMatchObject({
             stdout: '',
@@ -461,38 +431,35 @@ test('CLI should add and push single Git tag', async () => {
 });
 
 describe('CLI should to display version', () => {
-    it.each(boolOptsCases('-V', '-v', '--version'))(
-        '%s',
-        async (_, options) => {
-            const { exec } = await initGit(tmpDir('display-version'));
+    it.each(['-V', '-v', '--version'])('%s', async (option) => {
+        const { exec } = await initGit(tmpDir('display-version'));
 
-            const gitTagsResult = exec(['git', 'tag', '-l']);
-            await expect(
-                gitTagsResult,
-                'Git tag should not exist yet',
-            ).resolves.toMatchObject({ stdout: '', stderr: '' });
-            const { stdout: gitTags } = await gitTagsResult;
+        const gitTagsResult = exec(['git', 'tag', '-l']);
+        await expect(
+            gitTagsResult,
+            'Git tag should not exist yet',
+        ).resolves.toMatchObject({ stdout: '', stderr: '' });
+        const { stdout: gitTags } = await gitTagsResult;
 
-            await expect(
-                exec([CLI_PATH, ...options]),
-                'CLI should output version number',
-            ).resolves.toMatchObject({
-                stdout: `${PKG_DATA.name}/${PKG_DATA.version} ${process.platform}-${process.arch} node-${process.version}`,
-                stderr: '',
-            });
+        await expect(
+            exec([CLI_PATH, option]),
+            'CLI should output version number',
+        ).resolves.toMatchObject({
+            stdout: `${PKG_DATA.name}/${PKG_DATA.version} ${process.platform}-${process.arch} node-${process.version}`,
+            stderr: '',
+        });
 
-            await expect(
-                exec(['git', 'tag', '-l']),
-                'Git tag should not change',
-            ).resolves.toMatchObject({
-                stdout: gitTags,
-            });
-        },
-    );
+        await expect(
+            exec(['git', 'tag', '-l']),
+            'Git tag should not change',
+        ).resolves.toMatchObject({
+            stdout: gitTags,
+        });
+    });
 });
 
 describe('CLI should to display help', () => {
-    it.each(boolOptsCases('-h', '--help'))('%s', async (_, options) => {
+    it.each(['-h', '--help'])('%s', async (option) => {
         const { exec } = await initGit(tmpDir('display-help'));
 
         const gitTagsResult = exec(['git', 'tag', '-l']);
@@ -503,7 +470,7 @@ describe('CLI should to display help', () => {
         const { stdout: gitTags } = await gitTagsResult;
 
         await expect(
-            exec([CLI_PATH, ...options]),
+            exec([CLI_PATH, option]),
             'CLI should output help',
         ).resolves.toMatchObject({
             stdout: [

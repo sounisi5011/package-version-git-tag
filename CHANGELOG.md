@@ -104,6 +104,7 @@ Because it is the minimum version available for Vitest.
 
     This is needed for vitest.
 * [#200] - `vitest@0.29.2`
+* [#210] - `vitest-mock-process@1.0.4`
 
 ### Removed Dependencies
 
@@ -160,6 +161,7 @@ Because it is the minimum version available for Vitest.
 [#202]: https://github.com/sounisi5011/package-version-git-tag/pull/202
 [#207]: https://github.com/sounisi5011/package-version-git-tag/pull/207
 [#208]: https://github.com/sounisi5011/package-version-git-tag/pull/208
+[#210]: https://github.com/sounisi5011/package-version-git-tag/pull/210
 
 ## [3.0.0] (2020-06-02 UTC)
 

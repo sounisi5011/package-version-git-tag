@@ -39,6 +39,7 @@
         "ts-node",
         "vite", // This is needed for vitest
         "vitest",
+        "vitest-mock-process",
       ],
       groupName: "dependencies: test packages",
       groupSlug: "tester-packages",
