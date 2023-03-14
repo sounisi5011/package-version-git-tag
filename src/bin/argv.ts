@@ -29,7 +29,7 @@ export interface ParseArgvResult {
 }
 
 function isTruthyOpt(option: unknown): boolean {
-    return option !== undefined && option !== false;
+    return option !== undefined && option !== false && option !== 'false';
 }
 
 function genHelpCallback(
