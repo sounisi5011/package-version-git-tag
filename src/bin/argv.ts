@@ -1,4 +1,12 @@
-import { cac } from 'cac';
+import * as path from 'node:path';
+
+import mri = require('mri');
+import {
+    boolOptions,
+    genOptionTextList,
+    getAliasRecord,
+    knownOptionNameSet,
+} from './options';
 
 export interface ParseArgvOptions {
     /**
@@ -17,7 +25,7 @@ export interface ParseArgvOptions {
     readonly description: string | undefined;
 }
 
-type OptionName = `${'-' | '--'}${string}`;
+type RawOptionName = `${'-' | '--'}${string}`;
 export interface ParseArgvResult {
     name: string;
     isHelpMode: boolean;
@@ -26,25 +34,73 @@ export interface ParseArgvResult {
         verbose: boolean;
         dryRun: boolean;
     };
-    unknownOptions: OptionName[];
+    unknownOptions: RawOptionName[];
 }
 
-function isTruthyOpt(option: unknown): boolean {
-    return option !== undefined && option !== false && option !== 'false';
+function isTrueOpt(
+    options: Record<string, unknown>,
+    key: keyof typeof boolOptions,
+): boolean {
+    const value = options[key];
+    /**
+     * `mri@1.2.0` inserts the value of each option into an array when multiple options are passed.
+     * To get the value of the last option, the last element of the array should be read.
+     *
+     * @example
+     * const mri = require('mri');
+     *
+     * mri(['--foo'])
+     * // => { _: [], foo: true }
+     *
+     * mri(['--foo', '--foo'])
+     * // => { _: [], foo: [ true, true ] }
+     *
+     * mri(['--foo', '--no-foo'])
+     * // => { _: [], foo: false }
+     *
+     * mri(['--foo', '--no-foo', '--foo', '--foo'])
+     * // => { _: [], foo: [ false, true, true ] }
+     */
+    const lastValue = Array.isArray(value)
+        ? (value[value.length - 1] as unknown)
+        : value;
+    return Boolean(lastValue);
 }
 
-function genHelpCallback(
-    description: string | undefined,
-): Parameters<ReturnType<typeof cac>['help']>[0] {
-    return description
-        ? (sections) => {
-              sections.splice(1, 0, { body: description });
-          }
-        : undefined;
+/**
+ * @see https://github.com/cacjs/cac/blob/v6.6.1/src/CAC.ts#L176
+ */
+function getCliName(argv: readonly string[], opts: ParseArgvOptions): string {
+    if (opts.name) return opts.name;
+    return argv[1] ? path.basename(argv[1]) : 'cli';
 }
 
-// Note: This is reinventing the wheel. Better to use `mri` package
-//       see https://www.npmjs.com/package/mri
+/**
+ * @see https://github.com/cacjs/cac/blob/v6.6.1/src/Command.ts#L239
+ * @see https://github.com/cacjs/cac/blob/v6.6.1/src/node.ts#L12
+ */
+function createVersionStr(cliName: string, version: string): string {
+    return `${cliName}/${version} ${process.platform}-${process.arch} node-${process.version}`;
+}
+
+/**
+ * @see https://github.com/cacjs/cac/blob/v6.6.1/src/Command.ts#L141-L232
+ */
+function createHelpText(cliName: string, opts: ParseArgvOptions): string {
+    return [
+        `${cliName}${opts.version ? ` v${opts.version}` : ''}`,
+        ...(opts.description ? ['', opts.description] : []),
+        '',
+        'Usage:',
+        `  $ ${cliName} [options]`,
+        '',
+        'Options:',
+        ...genOptionTextList().map((line) => `  ${line} `),
+    ].join('\n');
+}
+
+// Note: This is reinventing the wheel.
+//       But we had to write this because `mri@1.2.0` does not expose the internal parser.
 function* parseRawArgs(
     rawArgs: readonly string[],
 ): IterableIterator<{ isLong: boolean; name: string }> {
@@ -68,31 +124,25 @@ function* parseRawArgs(
     }
 }
 
-function kebabCase2lowerCamelCase(str: string): string {
-    return str.replace(/-([a-z])/g, (_, char: string) => char.toUpperCase());
-}
-
 function parseUnknownOptions(
-    cli: ReturnType<typeof cac>,
+    argv: readonly string[],
     options: Record<string, unknown>,
-): OptionName[] {
-    const lowerCamelCaseNameList = Object.keys(options).filter(
-        (name) => !cli.globalCommand.hasOption(name),
+): RawOptionName[] {
+    const unknownNameSet = new Set(
+        Object.keys(options).filter((name) => !knownOptionNameSet.has(name)),
     );
-    if (lowerCamelCaseNameList.length < 1) return [];
+    if (unknownNameSet.size < 1) return [];
 
     return [
-        ...[...parseRawArgs(cli.rawArgs)]
-            .map<[string, OptionName]>(({ isLong, name }) =>
-                isLong
-                    ? [kebabCase2lowerCamelCase(name), `--${name}`]
-                    : [name, `-${name}`],
+        ...[...parseRawArgs(argv)]
+            .map<[string, RawOptionName]>(({ isLong, name }) =>
+                isLong ? [name, `--${name}`] : [name, `-${name}`],
             )
-            .reduce((optionNameSet, [lowerCamelCaseName, optionName]) => {
-                if (lowerCamelCaseNameList.includes(lowerCamelCaseName))
-                    optionNameSet.add(optionName);
+            .reduce((optionNameSet, [optionName, rawOptionName]) => {
+                if (unknownNameSet.has(optionName))
+                    optionNameSet.add(rawOptionName);
                 return optionNameSet;
-            }, new Set<OptionName>()),
+            }, new Set<RawOptionName>()),
     ];
 }
 
@@ -103,27 +153,28 @@ export function parseArgv(
     argv: readonly string[],
     opts: ParseArgvOptions,
 ): ParseArgvResult {
-    const cli = cac(opts.name);
-    if (opts.version) cli.version(opts.version, '-V, -v, --version');
-    cli.help(genHelpCallback(opts.description));
+    const options = mri(argv.slice(2), {
+        boolean: Object.keys(boolOptions),
+        alias: getAliasRecord(),
+    });
+    const showVersion = isTrueOpt(options, 'version');
+    const showHelp = isTrueOpt(options, 'help');
 
-    cli.option('--push', '`git push` the added tag to the remote repository');
-    cli.option('--verbose', 'show details of executed git commands');
-    cli.option('-n, --dry-run', 'perform a trial run with no changes made');
-
-    if (cli.commands.length <= 0) cli.usage('[options]');
-
-    const { options } = cli.parse([...argv]);
+    const cliName = getCliName(argv, opts);
+    if (showHelp) {
+        console.log(createHelpText(cliName, opts));
+    } else if (showVersion && opts.version) {
+        console.log(createVersionStr(cliName, opts.version));
+    }
 
     return {
-        name: cli.name,
-        isHelpMode:
-            isTruthyOpt(options['version']) || isTruthyOpt(options['help']),
+        name: cliName,
+        isHelpMode: showVersion || showHelp,
         options: {
-            push: isTruthyOpt(options['push']),
-            verbose: isTruthyOpt(options['verbose']),
-            dryRun: isTruthyOpt(options['dryRun']),
+            push: isTrueOpt(options, 'push'),
+            verbose: isTrueOpt(options, 'verbose'),
+            dryRun: isTrueOpt(options, 'dry-run'),
         },
-        unknownOptions: parseUnknownOptions(cli, options),
+        unknownOptions: parseUnknownOptions(argv, options),
     };
 }
