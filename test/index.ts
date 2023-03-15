@@ -4,7 +4,7 @@ import * as path from 'path';
 import { beforeAll, describe, expect, it, test } from 'vitest';
 
 import * as PKG_DATA from '../package.json';
-import { execFileAsync, getRandomInt, rmrf } from './helpers';
+import { execFileAsync, getRandomInt } from './helpers';
 import { initGit } from './helpers/git';
 
 const PROJECT_ROOT = path.resolve(__dirname, '..');
@@ -23,8 +23,14 @@ function tmpDir(dirname: string): string {
 beforeAll(async () => {
     await execFileAsync('npm', ['run', 'build'], { cwd: PROJECT_ROOT });
     await Promise.all([
-        rmrf(path.resolve(FIXTURES_DIR, 'package-lock.json')),
-        rmrf(path.resolve(FIXTURES_DIR, 'node_modules')),
+        fs.rm(path.resolve(FIXTURES_DIR, 'package-lock.json'), {
+            recursive: true,
+            force: true,
+        }),
+        fs.rm(path.resolve(FIXTURES_DIR, 'node_modules'), {
+            recursive: true,
+            force: true,
+        }),
     ]);
     await execFileAsync('npm', ['install'], { cwd: FIXTURES_DIR });
 

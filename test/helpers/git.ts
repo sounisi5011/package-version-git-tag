@@ -2,7 +2,6 @@ import execa from 'execa';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 
-import { rmrf } from '.';
 import initGitServer from './git-server';
 import type { PromiseValue } from './types';
 
@@ -46,7 +45,7 @@ export async function initGit(
 
     const [, remote] = await Promise.all([
         (async () => {
-            await rmrf(gitDirpath);
+            await fs.rm(gitDirpath, { recursive: true, force: true });
             await fs.mkdir(gitDirpath, { recursive: true });
 
             await exec(['git', 'init']);
