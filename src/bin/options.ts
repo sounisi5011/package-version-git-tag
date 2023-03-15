@@ -53,7 +53,7 @@ function kebabCase2lowerCamelCase(str: string): string {
     return str.replace(/-([a-z])/g, (_, char: string) => char.toUpperCase());
 }
 
-function cmpOptionName(a: string, b: string): -1 | 0 | 1 {
+function cmpOptionName(a: ValidOptionName, b: ValidOptionName): -1 | 0 | 1 {
     const aLen = a.length;
     const bLen = b.length;
     if (aLen === 1 && aLen < bLen) return -1;
