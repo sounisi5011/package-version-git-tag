@@ -62,14 +62,6 @@
       matchUpdateTypes: ["major"],
       enabled: false,
     },
-    // The format of help messages has changed since cac 6.7.0.
-    // see https://github.com/cacjs/cac/commit/e565b2ae5d4a3256ed4d56a64d91356e7d6cbce6
-    // We should not update until we introduce breaking changes that modify the help messages.
-    {
-      matchPackageNames: ["cac"],
-      matchCurrentVersion: "<6.7.0",
-      enabled: false,
-    },
     // `escape-string-regexp@>=5.0.0` doesn't work with old Node.js.
     // Because it uses pure ESM.
     // We should only update if the Node.js support range: `>=14.13.0`
