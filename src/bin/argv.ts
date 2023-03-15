@@ -17,6 +17,7 @@ export interface ParseArgvOptions {
     readonly description: string | undefined;
 }
 
+type OptionName = `${'-' | '--'}${string}`;
 export interface ParseArgvResult {
     name: string;
     isHelpMode: boolean;
@@ -25,7 +26,7 @@ export interface ParseArgvResult {
         verbose: boolean;
         dryRun: boolean;
     };
-    unknownOptions: string[];
+    unknownOptions: OptionName[];
 }
 
 function isTruthyOpt(option: unknown): boolean {
@@ -42,13 +43,57 @@ function genHelpCallback(
         : undefined;
 }
 
-function getUnknownOptions(
+// Note: This is reinventing the wheel. Better to use `mri` package
+//       see https://www.npmjs.com/package/mri
+function* parseRawArgs(
+    rawArgs: readonly string[],
+): IterableIterator<{ isLong: boolean; name: string }> {
+    for (const arg of rawArgs.slice(2)) {
+        if (arg === '--') break;
+
+        const hyphenMinusMatch = /^-+/.exec(arg);
+        if (!hyphenMinusMatch) continue;
+
+        const hyphenMinusLength = hyphenMinusMatch[0].length;
+        const optionName = arg.substring(hyphenMinusLength).replace(/=.*$/, '');
+
+        if (hyphenMinusLength === 2) {
+            yield { isLong: true, name: optionName };
+        } else {
+            yield* [...optionName].map((name) => ({
+                isLong: false,
+                name,
+            }));
+        }
+    }
+}
+
+function kebabCase2lowerCamelCase(str: string): string {
+    return str.replace(/-([a-z])/g, (_, char: string) => char.toUpperCase());
+}
+
+function parseUnknownOptions(
     cli: ReturnType<typeof cac>,
     options: Record<string, unknown>,
-): string[] {
-    return Object.keys(options)
-        .filter((name) => name !== '--' && !cli.globalCommand.hasOption(name))
-        .map((name) => (/^[^-]$/.test(name) ? `-${name}` : `--${name}`));
+): OptionName[] {
+    const lowerCamelCaseNameList = Object.keys(options).filter(
+        (name) => !cli.globalCommand.hasOption(name),
+    );
+    if (lowerCamelCaseNameList.length < 1) return [];
+
+    return [
+        ...[...parseRawArgs(cli.rawArgs)]
+            .map<[string, OptionName]>(({ isLong, name }) =>
+                isLong
+                    ? [kebabCase2lowerCamelCase(name), `--${name}`]
+                    : [name, `-${name}`],
+            )
+            .reduce((optionNameSet, [lowerCamelCaseName, optionName]) => {
+                if (lowerCamelCaseNameList.includes(lowerCamelCaseName))
+                    optionNameSet.add(optionName);
+                return optionNameSet;
+            }, new Set<OptionName>()),
+    ];
 }
 
 /**
@@ -79,6 +124,6 @@ export function parseArgv(
             verbose: isTruthyOpt(options['verbose']),
             dryRun: isTruthyOpt(options['dryRun']),
         },
-        unknownOptions: getUnknownOptions(cli, options),
+        unknownOptions: parseUnknownOptions(cli, options),
     };
 }
