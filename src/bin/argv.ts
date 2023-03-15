@@ -1,5 +1,5 @@
 import mri from 'mri';
-import * as path from 'path';
+import path from 'path';
 
 import { deepCopy } from '../utils';
 import { boolOptions, genOptionTextList, getAliasRecord } from './options';
