@@ -1,10 +1,9 @@
-import type * as childProcess from 'child_process';
+import type childProcess from 'child_process';
 import { commandJoin } from 'command-join';
-import * as fs from 'fs/promises';
-import * as path from 'path';
-import * as v8 from 'v8';
-
-import crossSpawn = require('cross-spawn');
+import crossSpawn from 'cross-spawn';
+import fs from 'fs/promises';
+import path from 'path';
+import v8 from 'v8';
 
 export interface PkgDataInterface {
     version: string;

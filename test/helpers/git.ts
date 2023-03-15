@@ -1,8 +1,8 @@
+import execa from 'execa';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 
 import { rmrf } from '.';
-import execa = require('execa');
 import initGitServer from './git-server';
 import type { PromiseValue } from './types';
 

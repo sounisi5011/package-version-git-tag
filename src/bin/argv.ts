@@ -1,6 +1,6 @@
-import * as path from 'path';
+import mri from 'mri';
+import path from 'path';
 
-import mri = require('mri');
 import { deepCopy } from '../utils';
 import { boolOptions, genOptionTextList, getAliasRecord } from './options';
 

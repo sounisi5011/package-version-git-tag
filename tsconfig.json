@@ -19,8 +19,7 @@
     "newLine": "LF",
 
     /* Interop Constraints */
-    "allowSyntheticDefaultImports": false,
-    "esModuleInterop": false,
+    "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
 
     /* Type Checking */
