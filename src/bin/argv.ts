@@ -1,4 +1,8 @@
-import { cac } from 'cac';
+import * as path from 'path';
+
+import mri = require('mri');
+import { deepCopy } from '../utils';
+import { boolOptions, genOptionTextList, getAliasRecord } from './options';
 
 export interface ParseArgvOptions {
     /**
@@ -17,7 +21,6 @@ export interface ParseArgvOptions {
     readonly description: string | undefined;
 }
 
-type OptionName = `${'-' | '--'}${string}`;
 export interface ParseArgvResult {
     name: string;
     isHelpMode: boolean;
@@ -26,74 +29,105 @@ export interface ParseArgvResult {
         verbose: boolean;
         dryRun: boolean;
     };
-    unknownOptions: OptionName[];
+    unknownOptions: string[];
 }
 
-function isTruthyOpt(option: unknown): boolean {
-    return option !== undefined && option !== false && option !== 'false';
-}
+function mriWithAllUnknownOptions(
+    args: string[],
+    opts: Omit<mri.Options, 'unknown'> = {},
+): [options: mri.Argv, unknownOptions: string[]] {
+    const unknownOptions: string[] = [];
+    const additionalAlias: Record<string, []> = {};
 
-function genHelpCallback(
-    description: string | undefined,
-): Parameters<ReturnType<typeof cac>['help']>[0] {
-    return description
-        ? (sections) => {
-              sections.splice(1, 0, { body: description });
-          }
-        : undefined;
-}
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    while (true) {
+        let detectUnknownOption: string | undefined;
+        const result = mri(args, {
+            // DO NOT REUSE `opts`. Instead, we must deep copy the `opts`.
+            // `mri@1.2.0` works by rewriting the options object.
+            // If the options object is reused, `mri` inserts a lot of elements into it.
+            // The number of elements increases exponentially with each iteration of the loop, resulting in a significant performance degradation.
+            ...deepCopy({
+                ...opts,
+                alias: {
+                    ...additionalAlias,
+                    ...opts.alias,
+                },
+            }),
+            unknown(flag) {
+                detectUnknownOption = flag;
+            },
+        });
 
-// Note: This is reinventing the wheel. Better to use `mri` package
-//       see https://www.npmjs.com/package/mri
-function* parseRawArgs(
-    rawArgs: readonly string[],
-): IterableIterator<{ isLong: boolean; name: string }> {
-    for (const arg of rawArgs.slice(2)) {
-        if (arg === '--') break;
-
-        const hyphenMinusMatch = /^-+/.exec(arg);
-        if (!hyphenMinusMatch) continue;
-
-        const hyphenMinusLength = hyphenMinusMatch[0].length;
-        const optionName = arg.substring(hyphenMinusLength).replace(/=.*$/, '');
-
-        if (hyphenMinusLength === 2) {
-            yield { isLong: true, name: optionName };
-        } else {
-            yield* [...optionName].map((name) => ({
-                isLong: false,
-                name,
-            }));
+        if (typeof detectUnknownOption !== 'string') {
+            return [result, unknownOptions];
         }
+
+        unknownOptions.push(detectUnknownOption);
+        additionalAlias[detectUnknownOption.replace(/^-{1,2}/, '')] = [];
     }
 }
 
-function kebabCase2lowerCamelCase(str: string): string {
-    return str.replace(/-([a-z])/g, (_, char: string) => char.toUpperCase());
+function isTrueOpt(
+    options: Record<string, unknown>,
+    key: keyof typeof boolOptions,
+): boolean {
+    const value = options[key];
+    /**
+     * `mri@1.2.0` inserts the value of each option into an array when multiple options are passed.
+     * To get the value of the last option, the last element of the array should be read.
+     *
+     * @example
+     * const mri = require('mri');
+     *
+     * mri(['--foo'])
+     * // => { _: [], foo: true }
+     *
+     * mri(['--foo', '--foo'])
+     * // => { _: [], foo: [ true, true ] }
+     *
+     * mri(['--foo', '--no-foo'])
+     * // => { _: [], foo: false }
+     *
+     * mri(['--foo', '--no-foo', '--foo', '--foo'])
+     * // => { _: [], foo: [ false, true, true ] }
+     */
+    const lastValue = Array.isArray(value)
+        ? (value[value.length - 1] as unknown)
+        : value;
+    return Boolean(lastValue);
 }
 
-function parseUnknownOptions(
-    cli: ReturnType<typeof cac>,
-    options: Record<string, unknown>,
-): OptionName[] {
-    const lowerCamelCaseNameList = Object.keys(options).filter(
-        (name) => !cli.globalCommand.hasOption(name),
-    );
-    if (lowerCamelCaseNameList.length < 1) return [];
+/**
+ * @see https://github.com/cacjs/cac/blob/v6.6.1/src/CAC.ts#L176
+ */
+function getCliName(argv: readonly string[], opts: ParseArgvOptions): string {
+    if (opts.name) return opts.name;
+    return argv[1] ? path.basename(argv[1]) : 'cli';
+}
 
+/**
+ * @see https://github.com/cacjs/cac/blob/v6.6.1/src/Command.ts#L239
+ * @see https://github.com/cacjs/cac/blob/v6.6.1/src/node.ts#L12
+ */
+function createVersionStr(cliName: string, version: string): string {
+    return `${cliName}/${version} ${process.platform}-${process.arch} node-${process.version}`;
+}
+
+/**
+ * @see https://github.com/cacjs/cac/blob/v6.6.1/src/Command.ts#L141-L232
+ */
+function createHelpText(cliName: string, opts: ParseArgvOptions): string {
     return [
-        ...[...parseRawArgs(cli.rawArgs)]
-            .map<[string, OptionName]>(({ isLong, name }) =>
-                isLong
-                    ? [kebabCase2lowerCamelCase(name), `--${name}`]
-                    : [name, `-${name}`],
-            )
-            .reduce((optionNameSet, [lowerCamelCaseName, optionName]) => {
-                if (lowerCamelCaseNameList.includes(lowerCamelCaseName))
-                    optionNameSet.add(optionName);
-                return optionNameSet;
-            }, new Set<OptionName>()),
-    ];
+        `${cliName}${opts.version ? ` v${opts.version}` : ''}`,
+        ...(opts.description ? ['', opts.description] : []),
+        '',
+        'Usage:',
+        `  $ ${cliName} [options]`,
+        '',
+        'Options:',
+        ...genOptionTextList().map((line) => `  ${line} `),
+    ].join('\n');
 }
 
 /**
@@ -103,27 +137,28 @@ export function parseArgv(
     argv: readonly string[],
     opts: ParseArgvOptions,
 ): ParseArgvResult {
-    const cli = cac(opts.name);
-    if (opts.version) cli.version(opts.version, '-V, -v, --version');
-    cli.help(genHelpCallback(opts.description));
+    const [options, unknownOptions] = mriWithAllUnknownOptions(argv.slice(2), {
+        boolean: Object.keys(boolOptions),
+        alias: getAliasRecord(),
+    });
+    const showVersion = isTrueOpt(options, 'version');
+    const showHelp = isTrueOpt(options, 'help');
 
-    cli.option('--push', '`git push` the added tag to the remote repository');
-    cli.option('--verbose', 'show details of executed git commands');
-    cli.option('-n, --dry-run', 'perform a trial run with no changes made');
-
-    if (cli.commands.length <= 0) cli.usage('[options]');
-
-    const { options } = cli.parse([...argv]);
+    const cliName = getCliName(argv, opts);
+    if (showHelp) {
+        console.log(createHelpText(cliName, opts));
+    } else if (showVersion && opts.version) {
+        console.log(createVersionStr(cliName, opts.version));
+    }
 
     return {
-        name: cli.name,
-        isHelpMode:
-            isTruthyOpt(options['version']) || isTruthyOpt(options['help']),
+        name: cliName,
+        isHelpMode: showVersion || showHelp,
         options: {
-            push: isTruthyOpt(options['push']),
-            verbose: isTruthyOpt(options['verbose']),
-            dryRun: isTruthyOpt(options['dryRun']),
+            push: isTrueOpt(options, 'push'),
+            verbose: isTrueOpt(options, 'verbose'),
+            dryRun: isTrueOpt(options, 'dry-run'),
         },
-        unknownOptions: parseUnknownOptions(cli, options),
+        unknownOptions,
     };
 }
