@@ -1,6 +1,6 @@
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { beforeAll, expect, test } from 'vitest';
+import { beforeAll, describe, expect, it, test } from 'vitest';
 
 import * as PKG_DATA from '../package.json';
 import { execFileAsync, getRandomInt, rmrf } from './helpers';
@@ -88,25 +88,33 @@ test('CLI should add Git tag with verbose output', async () => {
     });
 });
 
-test('CLI should not add Git tag with dry-run', async () => {
-    const { exec } = await initGit(tmpDir('not-exists-git-tag-with-dry-run'));
+describe('CLI should not add Git tag with dry-run', () => {
+    it.each(['-n', '--dry-run'])('%s', async (option) => {
+        const { exec } = await initGit(
+            tmpDir('not-exists-git-tag-with-dry-run'),
+        );
 
-    const gitTags = (await exec(['git', 'tag', '-l'])).stdout;
-    expect(gitTags, 'Git tag should not exist yet').toBe('');
+        const gitTagsResult = exec(['git', 'tag', '-l']);
+        await expect(
+            gitTagsResult,
+            'Git tag should not exist yet',
+        ).resolves.toMatchObject({ stdout: '', stderr: '' });
+        const { stdout: gitTags } = await gitTagsResult;
 
-    await expect(
-        exec([CLI_PATH, '--dry-run']),
-        'CLI should exits successfully',
-    ).resolves.toMatchObject({
-        stdout: '',
-        stderr: 'Dry Run enabled\n\n> git tag v0.0.0 -m 0.0.0\n',
-    });
+        await expect(
+            exec([CLI_PATH, option]),
+            'CLI should exits successfully',
+        ).resolves.toMatchObject({
+            stdout: '',
+            stderr: 'Dry Run enabled\n\n> git tag v0.0.0 -m 0.0.0\n',
+        });
 
-    await expect(
-        exec(['git', 'tag', '-l']),
-        'Git tag should not change',
-    ).resolves.toMatchObject({
-        stdout: gitTags,
+        await expect(
+            exec(['git', 'tag', '-l']),
+            'Git tag should not change',
+        ).resolves.toMatchObject({
+            stdout: gitTags,
+        });
     });
 });
 
@@ -422,15 +430,20 @@ test('CLI should add and push single Git tag', async () => {
     expect(tagList, 'Git tag needs to push only one').toStrictEqual(['v0.0.0']);
 });
 
-test('CLI should to display version', async () => {
-    const { exec } = await initGit(tmpDir('display-version'));
+describe('CLI should to display version', () => {
+    it.each(['-V', '-v', '--version'])('%s', async (option) => {
+        const { exec } = await initGit(tmpDir('display-version'));
 
-    const gitTags = (await exec(['git', 'tag', '-l'])).stdout;
+        const gitTagsResult = exec(['git', 'tag', '-l']);
+        await expect(
+            gitTagsResult,
+            'Git tag should not exist yet',
+        ).resolves.toMatchObject({ stdout: '', stderr: '' });
+        const { stdout: gitTags } = await gitTagsResult;
 
-    for (const option of ['--version', '-v', '-V']) {
         await expect(
             exec([CLI_PATH, option]),
-            `CLI should output version number / "${option}" option`,
+            'CLI should output version number',
         ).resolves.toMatchObject({
             stdout: `${PKG_DATA.name}/${PKG_DATA.version} ${process.platform}-${process.arch} node-${process.version}`,
             stderr: '',
@@ -438,44 +451,51 @@ test('CLI should to display version', async () => {
 
         await expect(
             exec(['git', 'tag', '-l']),
-            `Git tag should not change / "${option}" option`,
+            'Git tag should not change',
         ).resolves.toMatchObject({
             stdout: gitTags,
         });
-    }
+    });
 });
 
-test('CLI should to display help', async () => {
-    const { exec } = await initGit(tmpDir('display-help'));
+describe('CLI should to display help', () => {
+    it.each(['-h', '--help'])('%s', async (option) => {
+        const { exec } = await initGit(tmpDir('display-help'));
 
-    const gitTags = (await exec(['git', 'tag', '-l'])).stdout;
+        const gitTagsResult = exec(['git', 'tag', '-l']);
+        await expect(
+            gitTagsResult,
+            'Git tag should not exist yet',
+        ).resolves.toMatchObject({ stdout: '', stderr: '' });
+        const { stdout: gitTags } = await gitTagsResult;
 
-    await expect(
-        exec([CLI_PATH, '--help']),
-        'CLI should output help',
-    ).resolves.toMatchObject({
-        stdout: [
-            `${PKG_DATA.name} v${PKG_DATA.version}`,
-            '',
-            PKG_DATA.description,
-            '',
-            'Usage:',
-            `  $ ${PKG_DATA.name} [options]`,
-            '',
-            'Options:',
-            '  -V, -v, --version  Display version number ',
-            '  -h, --help         Display this message ',
-            '  --push             `git push` the added tag to the remote repository ',
-            '  --verbose          show details of executed git commands ',
-            '  -n, --dry-run      perform a trial run with no changes made ',
-        ].join('\n'),
-        stderr: '',
+        await expect(
+            exec([CLI_PATH, option]),
+            'CLI should output help',
+        ).resolves.toMatchObject({
+            stdout: [
+                `${PKG_DATA.name} v${PKG_DATA.version}`,
+                '',
+                PKG_DATA.description,
+                '',
+                'Usage:',
+                `  $ ${PKG_DATA.name} [options]`,
+                '',
+                'Options:',
+                '  -V, -v, --version  Display version number ',
+                '  -h, --help         Display this message ',
+                '  --push             `git push` the added tag to the remote repository ',
+                '  --verbose          show details of executed git commands ',
+                '  -n, --dry-run      perform a trial run with no changes made ',
+            ].join('\n'),
+            stderr: '',
+        });
+
+        await expect(
+            exec(['git', 'tag', '-l']),
+            'Git tag should not change',
+        ).resolves.toMatchObject({ stdout: gitTags });
     });
-
-    await expect(
-        exec(['git', 'tag', '-l']),
-        'Git tag should not change',
-    ).resolves.toMatchObject({ stdout: gitTags });
 });
 
 test('CLI should not work with unknown options', async () => {

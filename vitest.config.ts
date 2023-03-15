@@ -6,6 +6,9 @@ export default defineConfig({
     test: {
         include: ['test/**/*.ts'],
         exclude: [...configDefaults.exclude, '**/helpers/**'],
+        deps: {
+            inline: ['vitest-mock-process'],
+        },
         testTimeout: m(5),
         hookTimeout: m(5),
         watchExclude: [
