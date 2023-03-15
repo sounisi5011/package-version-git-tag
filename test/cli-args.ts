@@ -276,47 +276,52 @@ describe('--dry-run option', () => {
 });
 
 test('unknown options should be detected', () => {
-    expect(
-        parseArgv(
-            [
-                '',
-                '',
-                '-xy',
-                '--z',
-                '--un-known',
-                '--inValid',
-                '--sameName',
-                '--sameName',
-                '--camelCaseVsKebabCase',
-                '--camel-case-vs-kebab-case',
-                '--kebab-case-vs-camel-case',
-                '--kebabCaseVsCamelCase',
-                '--has-value=hoge',
-                '--',
-                'ignored',
-            ],
-            parseArgvOpts,
-        ).unknownOptions,
-    ).toStrictEqual([
-        // Should return the actual hyphen-minus used, not the inferred hyphen-minus based on option length.
-        '-x',
-        '-y',
-        '--z',
-        // If the kebab-case option is passed, this should be returned.
-        // Note: cac converts the case style of the option name from kebab-case to lowerCamelCase.
-        //       Raw CLI arguments must be parsed to detect options passed.
-        '--un-known',
-        // If the lowerCamelCase option is passed, this should be returned.
-        // Please return the actual option passed without converting lowerCamelCase to kebab-case.
-        '--inValid',
-        // Duplicate options should not be returned.
-        '--sameName',
-        // The same options, differing only in case style, should be returned in the order in which they were actually passed.
-        '--camelCaseVsKebabCase',
-        '--camel-case-vs-kebab-case',
-        '--kebab-case-vs-camel-case',
-        '--kebabCaseVsCamelCase',
-        // Character "=" and after should be ignored.
-        '--has-value',
-    ]);
+    mockStdioRun((mocks) => {
+        expect(
+            parseArgv(
+                [
+                    '',
+                    '',
+                    '-xy',
+                    '--z',
+                    '--un-known',
+                    '--inValid',
+                    '--sameName',
+                    '--sameName',
+                    '--camelCaseVsKebabCase',
+                    '--camel-case-vs-kebab-case',
+                    '--kebab-case-vs-camel-case',
+                    '--kebabCaseVsCamelCase',
+                    '--has-value=hoge',
+                    '--',
+                    'ignored',
+                ],
+                parseArgvOpts,
+            ).unknownOptions,
+        ).toStrictEqual([
+            // Should return the actual hyphen-minus used, not the inferred hyphen-minus based on option length.
+            '-x',
+            '-y',
+            '--z',
+            // If the kebab-case option is passed, this should be returned.
+            // Note: cac converts the case style of the option name from kebab-case to lowerCamelCase.
+            //       Raw CLI arguments must be parsed to detect options passed.
+            '--un-known',
+            // If the lowerCamelCase option is passed, this should be returned.
+            // Please return the actual option passed without converting lowerCamelCase to kebab-case.
+            '--inValid',
+            // Duplicate options should not be returned.
+            '--sameName',
+            // The same options, differing only in case style, should be returned in the order in which they were actually passed.
+            '--camelCaseVsKebabCase',
+            '--camel-case-vs-kebab-case',
+            '--kebab-case-vs-camel-case',
+            '--kebabCaseVsCamelCase',
+            // Character "=" and after should be ignored.
+            '--has-value',
+        ]);
+        expect(mocks.stdout).toHaveBeenCalledTimes(0);
+        expect(mocks.stderr).toHaveBeenCalledTimes(0);
+        expect(mocks.log).toHaveBeenCalledTimes(0);
+    });
 });
