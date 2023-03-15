@@ -22,18 +22,14 @@ function tmpDir(dirname: string): string {
 }
 
 beforeAll(async () => {
-    await execa('npm', ['run', 'build'], { cwd: PROJECT_ROOT });
     await Promise.all([
-        fs.rm(path.resolve(FIXTURES_DIR, 'package-lock.json'), {
-            recursive: true,
-            force: true,
-        }),
+        execa('npm', ['run', 'build'], { cwd: PROJECT_ROOT }),
         fs.rm(path.resolve(FIXTURES_DIR, 'node_modules'), {
             recursive: true,
             force: true,
         }),
     ]);
-    await execa('npm', ['install'], { cwd: FIXTURES_DIR });
+    await execa('npm', ['install', '--no-save'], { cwd: FIXTURES_DIR });
 
     /*
      * Delete all npm environment variables
