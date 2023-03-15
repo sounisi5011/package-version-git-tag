@@ -2,6 +2,7 @@ import type * as childProcess from 'child_process';
 import { commandJoin } from 'command-join';
 import * as fs from 'fs/promises';
 import * as path from 'path';
+import * as v8 from 'v8';
 
 import crossSpawn = require('cross-spawn');
 
@@ -40,6 +41,19 @@ export async function readJSONFile(filepath: string): Promise<unknown> {
         throw new Error(`Could not read file: ${relativePath(filepath)}`);
     }
 }
+
+declare const structuredClone: (<T>(value: T) => T) | undefined;
+/**
+ * @note This function copies values based on {@link https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm The structured clone algorithm}.
+ *       Some values, such as Function objects, cannot be copied.
+ */
+export const deepCopy: <T>(value: T) => T =
+    typeof structuredClone === 'function'
+        ? structuredClone
+        : // structuredClone is available in Node.js 17 or later.
+          // see https://nodejs.org/docs/latest-v18.x/api/globals.html#structuredclonevalue-options
+          // For older Node.js, use the v8 module instead.
+          (value) => v8.deserialize(v8.serialize(value)); // eslint-disable-line @typescript-eslint/no-unsafe-return
 
 /**
  * @see https://github.com/nodejs/node/blob/v12.13.0/lib/child_process.js#L250-L303

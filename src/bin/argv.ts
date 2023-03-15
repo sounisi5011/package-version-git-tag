@@ -1,12 +1,8 @@
 import * as path from 'path';
 
 import mri = require('mri');
-import {
-    boolOptions,
-    genOptionTextList,
-    getAliasRecord,
-    knownOptionNameSet,
-} from './options';
+import { deepCopy } from '../utils';
+import { boolOptions, genOptionTextList, getAliasRecord } from './options';
 
 export interface ParseArgvOptions {
     /**
@@ -25,7 +21,6 @@ export interface ParseArgvOptions {
     readonly description: string | undefined;
 }
 
-type RawOptionName = `${'-' | '--'}${string}`;
 export interface ParseArgvResult {
     name: string;
     isHelpMode: boolean;
@@ -34,7 +29,43 @@ export interface ParseArgvResult {
         verbose: boolean;
         dryRun: boolean;
     };
-    unknownOptions: RawOptionName[];
+    unknownOptions: string[];
+}
+
+function mriWithAllUnknownOptions(
+    args: string[],
+    opts: Omit<mri.Options, 'unknown'> = {},
+): [options: mri.Argv, unknownOptions: string[]] {
+    const unknownOptions: string[] = [];
+    const additionalAlias: Record<string, []> = {};
+
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    while (true) {
+        let detectUnknownOption: string | undefined;
+        const result = mri(args, {
+            // DO NOT REUSE `opts`. Instead, we must deep copy the `opts`.
+            // `mri@1.2.0` works by rewriting the options object.
+            // If the options object is reused, `mri` inserts a lot of elements into it.
+            // The number of elements increases exponentially with each iteration of the loop, resulting in a significant performance degradation.
+            ...deepCopy({
+                ...opts,
+                alias: {
+                    ...additionalAlias,
+                    ...opts.alias,
+                },
+            }),
+            unknown(flag) {
+                detectUnknownOption = flag;
+            },
+        });
+
+        if (typeof detectUnknownOption !== 'string') {
+            return [result, unknownOptions];
+        }
+
+        unknownOptions.push(detectUnknownOption);
+        additionalAlias[detectUnknownOption.replace(/^-{1,2}/, '')] = [];
+    }
 }
 
 function isTrueOpt(
@@ -99,53 +130,6 @@ function createHelpText(cliName: string, opts: ParseArgvOptions): string {
     ].join('\n');
 }
 
-// Note: This is reinventing the wheel.
-//       But we had to write this because `mri@1.2.0` does not expose the internal parser.
-function* parseRawArgs(
-    rawArgs: readonly string[],
-): IterableIterator<{ isLong: boolean; name: string }> {
-    for (const arg of rawArgs.slice(2)) {
-        if (arg === '--') break;
-
-        const hyphenMinusMatch = /^-+/.exec(arg);
-        if (!hyphenMinusMatch) continue;
-
-        const hyphenMinusLength = hyphenMinusMatch[0].length;
-        const optionName = arg.substring(hyphenMinusLength).replace(/=.*$/, '');
-
-        if (hyphenMinusLength === 2) {
-            yield { isLong: true, name: optionName };
-        } else {
-            yield* [...optionName].map((name) => ({
-                isLong: false,
-                name,
-            }));
-        }
-    }
-}
-
-function parseUnknownOptions(
-    argv: readonly string[],
-    options: Record<string, unknown>,
-): RawOptionName[] {
-    const unknownNameSet = new Set(
-        Object.keys(options).filter((name) => !knownOptionNameSet.has(name)),
-    );
-    if (unknownNameSet.size < 1) return [];
-
-    return [
-        ...[...parseRawArgs(argv)]
-            .map<[string, RawOptionName]>(({ isLong, name }) =>
-                isLong ? [name, `--${name}`] : [name, `-${name}`],
-            )
-            .reduce((optionNameSet, [optionName, rawOptionName]) => {
-                if (unknownNameSet.has(optionName))
-                    optionNameSet.add(rawOptionName);
-                return optionNameSet;
-            }, new Set<RawOptionName>()),
-    ];
-}
-
 /**
  * Note: If the "--help" or "--version" option is passed to argv, this function writes to `process.stdout`.
  */
@@ -153,7 +137,7 @@ export function parseArgv(
     argv: readonly string[],
     opts: ParseArgvOptions,
 ): ParseArgvResult {
-    const options = mri(argv.slice(2), {
+    const [options, unknownOptions] = mriWithAllUnknownOptions(argv.slice(2), {
         boolean: Object.keys(boolOptions),
         alias: getAliasRecord(),
     });
@@ -175,6 +159,6 @@ export function parseArgv(
             verbose: isTrueOpt(options, 'verbose'),
             dryRun: isTrueOpt(options, 'dry-run'),
         },
-        unknownOptions: parseUnknownOptions(argv, options),
+        unknownOptions,
     };
 }

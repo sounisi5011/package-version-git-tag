@@ -76,33 +76,6 @@ const getAllOptionsEntries: <K extends ValidOptionName>(
     o: Record<K, OptionDefinition>,
 ) => [K, OptionDefinition][] = Object.entries;
 const allOptionsEntries = toReadonly(getAllOptionsEntries(allOptions));
-const aliasEntries = toReadonly(
-    allOptionsEntries.map(
-        ([name, { alias }]) =>
-            [
-                name,
-                // Note: This array contains duplicate option names.
-                //       We could exclude them with a Set object, but we don't because `mri@1.2.0` works fine.
-                (alias ?? [])
-                    .concat(name)
-                    .flatMap((k) => [k, kebabCase2lowerCamelCase(k)]),
-            ] satisfies [ValidOptionName, readonly string[]],
-    ),
-);
-
-/**
- * A set of all option names.
- * All option names not included in this set should be warned as unknown options.
- * @example
- * new Set([
- *     'version',
- *     'V',
- *     'v',
- *     'help',
- *     ...
- * ])
- */
-export const knownOptionNameSet = toReadonly(new Set(aliasEntries.flat(2)));
 
 /**
  * Return writable aliasRecord objects
@@ -116,7 +89,16 @@ export const knownOptionNameSet = toReadonly(new Set(aliasEntries.flat(2)));
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export const getAliasRecord = () =>
     fromEntries(
-        aliasEntries.map(([name, alias]) => [name, [...alias]]),
+        allOptionsEntries.map(([name, { alias }]) => [
+            name,
+            [
+                ...new Set(
+                    (alias ?? [])
+                        .concat(name)
+                        .flatMap((k) => [k, kebabCase2lowerCamelCase(k)]),
+                ),
+            ],
+        ]),
     ) satisfies Record<keyof typeof allOptions, string[]>;
 
 /**
