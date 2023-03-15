@@ -5,6 +5,7 @@
 [Unreleased]: https://github.com/sounisi5011/package-version-git-tag/compare/v3.0.0...master
 
 * Drop support for Node.js 10 and 12
+* Migrate from [`cac`](https://www.npmjs.com/package/cac/v/6.6.1) to [`mri`](https://www.npmjs.com/package/mri/v/1.2.0)
 * Fix edge cases in CLI argument parsing process
 * Update dev dependencies
 
@@ -38,14 +39,6 @@ Because it is the minimum version available for Vitest.
 * [#182] - From now on, use squash merges
 
 ### Updated Dependencies
-
-#### dependencies
-
-* `cac`
-    * [#185] - `^6.5.8` -> `6.5.8 - 6.6.x`
-
-    The format of help messages has changed since cac 6.7.0.
-    see https://github.com/cacjs/cac/commit/e565b2ae5d4a3256ed4d56a64d91356e7d6cbce6
 
 #### devDependencies
 
@@ -97,6 +90,10 @@ Because it is the minimum version available for Vitest.
 
 ### Added Dependencies
 
+#### dependencies
+
+* [#211] - `mri@^1.2.0`
+
 #### devDependencies
 
 * [#186] - `@tsconfig/node14@1.0.3`
@@ -113,6 +110,10 @@ Because it is the minimum version available for Vitest.
 * [#210] - `vitest-mock-process@1.0.4`
 
 ### Removed Dependencies
+
+#### dependencies
+
+* [#211] - `cac`
 
 #### devDependencies
 
@@ -147,6 +148,7 @@ Because it is the minimum version available for Vitest.
 * [#202] - Add a workflow to auto update the license year
 * [#207] - Prevent failure if branch already exists when updating license year
 * [#208] - Update copyright year(s)
+* [#211] - Migrate from [`cac`](https://www.npmjs.com/package/cac/v/6.6.1) to [`mri`](https://www.npmjs.com/package/mri/v/1.2.0)
 
 [#182]: https://github.com/sounisi5011/package-version-git-tag/pull/182
 [#183]: https://github.com/sounisi5011/package-version-git-tag/pull/183
@@ -168,6 +170,7 @@ Because it is the minimum version available for Vitest.
 [#207]: https://github.com/sounisi5011/package-version-git-tag/pull/207
 [#208]: https://github.com/sounisi5011/package-version-git-tag/pull/208
 [#210]: https://github.com/sounisi5011/package-version-git-tag/pull/210
+[#211]: https://github.com/sounisi5011/package-version-git-tag/pull/211
 
 ## [3.0.0] (2020-06-02 UTC)
 
