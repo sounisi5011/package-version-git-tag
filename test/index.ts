@@ -9,27 +9,27 @@ import { getRandomInt } from './helpers';
 import { initGit } from './helpers/git';
 
 const PROJECT_ROOT = path.resolve(__dirname, '..');
-const FIXTURES_DIR = path.resolve(__dirname, 'fixtures');
-const CLI_PATH = path.resolve(
-    FIXTURES_DIR,
-    'node_modules',
-    '.bin',
-    PKG_DATA.name,
-);
 
 function tmpDir(dirname: string): string {
     return path.resolve(__dirname, 'tmp', dirname);
 }
 
+const CLI_DIR = tmpDir('.cli');
+const CLI_PATH = path.resolve(CLI_DIR, 'node_modules', '.bin', PKG_DATA.name);
+
 beforeAll(async () => {
     await Promise.all([
         execa('npm', ['run', 'build'], { cwd: PROJECT_ROOT }),
-        fs.rm(path.resolve(FIXTURES_DIR, 'node_modules'), {
-            recursive: true,
-            force: true,
-        }),
+        fs
+            .rm(CLI_DIR, { recursive: true, force: true })
+            .then(() => fs.mkdir(CLI_DIR, { recursive: true }))
+            .then(() =>
+                fs.writeFile(path.resolve(CLI_DIR, 'package.json'), '{}'),
+            ),
     ]);
-    await execa('npm', ['install', '--no-save'], { cwd: FIXTURES_DIR });
+    await execa('npm', ['install', '--no-save', PROJECT_ROOT], {
+        cwd: CLI_DIR,
+    });
 
     /*
      * Delete all npm environment variables

@@ -1,4 +1,3 @@
 !.*
 /dist/
-/test/fixtures/node_modules/
 /test/tmp/

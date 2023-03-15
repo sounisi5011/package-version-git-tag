@@ -32,7 +32,7 @@
   "scripts": {
     "build": "tsc",
     "build:readme": "readme-generator --template ./.template/readme.njk",
-    "clean": "del-cli ./dist/ \"./test/{tmp/,fixtures/{node_modules/,package-lock.json}}\"",
+    "clean": "del-cli ./dist/ ./test/tmp/",
     "fmt-js": "eslint --ext .js,.cjs,.mjs --fix ./",
     "fmt-pkg": "run-s fmt-pkg:prettier fmt-pkg:sort",
     "fmt-pkg:prettier": "prettier-package-json --write ./package.json",

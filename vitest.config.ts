@@ -11,9 +11,6 @@ export default defineConfig({
         },
         testTimeout: m(5),
         hookTimeout: m(5),
-        watchExclude: [
-            ...configDefaults.watchExclude,
-            'test/{fixtures,tmp}/**',
-        ],
+        watchExclude: [...configDefaults.watchExclude, 'test/tmp/**'],
     },
 });
