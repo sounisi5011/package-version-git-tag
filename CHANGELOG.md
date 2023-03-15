@@ -5,6 +5,8 @@
 [Unreleased]: https://github.com/sounisi5011/package-version-git-tag/compare/v3.0.0...master
 
 * Drop support for Node.js 10 and 12
+* Fix edge cases in CLI argument parsing process
+* Update dev dependencies
 
 ### Supported Node version
 
@@ -26,6 +28,10 @@ Because it is the minimum version available for Vitest.
 * [#200] - Migrate from AVA to Vitest
 
 [contributor:johnschult]: https://github.com/johnschult
+
+### Fixed
+
+* [#210] - Fix edge cases in CLI argument parsing process
 
 ### Documentation
 
