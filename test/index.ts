@@ -1,10 +1,11 @@
 import escapeRegExp from 'escape-string-regexp';
+import execa from 'execa';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { beforeAll, describe, expect, it, test } from 'vitest';
 
 import * as PKG_DATA from '../package.json';
-import { execFileAsync, getRandomInt } from './helpers';
+import { getRandomInt } from './helpers';
 import { initGit } from './helpers/git';
 
 const PROJECT_ROOT = path.resolve(__dirname, '..');
@@ -21,7 +22,7 @@ function tmpDir(dirname: string): string {
 }
 
 beforeAll(async () => {
-    await execFileAsync('npm', ['run', 'build'], { cwd: PROJECT_ROOT });
+    await execa('npm', ['run', 'build'], { cwd: PROJECT_ROOT });
     await Promise.all([
         fs.rm(path.resolve(FIXTURES_DIR, 'package-lock.json'), {
             recursive: true,
@@ -32,7 +33,7 @@ beforeAll(async () => {
             force: true,
         }),
     ]);
-    await execFileAsync('npm', ['install'], { cwd: FIXTURES_DIR });
+    await execa('npm', ['install'], { cwd: FIXTURES_DIR });
 
     /*
      * Delete all npm environment variables

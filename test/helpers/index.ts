@@ -1,5 +1,3 @@
-export { execFileAsync } from '../../src/utils';
-
 export function getRandomInt(min: number, max: number): number {
     min = Math.ceil(min);
     max = Math.floor(max);
