@@ -1,3 +1,4 @@
+import escapeRegExp from 'escape-string-regexp';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { beforeAll, describe, expect, it, test } from 'vitest';
@@ -5,8 +6,6 @@ import { beforeAll, describe, expect, it, test } from 'vitest';
 import * as PKG_DATA from '../package.json';
 import { execFileAsync, getRandomInt, rmrf } from './helpers';
 import { initGit } from './helpers/git';
-
-import escapeRegExp = require('escape-string-regexp');
 
 const PROJECT_ROOT = path.resolve(__dirname, '..');
 const FIXTURES_DIR = path.resolve(__dirname, 'fixtures');
