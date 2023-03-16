@@ -98,12 +98,13 @@ describe('CLI should not add Git tag with dry-run', () => {
             tmpDir('not-exists-git-tag-with-dry-run'),
         );
 
-        const gitTagsResult = exec(['git', 'tag', '-l']);
+        const gitTagResult = exec(['git', 'tag', '-l']).then(
+            ({ stdout, stderr }) => ({ stdout, stderr }),
+        );
         await expect(
-            gitTagsResult,
+            gitTagResult,
             'Git tag should not exist yet',
-        ).resolves.toMatchObject({ stdout: '', stderr: '' });
-        const { stdout: gitTags } = await gitTagsResult;
+        ).resolves.toStrictEqual({ stdout: '', stderr: '' });
 
         await expect(
             exec([CLI_PATH, option]),
@@ -121,9 +122,7 @@ describe('CLI should not add Git tag with dry-run', () => {
         await expect(
             exec(['git', 'tag', '-l']),
             'Git tag should not change',
-        ).resolves.toMatchObject({
-            stdout: gitTags,
-        });
+        ).resolves.toMatchObject(await gitTagResult);
     });
 });
 
@@ -131,8 +130,16 @@ test('CLI should complete successfully if Git tag has been added', async () => {
     const { exec } = await initGit(tmpDir('exists-git-tag-in-same-commit'));
     await exec(['git', 'tag', 'v0.0.0']);
 
-    const gitTags = (await exec(['git', 'tag', '-l'])).stdout;
-    expect(gitTags, 'Git tag v0.0.0 should exist').toMatch(/^v0\.0\.0$/m);
+    const gitTagResult = exec(['git', 'tag', '-l']).then(
+        ({ stdout, stderr }) => ({ stdout, stderr }),
+    );
+    await expect(
+        gitTagResult,
+        'Git tag v0.0.0 should exist',
+    ).resolves.toStrictEqual({
+        stdout: 'v0.0.0',
+        stderr: '',
+    });
 
     await expect(
         exec(['git', 'tag', 'v0.0.0']),
@@ -150,7 +157,7 @@ test('CLI should complete successfully if Git tag has been added', async () => {
     await expect(
         exec(['git', 'tag', '-l']),
         'Git tag should not change',
-    ).resolves.toMatchObject({ stdout: gitTags });
+    ).resolves.toMatchObject(await gitTagResult);
 });
 
 test('CLI should complete successfully if Git tag has been added with verbose output', async () => {
@@ -159,8 +166,16 @@ test('CLI should complete successfully if Git tag has been added with verbose ou
     );
     await exec(['git', 'tag', 'v0.0.0']);
 
-    const gitTags = (await exec(['git', 'tag', '-l'])).stdout;
-    expect(gitTags, 'Git tag v0.0.0 should exist').toMatch(/^v0\.0\.0$/m);
+    const gitTagResult = exec(['git', 'tag', '-l']).then(
+        ({ stdout, stderr }) => ({ stdout, stderr }),
+    );
+    await expect(
+        gitTagResult,
+        'Git tag v0.0.0 should exist',
+    ).resolves.toStrictEqual({
+        stdout: 'v0.0.0',
+        stderr: '',
+    });
 
     await expect(
         exec(['git', 'tag', 'v0.0.0']),
@@ -186,7 +201,7 @@ test('CLI should complete successfully if Git tag has been added with verbose ou
     await expect(
         exec(['git', 'tag', '-l']),
         'Git tag should not change',
-    ).resolves.toMatchObject({ stdout: gitTags });
+    ).resolves.toMatchObject(await gitTagResult);
 });
 
 test('CLI should complete successfully if Git tag has been added with dry-run', async () => {
@@ -195,8 +210,16 @@ test('CLI should complete successfully if Git tag has been added with dry-run', 
     );
     await exec(['git', 'tag', 'v0.0.0']);
 
-    const gitTags = (await exec(['git', 'tag', '-l'])).stdout;
-    expect(gitTags, 'Git tag v0.0.0 should exist').toMatch(/^v0\.0\.0$/m);
+    const gitTagResult = exec(['git', 'tag', '-l']).then(
+        ({ stdout, stderr }) => ({ stdout, stderr }),
+    );
+    await expect(
+        gitTagResult,
+        'Git tag v0.0.0 should exist',
+    ).resolves.toStrictEqual({
+        stdout: 'v0.0.0',
+        stderr: '',
+    });
 
     await expect(
         exec(['git', 'tag', 'v0.0.0']),
@@ -223,7 +246,7 @@ test('CLI should complete successfully if Git tag has been added with dry-run', 
     await expect(
         exec(['git', 'tag', '-l']),
         'Git tag should not change',
-    ).resolves.toMatchObject({ stdout: gitTags });
+    ).resolves.toMatchObject(await gitTagResult);
 });
 
 test('CLI should fail if Git tag exists on different commits', async () => {
@@ -421,7 +444,14 @@ test('CLI should not add and not push Git tag with dry-run', async () => {
         remote: { tagList },
     } = await initGit(tmpDir('push-success-git-tag-with-dry-run'), true);
 
-    const gitTags = (await exec(['git', 'tag', '-l'])).stdout;
+    const gitTagResult = exec(['git', 'tag', '-l']).then(
+        ({ stdout, stderr }) => ({ stdout, stderr }),
+    );
+    await expect(
+        gitTagResult,
+        'Git tag should not exist yet',
+    ).resolves.toStrictEqual({ stdout: '', stderr: '' });
+
     await expect(
         exec(['git', 'push', '--dry-run', 'origin', 'HEAD']),
         'Git push should success',
@@ -444,7 +474,7 @@ test('CLI should not add and not push Git tag with dry-run', async () => {
     await expect(
         exec(['git', 'tag', '-l']),
         'Git tag should not change',
-    ).resolves.toMatchObject({ stdout: gitTags });
+    ).resolves.toMatchObject(await gitTagResult);
     expect(tagList, 'Git tag should not been pushed').toStrictEqual([]);
 });
 
@@ -491,12 +521,13 @@ describe('CLI should to display version', () => {
     it.each(['-V', '-v', '--version'])('%s', async (option) => {
         const { exec } = await initGit(tmpDir('display-version'));
 
-        const gitTagsResult = exec(['git', 'tag', '-l']);
+        const gitTagResult = exec(['git', 'tag', '-l']).then(
+            ({ stdout, stderr }) => ({ stdout, stderr }),
+        );
         await expect(
-            gitTagsResult,
+            gitTagResult,
             'Git tag should not exist yet',
-        ).resolves.toMatchObject({ stdout: '', stderr: '' });
-        const { stdout: gitTags } = await gitTagsResult;
+        ).resolves.toStrictEqual({ stdout: '', stderr: '' });
 
         await expect(
             exec([CLI_PATH, option]),
@@ -509,9 +540,7 @@ describe('CLI should to display version', () => {
         await expect(
             exec(['git', 'tag', '-l']),
             'Git tag should not change',
-        ).resolves.toMatchObject({
-            stdout: gitTags,
-        });
+        ).resolves.toMatchObject(await gitTagResult);
     });
 });
 
@@ -519,12 +548,13 @@ describe('CLI should to display help', () => {
     it.each(['-h', '--help'])('%s', async (option) => {
         const { exec } = await initGit(tmpDir('display-help'));
 
-        const gitTagsResult = exec(['git', 'tag', '-l']);
+        const gitTagResult = exec(['git', 'tag', '-l']).then(
+            ({ stdout, stderr }) => ({ stdout, stderr }),
+        );
         await expect(
-            gitTagsResult,
+            gitTagResult,
             'Git tag should not exist yet',
-        ).resolves.toMatchObject({ stdout: '', stderr: '' });
-        const { stdout: gitTags } = await gitTagsResult;
+        ).resolves.toStrictEqual({ stdout: '', stderr: '' });
 
         await expect(
             exec([CLI_PATH, option]),
@@ -551,14 +581,20 @@ describe('CLI should to display help', () => {
         await expect(
             exec(['git', 'tag', '-l']),
             'Git tag should not change',
-        ).resolves.toMatchObject({ stdout: gitTags });
+        ).resolves.toMatchObject(await gitTagResult);
     });
 });
 
 test('CLI should not work with unknown options', async () => {
     const { exec } = await initGit(tmpDir('unknown-option'));
 
-    const gitTags = (await exec(['git', 'tag', '-l'])).stdout;
+    const gitTagResult = exec(['git', 'tag', '-l']).then(
+        ({ stdout, stderr }) => ({ stdout, stderr }),
+    );
+    await expect(
+        gitTagResult,
+        'Git tag should not exist yet',
+    ).resolves.toStrictEqual({ stdout: '', stderr: '' });
 
     const unknownOption = '--lololololololololololololololol';
     await expect(
@@ -576,7 +612,7 @@ test('CLI should not work with unknown options', async () => {
     await expect(
         exec(['git', 'tag', '-l']),
         'Git tag should not change',
-    ).resolves.toMatchObject({ stdout: gitTags });
+    ).resolves.toMatchObject(await gitTagResult);
 });
 
 describe('CLI should add Git tag with customized tag prefix', () => {
