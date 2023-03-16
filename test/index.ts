@@ -11,7 +11,7 @@ import { initGit } from './helpers/git';
 const PROJECT_ROOT = path.resolve(__dirname, '..');
 
 function tmpDir(dirname: string): string {
-    return path.resolve(__dirname, 'tmp', dirname);
+    return path.resolve(__dirname, '.temp', dirname);
 }
 
 const CLI_DIR = tmpDir('.cli');
