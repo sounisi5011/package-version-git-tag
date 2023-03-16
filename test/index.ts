@@ -139,7 +139,7 @@ test('CLI should complete successfully if Git tag has been added', async () => {
         'Overwriting tags with git cli should fail',
     ).rejects.toMatchObject({
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        stderr: expect.stringMatching(/tag 'v0\.0\.0' already exists/),
+        stderr: expect.stringContaining(`tag 'v0.0.0' already exists`),
     });
 
     await expect(
@@ -167,7 +167,7 @@ test('CLI should complete successfully if Git tag has been added with verbose ou
         'Overwriting tags with git cli should fail',
     ).rejects.toMatchObject({
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        stderr: expect.stringMatching(/tag 'v0\.0\.0' already exists/),
+        stderr: expect.stringContaining(`tag 'v0.0.0' already exists`),
     });
 
     await expect(
@@ -203,7 +203,7 @@ test('CLI should complete successfully if Git tag has been added with dry-run', 
         'Overwriting tags with git cli should fail',
     ).rejects.toMatchObject({
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        stderr: expect.stringMatching(/tag 'v0\.0\.0' already exists/),
+        stderr: expect.stringContaining(`tag 'v0.0.0' already exists`),
     });
 
     await expect(
@@ -237,7 +237,7 @@ test('CLI should fail if Git tag exists on different commits', async () => {
         'Overwriting tags with git cli should fail',
     ).rejects.toMatchObject({
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        stderr: expect.stringMatching(/tag 'v0\.0\.0' already exists/),
+        stderr: expect.stringContaining(`tag 'v0.0.0' already exists`),
     });
 
     await expect(exec([CLI_PATH]), 'CLI should fail').rejects.toMatchObject({
@@ -305,8 +305,8 @@ test('CLI push flag should fail if there is no remote repository', async () => {
         'Git push should fail',
     ).rejects.toMatchObject({
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        stderr: expect.stringMatching(
-            /'origin' does not appear to be a git repository/,
+        stderr: expect.stringContaining(
+            `'origin' does not appear to be a git repository`,
         ),
     });
 
@@ -315,8 +315,8 @@ test('CLI push flag should fail if there is no remote repository', async () => {
         'CLI should try git push and should fail',
     ).rejects.toMatchObject({
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        stderr: expect.stringMatching(
-            /'origin' does not appear to be a git repository/,
+        stderr: expect.stringContaining(
+            `'origin' does not appear to be a git repository`,
         ),
     });
 
