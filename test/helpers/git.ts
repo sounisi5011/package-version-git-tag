@@ -40,6 +40,10 @@ export async function initGit(
     const exec: ExecFunc = ([command, ...args], options) =>
         execa(command, args, {
             cwd: gitDirpath,
+            // By default, only the PATH environment variable is inherited.
+            // This is because some tests are broken by inheriting environment variables.
+            env: { PATH: process.env['PATH'] },
+            extendEnv: false,
             ...options,
         });
 

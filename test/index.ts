@@ -30,17 +30,6 @@ beforeAll(async () => {
     await execa('npm', ['install', '--no-save', PROJECT_ROOT], {
         cwd: CLI_DIR,
     });
-
-    /*
-     * Delete all npm environment variables
-     * Note: If npm environment variables are set, testing may not proceed properly.
-     */
-    Object.keys(process.env)
-        .filter((key) => /^npm_/i.test(key))
-        .forEach((key) => {
-            // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-            delete process.env[key];
-        });
 });
 
 test('CLI should add Git tag', async () => {
