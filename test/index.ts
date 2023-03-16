@@ -496,7 +496,7 @@ test('CLI should not work with unknown options', async () => {
 
     const unknownOption = '--lololololololololololololololol';
     await expect(
-        exec([CLI_PATH, '--lololololololololololololololol']),
+        exec([CLI_PATH, unknownOption]),
         'CLI should fail',
     ).rejects.toMatchObject({
         exitCode: 1,
