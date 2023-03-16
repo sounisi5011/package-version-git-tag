@@ -1,4 +1,3 @@
-import escapeRegExp from 'escape-string-regexp';
 import execa from 'execa';
 import * as fs from 'fs/promises';
 import * as path from 'path';
@@ -47,11 +46,15 @@ test('CLI should add Git tag', async () => {
     ).resolves.toMatchObject({ stdout: '', stderr: '' });
 
     await expect(
-        exec(['git', 'for-each-ref', 'refs/tags']),
+        exec([
+            'git',
+            'for-each-ref',
+            '--format=%(objecttype) %(refname)',
+            'refs/tags',
+        ]),
         'Git annotated tag v0.0.0 should be added',
     ).resolves.toMatchObject({
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        stdout: expect.stringMatching(/^\w+\s+tag\s+refs\/tags\/v0\.0\.0$/),
+        stdout: 'tag refs/tags/v0.0.0',
     });
 });
 
@@ -77,11 +80,15 @@ test('CLI should add Git tag with verbose output', async () => {
     });
 
     await expect(
-        exec(['git', 'for-each-ref', 'refs/tags']),
+        exec([
+            'git',
+            'for-each-ref',
+            '--format=%(objecttype) %(refname)',
+            'refs/tags',
+        ]),
         'Git annotated tag v0.0.0 should be added',
     ).resolves.toMatchObject({
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        stdout: expect.stringMatching(/^\w+\s+tag\s+refs\/tags\/v0\.0\.0$/),
+        stdout: 'tag refs/tags/v0.0.0',
     });
 });
 
@@ -246,10 +253,6 @@ test('CLI should read version and add tag', async () => {
     const minor = getRandomInt(1, 23);
     const patch = getRandomInt(0, 9);
     const version = [major, minor, patch].join('.');
-    const versionTagRegExp = new RegExp(
-        String.raw`^\w+\s+tag\s+refs/tags/v${major}\.${minor}\.${patch}$`,
-        'm',
-    );
 
     await exec(['git', 'tag', 'v0.0.0']);
 
@@ -261,11 +264,15 @@ test('CLI should read version and add tag', async () => {
     await exec(['git', 'commit', '-m', 'Update version']);
 
     await expect(
-        exec(['git', 'for-each-ref', 'refs/tags']),
+        exec([
+            'git',
+            'for-each-ref',
+            '--format=%(objecttype) %(refname)',
+            'refs/tags',
+        ]),
         `Git tag v${version} should not exist yet`,
     ).resolves.toMatchObject({
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        stdout: expect.not.stringMatching(versionTagRegExp),
+        stdout: 'commit refs/tags/v0.0.0',
     });
 
     await expect(
@@ -274,11 +281,19 @@ test('CLI should read version and add tag', async () => {
     ).resolves.toMatchObject({ stdout: '', stderr: '' });
 
     await expect(
-        exec(['git', 'for-each-ref', 'refs/tags']),
+        exec([
+            'git',
+            'for-each-ref',
+            '--format=%(objecttype) %(refname)',
+            'refs/tags',
+        ]),
         `Git annotated tag v${version} should be added`,
     ).resolves.toMatchObject({
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        stdout: expect.stringMatching(versionTagRegExp),
+        stdout: [
+            'commit refs/tags/v0.0.0',
+            `tag refs/tags/v${version}`,
+            //
+        ].join('\n'),
     });
 });
 
@@ -306,11 +321,15 @@ test('CLI push flag should fail if there is no remote repository', async () => {
     });
 
     await expect(
-        exec(['git', 'for-each-ref', 'refs/tags']),
+        exec([
+            'git',
+            'for-each-ref',
+            '--format=%(objecttype) %(refname)',
+            'refs/tags',
+        ]),
         'Git annotated tag v0.0.0 should be added',
     ).resolves.toMatchObject({
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        stdout: expect.stringMatching(/^\w+\s+tag\s+refs\/tags\/v0\.0\.0$/),
+        stdout: 'tag refs/tags/v0.0.0',
     });
 });
 
@@ -334,11 +353,15 @@ test('CLI should add and push Git tag', async () => {
         ).resolves.toMatchObject({ stdout: '', stderr: '' });
 
         await expect(
-            exec(['git', 'for-each-ref', 'refs/tags']),
+            exec([
+                'git',
+                'for-each-ref',
+                '--format=%(objecttype) %(refname)',
+                'refs/tags',
+            ]),
             'Git annotated tag v0.0.0 should be added',
         ).resolves.toMatchObject({
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            stdout: expect.stringMatching(/^\w+\s+tag\s+refs\/tags\/v0\.0\.0$/),
+            stdout: 'tag refs/tags/v0.0.0',
         });
 
         expect(tagList, 'Git tag v0.0.0 should have been pushed').toStrictEqual(
@@ -375,11 +398,15 @@ test('CLI should add and push Git tag with verbose output', async () => {
         });
 
         await expect(
-            exec(['git', 'for-each-ref', 'refs/tags']),
+            exec([
+                'git',
+                'for-each-ref',
+                '--format=%(objecttype) %(refname)',
+                'refs/tags',
+            ]),
             'Git annotated tag v0.0.0 should be added',
         ).resolves.toMatchObject({
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            stdout: expect.stringMatching(/^\w+\s+tag\s+refs\/tags\/v0\.0\.0$/),
+            stdout: 'tag refs/tags/v0.0.0',
         });
 
         expect(tagList, 'Git tag v0.0.0 should have been pushed').toStrictEqual(
@@ -442,11 +469,19 @@ test('CLI should add and push single Git tag', async () => {
     ).resolves.toMatchObject({ stdout: '', stderr: '' });
 
     await expect(
-        exec(['git', 'for-each-ref', 'refs/tags']),
+        exec([
+            'git',
+            'for-each-ref',
+            '--format=%(objecttype) %(refname)',
+            'refs/tags',
+        ]),
         'Git annotated tag v0.0.0 should be added',
     ).resolves.toMatchObject({
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        stdout: expect.stringMatching(/^\w+\s+tag\s+refs\/tags\/v0\.0\.0$/m),
+        stdout: [
+            'commit refs/tags/hoge',
+            'tag refs/tags/v0.0.0',
+            'commit refs/tags/v0.0.0-pre',
+        ].join('\n'),
     });
 
     expect(tagList, 'Git tag needs to push only one').toStrictEqual(['v0.0.0']);
@@ -552,15 +587,16 @@ describe('CLI should add Git tag with customized tag prefix', () => {
         exec: ExecFunc;
         tagName: string;
     }): Promise<void> => {
-        const versionTagRegExp = new RegExp(
-            String.raw`^\w+\s+tag\s+refs/tags/${escapeRegExp(tagName)}$`,
-        );
         await expect(
-            exec(['git', 'for-each-ref', 'refs/tags']),
+            exec([
+                'git',
+                'for-each-ref',
+                '--format=%(objecttype) %(refname)',
+                'refs/tags',
+            ]),
             `Git annotated tag '${tagName}' should be added`,
         ).resolves.toMatchObject({
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            stdout: expect.stringMatching(versionTagRegExp),
+            stdout: `tag refs/tags/${tagName}`,
         });
     };
 
