@@ -67,7 +67,12 @@ test('CLI should add Git tag with verbose output', async () => {
         'CLI should exits successfully',
     ).resolves.toMatchObject({
         stdout: '',
-        stderr: '\n> git tag v0.0.0 -m 0.0.0\n',
+        stderr: [
+            '',
+            '> git tag v0.0.0 -m 0.0.0',
+            '',
+            //
+        ].join('\n'),
     });
 
     await expect(
@@ -97,7 +102,12 @@ describe('CLI should not add Git tag with dry-run', () => {
             'CLI should exits successfully',
         ).resolves.toMatchObject({
             stdout: '',
-            stderr: 'Dry Run enabled\n\n> git tag v0.0.0 -m 0.0.0\n',
+            stderr: [
+                'Dry Run enabled',
+                '',
+                '> git tag v0.0.0 -m 0.0.0',
+                '',
+            ].join('\n'),
         });
 
         await expect(
@@ -157,7 +167,12 @@ test('CLI should complete successfully if Git tag has been added with verbose ou
         'CLI should exits successfully',
     ).resolves.toMatchObject({
         stdout: '',
-        stderr: `\n> #git tag v0.0.0 -m 0.0.0\n  # tag 'v0.0.0' already exists\n`,
+        stderr: [
+            '',
+            '> #git tag v0.0.0 -m 0.0.0',
+            `  # tag 'v0.0.0' already exists`,
+            '',
+        ].join('\n'),
     });
 
     await expect(
@@ -188,7 +203,13 @@ test('CLI should complete successfully if Git tag has been added with dry-run', 
         'CLI should exits successfully',
     ).resolves.toMatchObject({
         stdout: '',
-        stderr: `Dry Run enabled\n\n> #git tag v0.0.0 -m 0.0.0\n  # tag 'v0.0.0' already exists\n`,
+        stderr: [
+            'Dry Run enabled',
+            '',
+            '> #git tag v0.0.0 -m 0.0.0',
+            `  # tag 'v0.0.0' already exists`,
+            '',
+        ].join('\n'),
     });
 
     await expect(
@@ -344,9 +365,12 @@ test('CLI should add and push Git tag with verbose output', async () => {
             'CLI should exits successfully',
         ).resolves.toMatchObject({
             stdout: '',
-            // prettier-ignore
-            stderr: '\n> git tag v0.0.0 -m 0.0.0\n' +
-                '> git push origin v0.0.0\n',
+            stderr: [
+                '',
+                '> git tag v0.0.0 -m 0.0.0',
+                '> git push origin v0.0.0',
+                '',
+            ].join('\n'),
         });
 
         await expect(
@@ -380,7 +404,13 @@ test('CLI should not add and not push Git tag with dry-run', async () => {
         'CLI should exits successfully',
     ).resolves.toMatchObject({
         stdout: '',
-        stderr: 'Dry Run enabled\n\n> git tag v0.0.0 -m 0.0.0\n> git push origin v0.0.0\n',
+        stderr: [
+            'Dry Run enabled',
+            '',
+            '> git tag v0.0.0 -m 0.0.0',
+            '> git push origin v0.0.0',
+            '',
+        ].join('\n'),
     });
 
     await expect(
