@@ -1,8 +1,7 @@
-import * as fs from 'fs/promises';
+import fs from 'fs/promises';
 import { Git, GitEvents } from 'node-git-server';
 
 import { isObject } from '../../src/utils';
-import { rmrf } from '.';
 
 const PORT = {
     MIN: 49152,
@@ -16,7 +15,7 @@ export default async function (
 ): Promise<{ remoteURL: string; repos: Git; tagList: string[] }> {
     const tagList: string[] = [];
 
-    await rmrf(dirpath);
+    await fs.rm(dirpath, { recursive: true, force: true });
     await fs.mkdir(dirpath, { recursive: true });
 
     const repos: Git & GitEvents = new Git(dirpath, {

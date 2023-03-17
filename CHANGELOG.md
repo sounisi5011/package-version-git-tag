@@ -96,6 +96,7 @@ Because it is the minimum version available for Vitest.
 
 #### devDependencies
 
+* [#214] - `@sindresorhus/slugify@1.1.2`
 * [#186] - `@tsconfig/node14@1.0.3`
 * [#185] - `eslint-plugin-n@15.6.1`
 * [#200] - `eslint-plugin-vitest@0.0.54`
@@ -119,6 +120,7 @@ Because it is the minimum version available for Vitest.
 
 * [#200] - `ava`
 * [#186] - `del`
+* [#214] - `escape-string-regexp`
 * [#185] - `eslint-plugin-node`
 * [#185] - `eslint-plugin-standard`
 * [#185] - `husky`
@@ -130,6 +132,7 @@ Because it is the minimum version available for Vitest.
 * [#185] - Use `execa` instead of `cross-spawn`
 * [#185] - Rename `ava.config.js` file to `ava.config.cjs`
 * [#200] - Migrate from AVA to Vitest
+* [#214] - Refactoring test code
 
 ### Others
 
@@ -173,6 +176,7 @@ Because it is the minimum version available for Vitest.
 [#210]: https://github.com/sounisi5011/package-version-git-tag/pull/210
 [#211]: https://github.com/sounisi5011/package-version-git-tag/pull/211
 [#213]: https://github.com/sounisi5011/package-version-git-tag/pull/213
+[#214]: https://github.com/sounisi5011/package-version-git-tag/pull/214
 
 ## [3.0.0] (2020-06-02 UTC)
 

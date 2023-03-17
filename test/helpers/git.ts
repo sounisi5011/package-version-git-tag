@@ -1,8 +1,8 @@
 import execa from 'execa';
-import * as fs from 'fs/promises';
-import * as path from 'path';
+import fs from 'fs/promises';
+import path from 'path';
 
-import { rmrf } from '.';
+import { getRandomInt } from '.';
 import initGitServer from './git-server';
 import type { PromiseValue } from './types';
 
@@ -15,38 +15,56 @@ export type GitRemote = PromiseValue<ReturnType<typeof initGitServer>>;
 /* eslint-disable import/export */
 export async function initGit(
     dirpath: string,
-    useRemoteRepo: true,
+    options: {
+        useRemoteRepo: true;
+    },
 ): Promise<{
     exec: ExecFunc;
     gitDirpath: string;
+    version: string;
     remote: GitRemote;
 }>;
 export async function initGit(
     dirpath: string,
-    useRemoteRepo?: false | undefined,
+    options?: {
+        useRemoteRepo?: false | undefined;
+    },
 ): Promise<{
     exec: ExecFunc;
     gitDirpath: string;
+    version: string;
     remote: null;
 }>;
 export async function initGit(
     dirpath: string,
-    useRemoteRepo: boolean = false,
+    options?: {
+        useRemoteRepo?: boolean | undefined;
+    },
 ): Promise<{
     exec: ExecFunc;
     gitDirpath: string;
+    version: string;
     remote: null | GitRemote;
 }> {
     const gitDirpath = path.resolve(dirpath);
     const exec: ExecFunc = ([command, ...args], options) =>
         execa(command, args, {
             cwd: gitDirpath,
+            // By default, only the PATH environment variable is inherited.
+            // This is because some tests are broken by inheriting environment variables.
+            env: { PATH: process.env['PATH'] },
+            extendEnv: false,
             ...options,
         });
+    const version = [
+        getRandomInt(0, 99),
+        getRandomInt(0, 99),
+        getRandomInt(1, 99),
+    ].join('.');
 
     const [, remote] = await Promise.all([
         (async () => {
-            await rmrf(gitDirpath);
+            await fs.rm(gitDirpath, { recursive: true, force: true });
             await fs.mkdir(gitDirpath, { recursive: true });
 
             await exec(['git', 'init']);
@@ -55,23 +73,18 @@ export async function initGit(
 
             await fs.writeFile(
                 path.join(gitDirpath, 'package.json'),
-                JSON.stringify({ version: '0.0.0' }),
+                JSON.stringify({ version }),
             );
             await exec(['git', 'add', '--all']);
             await exec(['git', 'commit', '-m', 'Initial commit']);
         })(),
-        (async () => {
-            if (!useRemoteRepo) {
-                return null;
-            }
-            return initGitServer(`${gitDirpath}.remote`);
-        })(),
+        options?.useRemoteRepo ? initGitServer(`${gitDirpath}.remote`) : null,
     ]);
 
     if (remote) {
         await exec(['git', 'remote', 'add', 'origin', `${remote.remoteURL}/x`]);
     }
 
-    return { exec, gitDirpath, remote };
+    return { exec, gitDirpath, version, remote };
 }
 /* eslint-enable */

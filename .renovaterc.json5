@@ -33,7 +33,7 @@
     },
     {
       packageNames: [
-        "escape-string-regexp",
+        "@sindresorhus/slugify",
         "execa",
         "node-git-server",
         "ts-node",
@@ -62,12 +62,13 @@
       matchUpdateTypes: ["major"],
       enabled: false,
     },
-    // `escape-string-regexp@>=5.0.0` doesn't work with old Node.js.
+    // `@sindresorhus/slugify@>=2.0.0` doesn't work with old Node.js.
     // Because it uses pure ESM.
-    // We should only update if the Node.js support range: `>=14.13.0`
+    // We should only update it after we move to pure ESM.
     {
-      matchPackageNames: ["escape-string-regexp"],
-      matchCurrentVersion: "<5.0.0",
+      matchPackageNames: ["@sindresorhus/slugify"],
+      matchUpdateTypes: ["major"],
+      matchCurrentVersion: "<2.0.0",
       enabled: false,
     },
     // `execa@>=6.0.0` doesn't work with old Node.js.
