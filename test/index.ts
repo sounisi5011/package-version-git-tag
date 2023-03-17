@@ -325,10 +325,9 @@ describe.concurrent('CLI should add and push Git tag', () => {
             exec,
             version,
             remote: { tagList },
-        } = await initGit(
-            tmpDir('CLI should add and push Git tag', testName),
-            true,
-        );
+        } = await initGit(tmpDir('CLI should add and push Git tag', testName), {
+            useRemoteRepo: true,
+        });
 
         await expect(
             exec(['git', 'push', '--dry-run', 'origin', 'HEAD']),
@@ -372,7 +371,7 @@ test.concurrent(
             remote: { tagList },
         } = await initGit(
             tmpDir('CLI should not add and not push Git tag with dry-run'),
-            true,
+            { useRemoteRepo: true },
         );
 
         const gitTagResult = exec(['git', 'tag', '-l']).then(
@@ -415,7 +414,9 @@ test.concurrent('CLI should add and push single Git tag', async () => {
         exec,
         version,
         remote: { tagList },
-    } = await initGit(tmpDir('CLI should add and push single Git tag'), true);
+    } = await initGit(tmpDir('CLI should add and push single Git tag'), {
+        useRemoteRepo: true,
+    });
 
     await exec(['git', 'tag', `v${version}-pre`]);
     await exec(['git', 'commit', '--allow-empty', '-m', 'Second commit']);

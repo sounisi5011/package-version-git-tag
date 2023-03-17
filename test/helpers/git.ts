@@ -15,7 +15,9 @@ export type GitRemote = PromiseValue<ReturnType<typeof initGitServer>>;
 /* eslint-disable import/export */
 export async function initGit(
     dirpath: string,
-    useRemoteRepo: true,
+    options: {
+        useRemoteRepo: true;
+    },
 ): Promise<{
     exec: ExecFunc;
     gitDirpath: string;
@@ -24,7 +26,9 @@ export async function initGit(
 }>;
 export async function initGit(
     dirpath: string,
-    useRemoteRepo?: false | undefined,
+    options?: {
+        useRemoteRepo?: false | undefined;
+    },
 ): Promise<{
     exec: ExecFunc;
     gitDirpath: string;
@@ -33,7 +37,9 @@ export async function initGit(
 }>;
 export async function initGit(
     dirpath: string,
-    useRemoteRepo: boolean = false,
+    options?: {
+        useRemoteRepo?: boolean | undefined;
+    },
 ): Promise<{
     exec: ExecFunc;
     gitDirpath: string;
@@ -72,12 +78,7 @@ export async function initGit(
             await exec(['git', 'add', '--all']);
             await exec(['git', 'commit', '-m', 'Initial commit']);
         })(),
-        (async () => {
-            if (!useRemoteRepo) {
-                return null;
-            }
-            return initGitServer(`${gitDirpath}.remote`);
-        })(),
+        options?.useRemoteRepo ? initGitServer(`${gitDirpath}.remote`) : null,
     ]);
 
     if (remote) {
