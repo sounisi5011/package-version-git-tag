@@ -1,6 +1,6 @@
 import execa from 'execa';
-import * as fs from 'fs/promises';
-import * as path from 'path';
+import fs from 'fs/promises';
+import path from 'path';
 
 import { getRandomInt } from '.';
 import initGitServer from './git-server';

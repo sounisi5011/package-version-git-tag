@@ -1,10 +1,10 @@
 import slugify from '@sindresorhus/slugify';
 import execa from 'execa';
-import * as fs from 'fs/promises';
-import * as path from 'path';
+import fs from 'fs/promises';
+import path from 'path';
 import { beforeAll, describe, expect, test } from 'vitest';
 
-import * as PKG_DATA from '../package.json';
+import PKG_DATA from '../package.json';
 import { initGit } from './helpers/git';
 
 const PROJECT_ROOT = path.resolve(__dirname, '..');
