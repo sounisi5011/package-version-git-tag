@@ -2,6 +2,7 @@ import execa from 'execa';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 
+import { getRandomInt } from '.';
 import initGitServer from './git-server';
 import type { PromiseValue } from './types';
 
@@ -18,6 +19,7 @@ export async function initGit(
 ): Promise<{
     exec: ExecFunc;
     gitDirpath: string;
+    version: string;
     remote: GitRemote;
 }>;
 export async function initGit(
@@ -26,6 +28,7 @@ export async function initGit(
 ): Promise<{
     exec: ExecFunc;
     gitDirpath: string;
+    version: string;
     remote: null;
 }>;
 export async function initGit(
@@ -34,6 +37,7 @@ export async function initGit(
 ): Promise<{
     exec: ExecFunc;
     gitDirpath: string;
+    version: string;
     remote: null | GitRemote;
 }> {
     const gitDirpath = path.resolve(dirpath);
@@ -46,6 +50,11 @@ export async function initGit(
             extendEnv: false,
             ...options,
         });
+    const version = [
+        getRandomInt(0, 99),
+        getRandomInt(0, 99),
+        getRandomInt(1, 99),
+    ].join('.');
 
     const [, remote] = await Promise.all([
         (async () => {
@@ -58,7 +67,7 @@ export async function initGit(
 
             await fs.writeFile(
                 path.join(gitDirpath, 'package.json'),
-                JSON.stringify({ version: '0.0.0' }),
+                JSON.stringify({ version }),
             );
             await exec(['git', 'add', '--all']);
             await exec(['git', 'commit', '-m', 'Initial commit']);
@@ -75,6 +84,6 @@ export async function initGit(
         await exec(['git', 'remote', 'add', 'origin', `${remote.remoteURL}/x`]);
     }
 
-    return { exec, gitDirpath, remote };
+    return { exec, gitDirpath, version, remote };
 }
 /* eslint-enable */
