@@ -132,6 +132,7 @@ Because it is the minimum version available for Vitest.
 * [#185] - Use `execa` instead of `cross-spawn`
 * [#185] - Rename `ava.config.js` file to `ava.config.cjs`
 * [#200] - Migrate from AVA to Vitest
+* [#214] - Refactoring test code
 
 ### Others
 
