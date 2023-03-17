@@ -1,3 +1,4 @@
+import slugify from '@sindresorhus/slugify';
 import execa from 'execa';
 import * as fs from 'fs/promises';
 import * as path from 'path';
@@ -8,13 +9,22 @@ import { getRandomInt } from './helpers';
 import { initGit } from './helpers/git';
 
 const PROJECT_ROOT = path.resolve(__dirname, '..');
-
-function tmpDir(dirname: string): string {
-    return path.resolve(__dirname, '.temp', dirname);
-}
-
-const CLI_DIR = tmpDir('.cli');
+const TEST_TMP_DIR = path.resolve(__dirname, '.temp');
+const CLI_DIR = path.resolve(TEST_TMP_DIR, '.cli');
 const CLI_PATH = path.resolve(CLI_DIR, 'node_modules', '.bin', PKG_DATA.name);
+
+const createdTmpDirSet = new Set<string>();
+function tmpDir(...uniqueNameList: (string | undefined)[]): string {
+    const uniqueName = slugify(
+        uniqueNameList.map((name) => name ?? '').join(' ') || 'test',
+    );
+    let dirname: string = uniqueName;
+    for (let i = 2; createdTmpDirSet.has(dirname); i++) {
+        dirname = `${uniqueName}_${i}`;
+    }
+    createdTmpDirSet.add(dirname);
+    return path.resolve(TEST_TMP_DIR, dirname);
+}
 
 beforeAll(async () => {
     await Promise.all([
@@ -33,7 +43,6 @@ beforeAll(async () => {
 
 describe('CLI should add Git tag', () => {
     interface Case {
-        tmpDirName: string;
         cliArgs: readonly string[];
         expected: Partial<Awaited<execa.ExecaChildProcess>>;
     }
@@ -41,14 +50,12 @@ describe('CLI should add Git tag', () => {
     it.concurrent.each(
         Object.entries<Case>({
             normal: {
-                tmpDirName: 'not-exists-git-tag',
                 cliArgs: [],
                 expected: {
                     stderr: '',
                 },
             },
             'with verbose output': {
-                tmpDirName: 'not-exists-git-tag-with-verbose',
                 cliArgs: ['--verbose'],
                 expected: {
                     stderr: [
@@ -60,8 +67,10 @@ describe('CLI should add Git tag', () => {
                 },
             },
         }),
-    )('%s', async (_, { tmpDirName, cliArgs, expected }) => {
-        const { exec } = await initGit(tmpDir(tmpDirName));
+    )('%s', async (testName, { cliArgs, expected }) => {
+        const { exec } = await initGit(
+            tmpDir('CLI should add Git tag', testName),
+        );
 
         await expect(
             exec(['git', 'tag', '-l']),
@@ -90,7 +99,7 @@ describe('CLI should add Git tag', () => {
 describe('CLI should not add Git tag with dry-run', () => {
     it.each(['-n', '--dry-run'])('%s', async (option) => {
         const { exec } = await initGit(
-            tmpDir('not-exists-git-tag-with-dry-run'),
+            tmpDir('CLI should not add Git tag with dry-run', option),
         );
 
         const gitTagResult = exec(['git', 'tag', '-l']).then(
@@ -123,7 +132,6 @@ describe('CLI should not add Git tag with dry-run', () => {
 
 describe('CLI should complete successfully if Git tag has been added', () => {
     interface Case {
-        tmpDirName: string;
         cliArgs: readonly string[];
         expected: Partial<Awaited<execa.ExecaChildProcess>>;
     }
@@ -131,14 +139,12 @@ describe('CLI should complete successfully if Git tag has been added', () => {
     it.concurrent.each(
         Object.entries<Case>({
             normal: {
-                tmpDirName: 'exists-git-tag-in-same-commit',
                 cliArgs: [],
                 expected: {
                     stderr: '',
                 },
             },
             'with verbose output': {
-                tmpDirName: 'exists-git-tag-in-same-commit-with-verbose',
                 cliArgs: ['--verbose'],
                 expected: {
                     stderr: [
@@ -150,7 +156,6 @@ describe('CLI should complete successfully if Git tag has been added', () => {
                 },
             },
             'with dry-run': {
-                tmpDirName: 'exists-git-tag-in-same-commit-with-dry-run',
                 cliArgs: ['--dry-run'],
                 expected: {
                     stderr: [
@@ -163,8 +168,13 @@ describe('CLI should complete successfully if Git tag has been added', () => {
                 },
             },
         }),
-    )('%s', async (_, { tmpDirName, cliArgs, expected }) => {
-        const { exec } = await initGit(tmpDir(tmpDirName));
+    )('%s', async (testName, { cliArgs, expected }) => {
+        const { exec } = await initGit(
+            tmpDir(
+                'CLI should complete successfully if Git tag has been added',
+                testName,
+            ),
+        );
         await exec(['git', 'tag', 'v0.0.0']);
 
         const gitTagResult = exec(['git', 'tag', '-l']).then(
@@ -201,7 +211,7 @@ test.concurrent(
     'CLI should fail if Git tag exists on different commits',
     async () => {
         const { exec } = await initGit(
-            tmpDir('exists-git-tag-in-other-commit'),
+            tmpDir('CLI should fail if Git tag exists on different commits'),
         );
 
         await exec(['git', 'tag', 'v0.0.0']);
@@ -226,7 +236,9 @@ test.concurrent(
 );
 
 test.concurrent('CLI should read version and add tag', async () => {
-    const { exec, gitDirpath } = await initGit(tmpDir('add-random-git-tag'));
+    const { exec, gitDirpath } = await initGit(
+        tmpDir('CLI should read version and add tag'),
+    );
     const major = getRandomInt(0, 99);
     const minor = getRandomInt(1, 23);
     const patch = getRandomInt(0, 9);
@@ -278,7 +290,11 @@ test.concurrent('CLI should read version and add tag', async () => {
 test.concurrent(
     'CLI push flag should fail if there is no remote repository',
     async () => {
-        const { exec } = await initGit(tmpDir('push-fail-git-tag'));
+        const { exec } = await initGit(
+            tmpDir(
+                'CLI push flag should fail if there is no remote repository',
+            ),
+        );
 
         await expect(
             exec(['git', 'push', '--dry-run', 'origin', 'HEAD']),
@@ -316,7 +332,6 @@ test.concurrent(
 
 describe('CLI should add and push Git tag', () => {
     interface Case {
-        tmpDirName: string;
         cliArgs: readonly string[];
         expected: Partial<Awaited<execa.ExecaChildProcess>>;
     }
@@ -324,12 +339,10 @@ describe('CLI should add and push Git tag', () => {
     it.concurrent.each(
         Object.entries<Case>({
             normal: {
-                tmpDirName: 'push-success-git-tag',
                 cliArgs: [],
                 expected: { stderr: '' },
             },
             'with verbose output': {
-                tmpDirName: 'push-success-git-tag-with-verbose',
                 cliArgs: ['--verbose'],
                 expected: {
                     stderr: [
@@ -341,11 +354,14 @@ describe('CLI should add and push Git tag', () => {
                 },
             },
         }),
-    )('%s', async (_, { tmpDirName, cliArgs, expected }) => {
+    )('%s', async (testName, { cliArgs, expected }) => {
         const {
             exec,
             remote: { tagList },
-        } = await initGit(tmpDir(tmpDirName), true);
+        } = await initGit(
+            tmpDir('CLI should add and push Git tag', testName),
+            true,
+        );
 
         await expect(
             exec(['git', 'push', '--dry-run', 'origin', 'HEAD']),
@@ -381,7 +397,10 @@ test.concurrent(
         const {
             exec,
             remote: { tagList },
-        } = await initGit(tmpDir('push-success-git-tag-with-dry-run'), true);
+        } = await initGit(
+            tmpDir('CLI should not add and not push Git tag with dry-run'),
+            true,
+        );
 
         const gitTagResult = exec(['git', 'tag', '-l']).then(
             ({ stdout, stderr }) => ({ stdout, stderr }),
@@ -422,7 +441,7 @@ test.concurrent('CLI should add and push single Git tag', async () => {
     const {
         exec,
         remote: { tagList },
-    } = await initGit(tmpDir('push-single-git-tag'), true);
+    } = await initGit(tmpDir('CLI should add and push single Git tag'), true);
 
     await exec(['git', 'tag', 'v0.0.0-pre']);
     await exec(['git', 'commit', '--allow-empty', '-m', 'Second commit']);
@@ -459,17 +478,14 @@ test.concurrent('CLI should add and push single Git tag', async () => {
 
 describe.each(
     Object.entries<{
-        tmpDirName: string;
         optionList: readonly [string, ...string[]];
         expected: string;
     }>({
         version: {
-            tmpDirName: 'display-version',
             optionList: ['-V', '-v', '--version'],
             expected: `${PKG_DATA.name}/${PKG_DATA.version} ${process.platform}-${process.arch} node-${process.version}`,
         },
         help: {
-            tmpDirName: 'display-help',
             optionList: ['-h', '--help'],
             expected: [
                 `${PKG_DATA.name} v${PKG_DATA.version}`,
@@ -488,9 +504,11 @@ describe.each(
             ].join('\n'),
         },
     }),
-)('CLI should to display %s', (_, { tmpDirName, optionList, expected }) => {
+)('CLI should to display %s', (testName, { optionList, expected }) => {
     it.each(optionList)('%s', async (option) => {
-        const { exec } = await initGit(tmpDir(tmpDirName));
+        const { exec } = await initGit(
+            tmpDir(`CLI should to display`, testName, option),
+        );
 
         const gitTagResult = exec(['git', 'tag', '-l']).then(
             ({ stdout, stderr }) => ({ stdout, stderr }),
@@ -516,7 +534,9 @@ describe.each(
 });
 
 test.concurrent('CLI should not work with unknown options', async () => {
-    const { exec } = await initGit(tmpDir('unknown-option'));
+    const { exec } = await initGit(
+        tmpDir('CLI should not work with unknown options'),
+    );
 
     const gitTagResult = exec(['git', 'tag', '-l']).then(
         ({ stdout, stderr }) => ({ stdout, stderr }),
@@ -547,7 +567,6 @@ test.concurrent('CLI should not work with unknown options', async () => {
 
 describe('CLI should add Git tag with customized tag prefix', () => {
     interface Case {
-        tmpDirName: string;
         pkgJson?: Record<string, unknown>;
         configFile: '.npmrc' | '.yarnrc';
         getPrefixCommad: readonly [string, ...string[]];
@@ -557,13 +576,11 @@ describe('CLI should add Git tag with customized tag prefix', () => {
     it.concurrent.each(
         Object.entries<Case>({
             'npm exec {command}': {
-                tmpDirName: 'custom-tag-prefix-npm',
                 configFile: '.npmrc',
                 getPrefixCommad: ['npm', 'config', 'get', 'tag-version-prefix'],
                 execCommad: ['npm', 'exec', '--no', PKG_DATA.name],
             },
             'npm run {npm-script}': {
-                tmpDirName: 'custom-tag-prefix-npm.run-script',
                 pkgJson: {
                     scripts: {
                         'xxx-run-cli': PKG_DATA.name,
@@ -574,7 +591,6 @@ describe('CLI should add Git tag with customized tag prefix', () => {
                 execCommad: ['npm', 'run', 'xxx-run-cli'],
             },
             'yarn run {command}': {
-                tmpDirName: 'custom-tag-prefix-yarn',
                 pkgJson: {
                     packageManager: 'yarn@1.22.19',
                 },
@@ -588,7 +604,6 @@ describe('CLI should add Git tag with customized tag prefix', () => {
                 execCommad: ['yarn', 'run', PKG_DATA.name],
             },
             'yarn run {npm-script}': {
-                tmpDirName: 'custom-tag-prefix-yarn.run-script',
                 pkgJson: {
                     scripts: {
                         'xxx-run-cli': PKG_DATA.name,
@@ -608,10 +623,15 @@ describe('CLI should add Git tag with customized tag prefix', () => {
     )(
         '%s',
         async (
-            _,
-            { tmpDirName, pkgJson, configFile, getPrefixCommad, execCommad },
+            testName,
+            { pkgJson, configFile, getPrefixCommad, execCommad },
         ) => {
-            const { exec, gitDirpath } = await initGit(tmpDir(tmpDirName));
+            const { exec, gitDirpath } = await initGit(
+                tmpDir(
+                    'CLI should add Git tag with customized tag prefix',
+                    testName,
+                ),
+            );
             const customPrefix = 'my-awesome-pkg-v';
             const configValue: Record<typeof configFile, string> = {
                 '.npmrc': 'this-is-npm-tag-prefix-',
