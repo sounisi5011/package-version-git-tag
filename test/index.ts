@@ -545,17 +545,22 @@ test.concurrent('CLI should not work with unknown options', async () => {
 describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
     interface Case {
         pkgJson?: Record<string, unknown>;
+        commad: Record<
+            'install' | 'getPrefix' | 'execCli',
+            readonly [string, ...string[]]
+        >;
         configFile: '.npmrc' | '.yarnrc';
-        getPrefixCommad: readonly [string, ...string[]];
-        execCommad: readonly [string, ...string[]];
     }
 
     test.each(
         Object.entries<Case>({
             'npm exec {command}': {
+                commad: {
+                    install: ['npm', 'install', '--no-save', PROJECT_ROOT],
+                    getPrefix: ['npm', 'config', 'get', 'tag-version-prefix'],
+                    execCli: ['npm', 'exec', '--no', PKG_DATA.name],
+                },
                 configFile: '.npmrc',
-                getPrefixCommad: ['npm', 'config', 'get', 'tag-version-prefix'],
-                execCommad: ['npm', 'exec', '--no', PKG_DATA.name],
             },
             'npm run {npm-script}': {
                 pkgJson: {
@@ -563,22 +568,26 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
                         'xxx-run-cli': PKG_DATA.name,
                     },
                 },
+                commad: {
+                    install: ['npm', 'install', '--no-save', PROJECT_ROOT],
+                    getPrefix: ['npm', 'config', 'get', 'tag-version-prefix'],
+                    execCli: ['npm', 'run', 'xxx-run-cli'],
+                },
                 configFile: '.npmrc',
-                getPrefixCommad: ['npm', 'config', 'get', 'tag-version-prefix'],
-                execCommad: ['npm', 'run', 'xxx-run-cli'],
             },
             'yarn run {command}': {
                 pkgJson: {
                     packageManager: 'yarn@1.22.19',
                 },
+                commad: {
+                    // Note: Using the `yarn add link:/path/to/local/folder` command would speed up the installation.
+                    //       But we do not use this.
+                    //       Because no symbolic link is created in the `node_modules/.bin` directory.
+                    install: ['yarn', 'add', PROJECT_ROOT, '--no-lockfile'],
+                    getPrefix: ['yarn', 'config', 'get', 'version-tag-prefix'],
+                    execCli: ['yarn', 'run', PKG_DATA.name],
+                },
                 configFile: '.yarnrc',
-                getPrefixCommad: [
-                    'yarn',
-                    'config',
-                    'get',
-                    'version-tag-prefix',
-                ],
-                execCommad: ['yarn', 'run', PKG_DATA.name],
             },
             'yarn run {npm-script}': {
                 pkgJson: {
@@ -587,80 +596,75 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
                     },
                     packageManager: 'yarn@1.22.19',
                 },
+                commad: {
+                    // Note: Using the `yarn add link:/path/to/local/folder` command would speed up the installation.
+                    //       But we do not use this.
+                    //       Because no symbolic link is created in the `node_modules/.bin` directory.
+                    install: ['yarn', 'add', PROJECT_ROOT, '--no-lockfile'],
+                    getPrefix: ['yarn', 'config', 'get', 'version-tag-prefix'],
+                    execCli: ['yarn', 'run', 'xxx-run-cli'],
+                },
                 configFile: '.yarnrc',
-                getPrefixCommad: [
-                    'yarn',
-                    'config',
-                    'get',
-                    'version-tag-prefix',
-                ],
-                execCommad: ['yarn', 'run', 'xxx-run-cli'],
             },
         }),
-    )(
-        '%s',
-        async (
-            testName,
-            { pkgJson, configFile, getPrefixCommad, execCommad },
-        ) => {
-            const { exec, gitDirpath, version } = await initGit(
-                tmpDir(
-                    'CLI should add Git tag with customized tag prefix',
-                    testName,
-                ),
-            );
-            const customPrefix = 'my-awesome-pkg-v';
-            const configValue: Record<typeof configFile, string> = {
-                '.npmrc': 'this-is-npm-tag-prefix-',
-                '.yarnrc': 'this-is-yarn-tag-prefix-',
-                [configFile]: customPrefix,
-            };
+    )('%s', async (testName, { pkgJson, configFile, commad }) => {
+        const { exec, gitDirpath, version } = await initGit(
+            tmpDir(
+                'CLI should add Git tag with customized tag prefix',
+                testName,
+            ),
+        );
+        const customPrefix = 'my-awesome-pkg-v';
+        const configValue: Record<typeof configFile, string> = {
+            '.npmrc': 'this-is-npm-tag-prefix-',
+            '.yarnrc': 'this-is-yarn-tag-prefix-',
+            [configFile]: customPrefix,
+        };
 
-            await exec(['npm', 'install', '--no-save', PROJECT_ROOT]);
-            await Promise.all([
-                fs.writeFile(
-                    path.join(gitDirpath, '.npmrc'),
-                    `tag-version-prefix=${configValue['.npmrc']}`,
-                ),
-                fs.writeFile(
-                    path.join(gitDirpath, '.yarnrc'),
-                    `version-tag-prefix ${configValue['.yarnrc']}`,
-                ),
-                // eslint-disable-next-line vitest/no-conditional-in-test
-                pkgJson
-                    ? fs.writeFile(
-                          path.join(gitDirpath, 'package.json'),
-                          JSON.stringify({ ...pkgJson, version }),
-                      )
-                    : null,
-            ]);
+        await Promise.all([
+            fs.writeFile(
+                path.join(gitDirpath, '.npmrc'),
+                `tag-version-prefix=${configValue['.npmrc']}`,
+            ),
+            fs.writeFile(
+                path.join(gitDirpath, '.yarnrc'),
+                `version-tag-prefix ${configValue['.yarnrc']}`,
+            ),
+            // eslint-disable-next-line vitest/no-conditional-in-test
+            pkgJson
+                ? fs.writeFile(
+                      path.join(gitDirpath, 'package.json'),
+                      JSON.stringify({ ...pkgJson, version }),
+                  )
+                : null,
+        ]);
+        await exec(commad.install);
 
-            await expect(
-                exec(getPrefixCommad),
-                'version tag prefix should be defined in the config',
-            ).resolves.toMatchObject({ stdout: customPrefix });
-            await expect(
-                exec(['git', 'tag', '-l']),
-                'Git tag should not exist yet',
-            ).resolves.toMatchObject({ stdout: '', stderr: '' });
+        await expect(
+            exec(commad.getPrefix),
+            'version tag prefix should be defined in the config',
+        ).resolves.toMatchObject({ stdout: customPrefix });
+        await expect(
+            exec(['git', 'tag', '-l']),
+            'Git tag should not exist yet',
+        ).resolves.toMatchObject({ stdout: '', stderr: '' });
 
-            await expect(
-                exec(execCommad),
-                'CLI should exits successfully',
-            ).resolves.toSatisfy(() => true);
+        await expect(
+            exec(commad.execCli),
+            'CLI should exits successfully',
+        ).resolves.toSatisfy(() => true);
 
-            const tagName = `${customPrefix}${version}`;
-            await expect(
-                exec([
-                    'git',
-                    'for-each-ref',
-                    '--format=%(objecttype) %(refname)',
-                    'refs/tags',
-                ]),
-                `Git annotated tag '${tagName}' should be added`,
-            ).resolves.toMatchObject({
-                stdout: `tag refs/tags/${tagName}`,
-            });
-        },
-    );
+        const tagName = `${customPrefix}${version}`;
+        await expect(
+            exec([
+                'git',
+                'for-each-ref',
+                '--format=%(objecttype) %(refname)',
+                'refs/tags',
+            ]),
+            `Git annotated tag '${tagName}' should be added`,
+        ).resolves.toMatchObject({
+            stdout: `tag refs/tags/${tagName}`,
+        });
+    });
 });
