@@ -33,7 +33,6 @@
     },
     {
       packageNames: [
-        "escape-string-regexp",
         "execa",
         "node-git-server",
         "ts-node",
@@ -60,14 +59,6 @@
     {
       matchPackageNames: ["npm"],
       matchUpdateTypes: ["major"],
-      enabled: false,
-    },
-    // `escape-string-regexp@>=5.0.0` doesn't work with old Node.js.
-    // Because it uses pure ESM.
-    // We should only update if the Node.js support range: `>=14.13.0`
-    {
-      matchPackageNames: ["escape-string-regexp"],
-      matchCurrentVersion: "<5.0.0",
       enabled: false,
     },
     // `execa@>=6.0.0` doesn't work with old Node.js.

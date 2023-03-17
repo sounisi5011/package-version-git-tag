@@ -119,6 +119,7 @@ Because it is the minimum version available for Vitest.
 
 * [#200] - `ava`
 * [#186] - `del`
+* [#214] - `escape-string-regexp`
 * [#185] - `eslint-plugin-node`
 * [#185] - `eslint-plugin-standard`
 * [#185] - `husky`
@@ -173,6 +174,7 @@ Because it is the minimum version available for Vitest.
 [#210]: https://github.com/sounisi5011/package-version-git-tag/pull/210
 [#211]: https://github.com/sounisi5011/package-version-git-tag/pull/211
 [#213]: https://github.com/sounisi5011/package-version-git-tag/pull/213
+[#214]: https://github.com/sounisi5011/package-version-git-tag/pull/214
 
 ## [3.0.0] (2020-06-02 UTC)
 
