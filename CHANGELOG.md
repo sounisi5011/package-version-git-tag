@@ -96,6 +96,7 @@ Because it is the minimum version available for Vitest.
 
 #### devDependencies
 
+* [#214] - `@sindresorhus/slugify@1.1.2`
 * [#186] - `@tsconfig/node14@1.0.3`
 * [#185] - `eslint-plugin-n@15.6.1`
 * [#200] - `eslint-plugin-vitest@0.0.54`

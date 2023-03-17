@@ -64,6 +64,7 @@
     "mri": "^1.2.0"
   },
   "devDependencies": {
+    "@sindresorhus/slugify": "1.1.2",
     "@sounisi5011/readme-generator": "github:sounisi5011/readme-generator#semver:0.0.2",
     "@tsconfig/node14": "1.0.3",
     "@types/cross-spawn": "6.0.2",
