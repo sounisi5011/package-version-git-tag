@@ -5,7 +5,6 @@ import { beforeAll, describe, expect, it, test } from 'vitest';
 
 import * as PKG_DATA from '../package.json';
 import { getRandomInt } from './helpers';
-import type { ExecFunc } from './helpers/git';
 import { initGit } from './helpers/git';
 
 const PROJECT_ROOT = path.resolve(__dirname, '..');
@@ -32,63 +31,59 @@ beforeAll(async () => {
     });
 });
 
-test('CLI should add Git tag', async () => {
-    const { exec } = await initGit(tmpDir('not-exists-git-tag'));
+describe('CLI should add Git tag', () => {
+    interface Case {
+        tmpDirName: string;
+        cliArgs: readonly string[];
+        expected: Partial<Awaited<execa.ExecaChildProcess>>;
+    }
 
-    await expect(
-        exec(['git', 'tag', '-l']),
-        'Git tag should not exist yet',
-    ).resolves.toMatchObject({ stdout: '', stderr: '' });
+    it.each(
+        Object.entries<Case>({
+            normal: {
+                tmpDirName: 'not-exists-git-tag',
+                cliArgs: [],
+                expected: {
+                    stderr: '',
+                },
+            },
+            'with verbose output': {
+                tmpDirName: 'not-exists-git-tag-with-verbose',
+                cliArgs: ['--verbose'],
+                expected: {
+                    stderr: [
+                        '',
+                        '> git tag v0.0.0 -m 0.0.0',
+                        '',
+                        //
+                    ].join('\n'),
+                },
+            },
+        }),
+    )('%s', async (_, { tmpDirName, cliArgs, expected }) => {
+        const { exec } = await initGit(tmpDir(tmpDirName));
 
-    await expect(
-        exec([CLI_PATH]),
-        'CLI should not output anything',
-    ).resolves.toMatchObject({ stdout: '', stderr: '' });
+        await expect(
+            exec(['git', 'tag', '-l']),
+            'Git tag should not exist yet',
+        ).resolves.toMatchObject({ stdout: '', stderr: '' });
 
-    await expect(
-        exec([
-            'git',
-            'for-each-ref',
-            '--format=%(objecttype) %(refname)',
-            'refs/tags',
-        ]),
-        'Git annotated tag v0.0.0 should be added',
-    ).resolves.toMatchObject({
-        stdout: 'tag refs/tags/v0.0.0',
-    });
-});
+        await expect(
+            exec([CLI_PATH, ...cliArgs]),
+            'CLI should exits successfully',
+        ).resolves.toMatchObject({ stdout: '', stderr: '', ...expected });
 
-test('CLI should add Git tag with verbose output', async () => {
-    const { exec } = await initGit(tmpDir('not-exists-git-tag-with-verbose'));
-
-    await expect(
-        exec(['git', 'tag', '-l']),
-        'Git tag should not exist yet',
-    ).resolves.toMatchObject({ stdout: '', stderr: '' });
-
-    await expect(
-        exec([CLI_PATH, '--verbose']),
-        'CLI should exits successfully',
-    ).resolves.toMatchObject({
-        stdout: '',
-        stderr: [
-            '',
-            '> git tag v0.0.0 -m 0.0.0',
-            '',
-            //
-        ].join('\n'),
-    });
-
-    await expect(
-        exec([
-            'git',
-            'for-each-ref',
-            '--format=%(objecttype) %(refname)',
-            'refs/tags',
-        ]),
-        'Git annotated tag v0.0.0 should be added',
-    ).resolves.toMatchObject({
-        stdout: 'tag refs/tags/v0.0.0',
+        await expect(
+            exec([
+                'git',
+                'for-each-ref',
+                '--format=%(objecttype) %(refname)',
+                'refs/tags',
+            ]),
+            'Git annotated tag v0.0.0 should be added',
+        ).resolves.toMatchObject({
+            stdout: 'tag refs/tags/v0.0.0',
+        });
     });
 });
 
@@ -126,127 +121,80 @@ describe('CLI should not add Git tag with dry-run', () => {
     });
 });
 
-test('CLI should complete successfully if Git tag has been added', async () => {
-    const { exec } = await initGit(tmpDir('exists-git-tag-in-same-commit'));
-    await exec(['git', 'tag', 'v0.0.0']);
+describe('CLI should complete successfully if Git tag has been added', () => {
+    interface Case {
+        tmpDirName: string;
+        cliArgs: readonly string[];
+        expected: Partial<Awaited<execa.ExecaChildProcess>>;
+    }
 
-    const gitTagResult = exec(['git', 'tag', '-l']).then(
-        ({ stdout, stderr }) => ({ stdout, stderr }),
-    );
-    await expect(
-        gitTagResult,
-        'Git tag v0.0.0 should exist',
-    ).resolves.toStrictEqual({
-        stdout: 'v0.0.0',
-        stderr: '',
+    it.each(
+        Object.entries<Case>({
+            normal: {
+                tmpDirName: 'exists-git-tag-in-same-commit',
+                cliArgs: [],
+                expected: {
+                    stderr: '',
+                },
+            },
+            'with verbose output': {
+                tmpDirName: 'exists-git-tag-in-same-commit-with-verbose',
+                cliArgs: ['--verbose'],
+                expected: {
+                    stderr: [
+                        '',
+                        '> #git tag v0.0.0 -m 0.0.0',
+                        `  # tag 'v0.0.0' already exists`,
+                        '',
+                    ].join('\n'),
+                },
+            },
+            'with dry-run': {
+                tmpDirName: 'exists-git-tag-in-same-commit-with-dry-run',
+                cliArgs: ['--dry-run'],
+                expected: {
+                    stderr: [
+                        'Dry Run enabled',
+                        '',
+                        '> #git tag v0.0.0 -m 0.0.0',
+                        `  # tag 'v0.0.0' already exists`,
+                        '',
+                    ].join('\n'),
+                },
+            },
+        }),
+    )('%s', async (_, { tmpDirName, cliArgs, expected }) => {
+        const { exec } = await initGit(tmpDir(tmpDirName));
+        await exec(['git', 'tag', 'v0.0.0']);
+
+        const gitTagResult = exec(['git', 'tag', '-l']).then(
+            ({ stdout, stderr }) => ({ stdout, stderr }),
+        );
+        await expect(
+            gitTagResult,
+            'Git tag v0.0.0 should exist',
+        ).resolves.toStrictEqual({
+            stdout: 'v0.0.0',
+            stderr: '',
+        });
+        await expect(
+            exec(['git', 'tag', 'v0.0.0']),
+            'Overwriting tags with git cli should fail',
+        ).rejects.toMatchObject({
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            stderr: expect.stringContaining(`tag 'v0.0.0' already exists`),
+        });
+
+        await expect(
+            exec([CLI_PATH, ...cliArgs]),
+            'CLI should exits successfully',
+        ).resolves.toMatchObject({ stdout: '', stderr: '', ...expected });
+
+        await expect(
+            exec(['git', 'tag', '-l']),
+            'Git tag should not change',
+        ).resolves.toMatchObject(await gitTagResult);
     });
-
-    await expect(
-        exec(['git', 'tag', 'v0.0.0']),
-        'Overwriting tags with git cli should fail',
-    ).rejects.toMatchObject({
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        stderr: expect.stringContaining(`tag 'v0.0.0' already exists`),
-    });
-
-    await expect(
-        exec([CLI_PATH]),
-        'CLI should not output anything',
-    ).resolves.toMatchObject({ stdout: '', stderr: '' });
-
-    await expect(
-        exec(['git', 'tag', '-l']),
-        'Git tag should not change',
-    ).resolves.toMatchObject(await gitTagResult);
-});
-
-test('CLI should complete successfully if Git tag has been added with verbose output', async () => {
-    const { exec } = await initGit(
-        tmpDir('exists-git-tag-in-same-commit-with-verbose'),
-    );
-    await exec(['git', 'tag', 'v0.0.0']);
-
-    const gitTagResult = exec(['git', 'tag', '-l']).then(
-        ({ stdout, stderr }) => ({ stdout, stderr }),
-    );
-    await expect(
-        gitTagResult,
-        'Git tag v0.0.0 should exist',
-    ).resolves.toStrictEqual({
-        stdout: 'v0.0.0',
-        stderr: '',
-    });
-
-    await expect(
-        exec(['git', 'tag', 'v0.0.0']),
-        'Overwriting tags with git cli should fail',
-    ).rejects.toMatchObject({
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        stderr: expect.stringContaining(`tag 'v0.0.0' already exists`),
-    });
-
-    await expect(
-        exec([CLI_PATH, '--verbose']),
-        'CLI should exits successfully',
-    ).resolves.toMatchObject({
-        stdout: '',
-        stderr: [
-            '',
-            '> #git tag v0.0.0 -m 0.0.0',
-            `  # tag 'v0.0.0' already exists`,
-            '',
-        ].join('\n'),
-    });
-
-    await expect(
-        exec(['git', 'tag', '-l']),
-        'Git tag should not change',
-    ).resolves.toMatchObject(await gitTagResult);
-});
-
-test('CLI should complete successfully if Git tag has been added with dry-run', async () => {
-    const { exec } = await initGit(
-        tmpDir('exists-git-tag-in-same-commit-with-dry-run'),
-    );
-    await exec(['git', 'tag', 'v0.0.0']);
-
-    const gitTagResult = exec(['git', 'tag', '-l']).then(
-        ({ stdout, stderr }) => ({ stdout, stderr }),
-    );
-    await expect(
-        gitTagResult,
-        'Git tag v0.0.0 should exist',
-    ).resolves.toStrictEqual({
-        stdout: 'v0.0.0',
-        stderr: '',
-    });
-
-    await expect(
-        exec(['git', 'tag', 'v0.0.0']),
-        'Overwriting tags with git cli should fail',
-    ).rejects.toMatchObject({
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        stderr: expect.stringContaining(`tag 'v0.0.0' already exists`),
-    });
-
-    await expect(
-        exec([CLI_PATH, '--dry-run']),
-        'CLI should exits successfully',
-    ).resolves.toMatchObject({
-        stdout: '',
-        stderr: [
-            'Dry Run enabled',
-            '',
-            '> #git tag v0.0.0 -m 0.0.0',
-            `  # tag 'v0.0.0' already exists`,
-            '',
-        ].join('\n'),
-    });
-
-    await expect(
-        exec(['git', 'tag', '-l']),
-        'Git tag should not change',
-    ).resolves.toMatchObject(await gitTagResult);
 });
 
 test('CLI should fail if Git tag exists on different commits', async () => {
@@ -356,51 +304,38 @@ test('CLI push flag should fail if there is no remote repository', async () => {
     });
 });
 
-test('CLI should add and push Git tag', async () => {
-    const { exec, remote } = await initGit(
-        tmpDir('push-success-git-tag'),
-        true,
-    );
-
-    {
-        const { tagList } = remote;
-
-        await expect(
-            exec(['git', 'push', '--dry-run', 'origin', 'HEAD']),
-            'Git push should success',
-        ).resolves.toSatisfy(() => true);
-
-        await expect(
-            exec([CLI_PATH, '--push']),
-            'CLI should not output anything',
-        ).resolves.toMatchObject({ stdout: '', stderr: '' });
-
-        await expect(
-            exec([
-                'git',
-                'for-each-ref',
-                '--format=%(objecttype) %(refname)',
-                'refs/tags',
-            ]),
-            'Git annotated tag v0.0.0 should be added',
-        ).resolves.toMatchObject({
-            stdout: 'tag refs/tags/v0.0.0',
-        });
-
-        expect(tagList, 'Git tag v0.0.0 should have been pushed').toStrictEqual(
-            ['v0.0.0'],
-        );
+describe('CLI should add and push Git tag', () => {
+    interface Case {
+        tmpDirName: string;
+        cliArgs: readonly string[];
+        expected: Partial<Awaited<execa.ExecaChildProcess>>;
     }
-});
 
-test('CLI should add and push Git tag with verbose output', async () => {
-    const { exec, remote } = await initGit(
-        tmpDir('push-success-git-tag-with-verbose'),
-        true,
-    );
-
-    {
-        const { tagList } = remote;
+    it.each(
+        Object.entries<Case>({
+            normal: {
+                tmpDirName: 'push-success-git-tag',
+                cliArgs: [],
+                expected: { stderr: '' },
+            },
+            'with verbose output': {
+                tmpDirName: 'push-success-git-tag-with-verbose',
+                cliArgs: ['--verbose'],
+                expected: {
+                    stderr: [
+                        '',
+                        '> git tag v0.0.0 -m 0.0.0',
+                        '> git push origin v0.0.0',
+                        '',
+                    ].join('\n'),
+                },
+            },
+        }),
+    )('%s', async (_, { tmpDirName, cliArgs, expected }) => {
+        const {
+            exec,
+            remote: { tagList },
+        } = await initGit(tmpDir(tmpDirName), true);
 
         await expect(
             exec(['git', 'push', '--dry-run', 'origin', 'HEAD']),
@@ -408,17 +343,9 @@ test('CLI should add and push Git tag with verbose output', async () => {
         ).resolves.toSatisfy(() => true);
 
         await expect(
-            exec([CLI_PATH, '--push', '--verbose']),
+            exec([CLI_PATH, '--push', ...cliArgs]),
             'CLI should exits successfully',
-        ).resolves.toMatchObject({
-            stdout: '',
-            stderr: [
-                '',
-                '> git tag v0.0.0 -m 0.0.0',
-                '> git push origin v0.0.0',
-                '',
-            ].join('\n'),
-        });
+        ).resolves.toMatchObject({ stdout: '', stderr: '', ...expected });
 
         await expect(
             exec([
@@ -435,7 +362,7 @@ test('CLI should add and push Git tag with verbose output', async () => {
         expect(tagList, 'Git tag v0.0.0 should have been pushed').toStrictEqual(
             ['v0.0.0'],
         );
-    }
+    });
 });
 
 test('CLI should not add and not push Git tag with dry-run', async () => {
@@ -517,50 +444,21 @@ test('CLI should add and push single Git tag', async () => {
     expect(tagList, 'Git tag needs to push only one').toStrictEqual(['v0.0.0']);
 });
 
-describe('CLI should to display version', () => {
-    it.each(['-V', '-v', '--version'])('%s', async (option) => {
-        const { exec } = await initGit(tmpDir('display-version'));
-
-        const gitTagResult = exec(['git', 'tag', '-l']).then(
-            ({ stdout, stderr }) => ({ stdout, stderr }),
-        );
-        await expect(
-            gitTagResult,
-            'Git tag should not exist yet',
-        ).resolves.toStrictEqual({ stdout: '', stderr: '' });
-
-        await expect(
-            exec([CLI_PATH, option]),
-            'CLI should output version number',
-        ).resolves.toMatchObject({
-            stdout: `${PKG_DATA.name}/${PKG_DATA.version} ${process.platform}-${process.arch} node-${process.version}`,
-            stderr: '',
-        });
-
-        await expect(
-            exec(['git', 'tag', '-l']),
-            'Git tag should not change',
-        ).resolves.toMatchObject(await gitTagResult);
-    });
-});
-
-describe('CLI should to display help', () => {
-    it.each(['-h', '--help'])('%s', async (option) => {
-        const { exec } = await initGit(tmpDir('display-help'));
-
-        const gitTagResult = exec(['git', 'tag', '-l']).then(
-            ({ stdout, stderr }) => ({ stdout, stderr }),
-        );
-        await expect(
-            gitTagResult,
-            'Git tag should not exist yet',
-        ).resolves.toStrictEqual({ stdout: '', stderr: '' });
-
-        await expect(
-            exec([CLI_PATH, option]),
-            'CLI should output help',
-        ).resolves.toMatchObject({
-            stdout: [
+describe.each(
+    Object.entries<{
+        tmpDirName: string;
+        optionList: readonly [string, ...string[]];
+        expected: string;
+    }>({
+        version: {
+            tmpDirName: 'display-version',
+            optionList: ['-V', '-v', '--version'],
+            expected: `${PKG_DATA.name}/${PKG_DATA.version} ${process.platform}-${process.arch} node-${process.version}`,
+        },
+        help: {
+            tmpDirName: 'display-help',
+            optionList: ['-h', '--help'],
+            expected: [
                 `${PKG_DATA.name} v${PKG_DATA.version}`,
                 '',
                 PKG_DATA.description,
@@ -575,6 +473,25 @@ describe('CLI should to display help', () => {
                 '  --verbose          show details of executed git commands ',
                 '  -n, --dry-run      perform a trial run with no changes made ',
             ].join('\n'),
+        },
+    }),
+)('CLI should to display %s', (_, { tmpDirName, optionList, expected }) => {
+    it.each(optionList)('%s', async (option) => {
+        const { exec } = await initGit(tmpDir(tmpDirName));
+
+        const gitTagResult = exec(['git', 'tag', '-l']).then(
+            ({ stdout, stderr }) => ({ stdout, stderr }),
+        );
+        await expect(
+            gitTagResult,
+            'Git tag should not exist yet',
+        ).resolves.toStrictEqual({ stdout: '', stderr: '' });
+
+        await expect(
+            exec([CLI_PATH, option]),
+            'CLI should exits successfully',
+        ).resolves.toMatchObject({
+            stdout: expected,
             stderr: '',
         });
 
@@ -616,194 +533,124 @@ test('CLI should not work with unknown options', async () => {
 });
 
 describe('CLI should add Git tag with customized tag prefix', () => {
-    const after = async ({
-        exec,
-        tagName,
-    }: {
-        exec: ExecFunc;
-        tagName: string;
-    }): Promise<void> => {
-        await expect(
-            exec([
-                'git',
-                'for-each-ref',
-                '--format=%(objecttype) %(refname)',
-                'refs/tags',
-            ]),
-            `Git annotated tag '${tagName}' should be added`,
-        ).resolves.toMatchObject({
-            stdout: `tag refs/tags/${tagName}`,
-        });
-    };
+    interface Case {
+        tmpDirName: string;
+        pkgJson?: Record<string, unknown>;
+        configFile: '.npmrc' | '.yarnrc';
+        getPrefixCommad: readonly [string, ...string[]];
+        execCommad: readonly [string, ...string[]];
+    }
 
-    {
-        const customPrefix = 'npm-tag-';
-        const setup = async ({
-            exec,
-            gitDirpath,
-            pkgJson,
-        }: {
-            exec: ExecFunc;
-            gitDirpath: string;
-            pkgJson?: Record<string, unknown>;
-        }): Promise<void> => {
-            await expect(
-                exec(['npm', 'install', '--no-save', PROJECT_ROOT]),
-            ).resolves.toSatisfy(() => true);
+    it.each(
+        Object.entries<Case>({
+            'npm exec {command}': {
+                tmpDirName: 'custom-tag-prefix-npm',
+                configFile: '.npmrc',
+                getPrefixCommad: ['npm', 'config', 'get', 'tag-version-prefix'],
+                execCommad: ['npm', 'exec', '--no', PKG_DATA.name],
+            },
+            'npm run {npm-script}': {
+                tmpDirName: 'custom-tag-prefix-npm.run-script',
+                pkgJson: {
+                    scripts: {
+                        'xxx-run-cli': PKG_DATA.name,
+                    },
+                },
+                configFile: '.npmrc',
+                getPrefixCommad: ['npm', 'config', 'get', 'tag-version-prefix'],
+                execCommad: ['npm', 'run', 'xxx-run-cli'],
+            },
+            'yarn run {command}': {
+                tmpDirName: 'custom-tag-prefix-yarn',
+                pkgJson: {
+                    packageManager: 'yarn@1.22.19',
+                },
+                configFile: '.yarnrc',
+                getPrefixCommad: [
+                    'yarn',
+                    'config',
+                    'get',
+                    'version-tag-prefix',
+                ],
+                execCommad: ['yarn', 'run', PKG_DATA.name],
+            },
+            'yarn run {npm-script}': {
+                tmpDirName: 'custom-tag-prefix-yarn.run-script',
+                pkgJson: {
+                    scripts: {
+                        'xxx-run-cli': PKG_DATA.name,
+                    },
+                    packageManager: 'yarn@1.22.19',
+                },
+                configFile: '.yarnrc',
+                getPrefixCommad: [
+                    'yarn',
+                    'config',
+                    'get',
+                    'version-tag-prefix',
+                ],
+                execCommad: ['yarn', 'run', 'xxx-run-cli'],
+            },
+        }),
+    )(
+        '%s',
+        async (
+            _,
+            { tmpDirName, pkgJson, configFile, getPrefixCommad, execCommad },
+        ) => {
+            const { exec, gitDirpath } = await initGit(tmpDir(tmpDirName));
+            const customPrefix = 'my-awesome-pkg-v';
+            const configValue: Record<typeof configFile, string> = {
+                '.npmrc': 'this-is-npm-tag-prefix-',
+                '.yarnrc': 'this-is-yarn-tag-prefix-',
+                [configFile]: customPrefix,
+            };
+
+            await exec(['npm', 'install', '--no-save', PROJECT_ROOT]);
             await Promise.all([
                 fs.writeFile(
                     path.join(gitDirpath, '.npmrc'),
-                    `tag-version-prefix=${customPrefix}`,
+                    `tag-version-prefix=${configValue['.npmrc']}`,
                 ),
                 fs.writeFile(
                     path.join(gitDirpath, '.yarnrc'),
-                    'version-tag-prefix this-is-yarn-tag-prefix-',
+                    `version-tag-prefix ${configValue['.yarnrc']}`,
                 ),
+                // eslint-disable-next-line vitest/no-conditional-in-test
                 pkgJson
                     ? fs.writeFile(
                           path.join(gitDirpath, 'package.json'),
-                          JSON.stringify(pkgJson),
+                          JSON.stringify({ ...pkgJson, version: '0.0.0' }),
                       )
                     : null,
             ]);
 
             await expect(
-                exec(['npm', 'config', 'get', 'tag-version-prefix']),
-                'should define tag-version-prefix in npm-config',
+                exec(getPrefixCommad),
+                'version tag prefix should be defined in the config',
             ).resolves.toMatchObject({ stdout: customPrefix });
             await expect(
                 exec(['git', 'tag', '-l']),
                 'Git tag should not exist yet',
             ).resolves.toMatchObject({ stdout: '', stderr: '' });
-        };
-
-        it('npm exec {command}', async () => {
-            const { exec, gitDirpath } = await initGit(
-                tmpDir('custom-tag-prefix-npm'),
-            );
-
-            await setup({ exec, gitDirpath });
 
             await expect(
-                exec(['npm', 'exec', '--no', PKG_DATA.name]),
+                exec(execCommad),
                 'CLI should exits successfully',
             ).resolves.toSatisfy(() => true);
 
             const tagName = `${customPrefix}0.0.0`;
-            await after({ exec, tagName });
-        });
-
-        it('npm run {npm-script}', async () => {
-            const { exec, gitDirpath } = await initGit(
-                tmpDir('custom-tag-prefix-npm.run-script'),
-            );
-
-            const version = '1.1.0';
-            const npmScriptName = 'xxx-run-cli';
-            await setup({
-                exec,
-                gitDirpath,
-                pkgJson: {
-                    version,
-                    scripts: {
-                        [npmScriptName]: PKG_DATA.name,
-                    },
-                },
+            await expect(
+                exec([
+                    'git',
+                    'for-each-ref',
+                    '--format=%(objecttype) %(refname)',
+                    'refs/tags',
+                ]),
+                `Git annotated tag '${tagName}' should be added`,
+            ).resolves.toMatchObject({
+                stdout: `tag refs/tags/${tagName}`,
             });
-
-            await expect(
-                exec(['npm', 'run', npmScriptName]),
-                'CLI should exits successfully',
-            ).resolves.toSatisfy(() => true);
-
-            const tagName = `${customPrefix}${version}`;
-            await after({ exec, tagName });
-        });
-    }
-
-    {
-        const customPrefix = 'yarn-tag-';
-
-        const setup = async ({
-            exec,
-            gitDirpath,
-            pkgJson,
-        }: {
-            exec: ExecFunc;
-            gitDirpath: string;
-            pkgJson?: Record<string, unknown>;
-        }): Promise<void> => {
-            await exec(['npm', 'install', '--no-save', PROJECT_ROOT]);
-            await Promise.all([
-                fs.writeFile(
-                    path.join(gitDirpath, '.npmrc'),
-                    'tag-version-prefix=this-is-npm-tag-prefix-',
-                ),
-                fs.writeFile(
-                    path.join(gitDirpath, '.yarnrc'),
-                    `version-tag-prefix ${customPrefix}`,
-                ),
-                fs.writeFile(
-                    path.join(gitDirpath, 'package.json'),
-                    JSON.stringify({
-                        version: '0.0.0',
-                        packageManager: 'yarn@1.22.19',
-                        ...pkgJson,
-                    }),
-                ),
-            ]);
-
-            await expect(
-                exec(['yarn', 'config', 'get', 'version-tag-prefix']),
-                'should define version-tag-prefix in yarn config',
-            ).resolves.toMatchObject({ stdout: customPrefix });
-            await expect(
-                exec(['git', 'tag', '-l']),
-                'Git tag should not exist yet',
-            ).resolves.toMatchObject({ stdout: '', stderr: '' });
-        };
-
-        it('yarn run {command}', async () => {
-            const { exec, gitDirpath } = await initGit(
-                tmpDir('custom-tag-prefix-yarn'),
-            );
-
-            await setup({ exec, gitDirpath });
-
-            await expect(
-                exec(['yarn', 'run', PKG_DATA.name]),
-                'CLI should exits successfully',
-            ).resolves.toSatisfy(() => true);
-
-            const tagName = `${customPrefix}0.0.0`;
-            await after({ exec, tagName });
-        });
-
-        it('yarn run {npm-script}', async () => {
-            const { exec, gitDirpath } = await initGit(
-                tmpDir('custom-tag-prefix-yarn.run-script'),
-            );
-
-            const version = '1.0.2';
-            const npmScriptName = 'xxx-run-cli';
-            await setup({
-                exec,
-                gitDirpath,
-                pkgJson: {
-                    version,
-                    scripts: {
-                        [npmScriptName]: PKG_DATA.name,
-                    },
-                },
-            });
-
-            await expect(
-                exec(['yarn', 'run', npmScriptName]),
-                'CLI should exits successfully',
-            ).resolves.toSatisfy(() => true);
-
-            const tagName = `${customPrefix}${version}`;
-            await after({ exec, tagName });
-        });
-    }
+        },
+    );
 });
