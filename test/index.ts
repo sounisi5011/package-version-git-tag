@@ -545,10 +545,7 @@ test.concurrent('CLI should not work with unknown options', async () => {
 describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
     interface Case {
         pkgJson?: Record<string, unknown>;
-        commad: Record<
-            'install' | 'getPrefix' | 'execCli',
-            readonly [string, ...string[]]
-        >;
+        commad: Record<'getPrefix' | 'execCli', readonly [string, ...string[]]>;
         configFile: '.npmrc' | '.yarnrc';
     }
 
@@ -556,7 +553,6 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
         Object.entries<Case>({
             'npm exec {command}': {
                 commad: {
-                    install: ['npm', 'install', '--no-save', PROJECT_ROOT],
                     getPrefix: ['npm', 'config', 'get', 'tag-version-prefix'],
                     execCli: ['npm', 'exec', '--no', PKG_DATA.name],
                 },
@@ -569,7 +565,6 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
                     },
                 },
                 commad: {
-                    install: ['npm', 'install', '--no-save', PROJECT_ROOT],
                     getPrefix: ['npm', 'config', 'get', 'tag-version-prefix'],
                     execCli: ['npm', 'run', 'xxx-run-cli'],
                 },
@@ -580,10 +575,6 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
                     packageManager: 'yarn@1.22.19',
                 },
                 commad: {
-                    // Note: Using the `yarn add link:/path/to/local/folder` command would speed up the installation.
-                    //       But we do not use this.
-                    //       Because no symbolic link is created in the `node_modules/.bin` directory.
-                    install: ['yarn', 'add', PROJECT_ROOT, '--no-lockfile'],
                     getPrefix: ['yarn', 'config', 'get', 'version-tag-prefix'],
                     execCli: ['yarn', 'run', PKG_DATA.name],
                 },
@@ -597,10 +588,6 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
                     packageManager: 'yarn@1.22.19',
                 },
                 commad: {
-                    // Note: Using the `yarn add link:/path/to/local/folder` command would speed up the installation.
-                    //       But we do not use this.
-                    //       Because no symbolic link is created in the `node_modules/.bin` directory.
-                    install: ['yarn', 'add', PROJECT_ROOT, '--no-lockfile'],
                     getPrefix: ['yarn', 'config', 'get', 'version-tag-prefix'],
                     execCli: ['yarn', 'run', 'xxx-run-cli'],
                 },
@@ -621,6 +608,9 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
             [configFile]: customPrefix,
         };
 
+        // Use the "npm install <folder>" command even if the package manager is yarn.
+        // This is because the "yarn add /path/to/local/folder" command may fail on GitHub Actions.
+        await exec(['npm', 'install', '--no-save', PROJECT_ROOT]);
         await Promise.all([
             fs.writeFile(
                 path.join(gitDirpath, '.npmrc'),
@@ -638,7 +628,6 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
                   )
                 : null,
         ]);
-        await exec(commad.install);
 
         await expect(
             exec(commad.getPrefix),
