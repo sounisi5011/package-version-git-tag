@@ -545,7 +545,14 @@ test.concurrent('CLI should not work with unknown options', async () => {
 describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
     interface Case {
         pkgJson?: Record<string, unknown>;
-        commad: Record<'getPrefix' | 'execCli', readonly [string, ...string[]]>;
+        commad: Record<
+            'getPrefix' | 'execCli',
+            readonly [string, ...string[]]
+        > & {
+            setNewVersion: (
+                newVersion: string,
+            ) => readonly [string, ...string[]];
+        };
         configFile: '.npmrc' | '.yarnrc';
     }
 
@@ -555,6 +562,11 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
                 commad: {
                     getPrefix: ['npm', 'config', 'get', 'tag-version-prefix'],
                     execCli: ['npm', 'exec', '--no', PKG_DATA.name],
+                    setNewVersion: (newVersion) => [
+                        'npm',
+                        'version',
+                        newVersion,
+                    ],
                 },
                 configFile: '.npmrc',
             },
@@ -567,6 +579,11 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
                 commad: {
                     getPrefix: ['npm', 'config', 'get', 'tag-version-prefix'],
                     execCli: ['npm', 'run', 'xxx-run-cli'],
+                    setNewVersion: (newVersion) => [
+                        'npm',
+                        'version',
+                        newVersion,
+                    ],
                 },
                 configFile: '.npmrc',
             },
@@ -577,6 +594,12 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
                 commad: {
                     getPrefix: ['yarn', 'config', 'get', 'version-tag-prefix'],
                     execCli: ['yarn', 'run', PKG_DATA.name],
+                    setNewVersion: (newVersion) => [
+                        'yarn',
+                        'version',
+                        '--new-version',
+                        newVersion,
+                    ],
                 },
                 configFile: '.yarnrc',
             },
@@ -590,6 +613,12 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
                 commad: {
                     getPrefix: ['yarn', 'config', 'get', 'version-tag-prefix'],
                     execCli: ['yarn', 'run', 'xxx-run-cli'],
+                    setNewVersion: (newVersion) => [
+                        'yarn',
+                        'version',
+                        '--new-version',
+                        newVersion,
+                    ],
                 },
                 configFile: '.yarnrc',
             },
@@ -612,6 +641,7 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
         // This is because the "yarn add /path/to/local/folder" command may fail on GitHub Actions.
         await exec(['npm', 'install', '--no-save', PROJECT_ROOT]);
         await Promise.all([
+            fs.writeFile(path.join(gitDirpath, '.gitignore'), 'node_modules/'),
             fs.writeFile(
                 path.join(gitDirpath, '.npmrc'),
                 `tag-version-prefix=${configValue['.npmrc']}`,
@@ -654,6 +684,25 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
             `Git annotated tag '${tagName}' should be added`,
         ).resolves.toMatchObject({
             stdout: `tag refs/tags/${tagName}`,
+        });
+
+        const newVersion = `${version}1`;
+        await exec(['git', 'add', '--all']);
+        await exec(['git', 'commit', '-m', 'Second commit']);
+        await exec(commad.setNewVersion(newVersion));
+        await expect(
+            exec([
+                'git',
+                'for-each-ref',
+                '--format=%(objecttype) %(refname)',
+                'refs/tags',
+            ]),
+            'The "version" command in the package manager should also use the same prefix',
+        ).resolves.toMatchObject({
+            stdout: [
+                `tag refs/tags/${tagName}`,
+                `tag refs/tags/${customPrefix}${newVersion}`,
+            ].join('\n'),
         });
     });
 });
