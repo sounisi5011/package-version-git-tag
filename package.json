@@ -99,7 +99,7 @@
     "vitest": "0.29.2",
     "vitest-mock-process": "1.0.4"
   },
-  "packageManager": "npm@7.24.2",
+  "packageManager": "pnpm@7.30.0+blake2b512.53e226d8a21f5cb24a0e353043a90da7188c8d6f0747bead13762a40f157e7b065c7f369b323b98186441cc923c36dd9be0f40417166f624ba05f28d6de674d7",
   "engines": {
     "node": "^14.14.0 || 16.x || >=18.x"
   }
