@@ -47,7 +47,6 @@
     {
       packageNames: [
         "can-npm-publish",
-        "check-peer-deps",
         "del-cli",
         "git-branch-is",
         "is-git-status-clean",
