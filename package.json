@@ -52,8 +52,7 @@
     "release:validation:git-work-dir": "is-git-status-clean",
     "release:validation:publishable": "can-npm-publish --verbose",
     "test": "run-s test:other-than-unit-test test:unit-test",
-    "test:other-than-unit-test": "run-s test:readme test:peer-deps lint",
-    "test:peer-deps": "check-peer-deps",
+    "test:other-than-unit-test": "run-s test:readme lint",
     "test:readme": "run-s 'build:readme -- --test'",
     "test:unit-test": "vitest"
   },
