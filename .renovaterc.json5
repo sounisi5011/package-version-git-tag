@@ -58,7 +58,7 @@
       groupSlug: "npm-scripts-packages",
     },
     {
-      matchPackageNames: ["npm"],
+      matchPackageNames: ["pnpm"],
       matchUpdateTypes: ["major"],
       enabled: false,
     },

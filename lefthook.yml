@@ -10,19 +10,19 @@ pre-commit:
       # If "{REPO_ROOT}/README.md" is staged, test it
       # Note: README.md files in subdirectories are not included
       files: git diff --name-only --cached | grep -Fx README.md || true
-      run: npm run test:readme
+      run: pnpm run test:readme
     1_format:
       # Call the "lefthook run ..." command within lefthook to perform parallel execution in the middle of a serial execution
       # see https://github.com/evilmartians/lefthook/issues/66#issuecomment-1313279972
       env:
         LEFTHOOK_QUIET: meta,summary,success
-      run: npx lefthook run _pre-commit__format
+      run: pnpm exec lefthook run _pre-commit__format
     2_build-readme:
       # If any file other than "{REPO_ROOT}/README.md" is staged, build README.md
       # Note: README.md files in subdirectories are included
       files: git diff --name-only --cached | grep -Fvx README.md || true
       run: >-
-        npm run build:readme
+        pnpm run build:readme
         && git add ./README.md
     3_git-add:
       run: git add {staged_files}
@@ -38,19 +38,19 @@ _pre-commit__format:
       # Note: ".js" and ".ts" files are formatted by ESLint's "eslint-plugin-prettier" plugin.
       #       So there is no need to use Prettier for these files.
       glob: "*.{ts,js,cjs,mjs}"
-      run: npx eslint --fix {staged_files}
+      run: pnpm exec eslint --fix {staged_files}
 
 _pre-commit__format__config:
   piped: true
   commands:
     format/config/0_prettier:
       glob: "*.{json,json5,yaml,yml}"
-      run: npx prettier --write {staged_files}
+      run: pnpm exec prettier --write {staged_files}
     format/config/1_format-package-json:
       # Note: If "package.json" is specified, only the root package.json file will be included.
       #       If "**/package.json" is specified, only package.json files in subdirectories will be included.
       #       To include both, it appears that the "{,**/}package.json" pattern should be used.
       glob: "{,**/}package.json"
       run: >-
-        npx prettier-package-json --write {staged_files}
-        && npx sort-package-json {staged_files}
+        pnpm exec prettier-package-json --write {staged_files}
+        && pnpm exec sort-package-json {staged_files}

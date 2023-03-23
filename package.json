@@ -46,7 +46,7 @@
     "release:build": "run-s clean build",
     "release:publish": "run-s release:publish:git release:publish:npm",
     "release:publish:git": "node ./dist/bin.js --push --verbose",
-    "release:publish:npm": "npm publish --access=public",
+    "release:publish:npm": "pnpm publish --access=public",
     "release:validation": "npm-run-all release:validation:publishable -p 'release:validation:!(publishable)' test",
     "release:validation:git-branch": "git-branch-is master",
     "release:validation:git-work-dir": "is-git-status-clean",

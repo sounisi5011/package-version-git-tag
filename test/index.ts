@@ -27,7 +27,7 @@ function tmpDir(...uniqueNameList: (string | undefined)[]): string {
 
 beforeAll(async () => {
     await Promise.all([
-        execa('npm', ['run', 'build'], { cwd: PROJECT_ROOT }),
+        execa('pnpm', ['run', 'build'], { cwd: PROJECT_ROOT }),
         fs
             .rm(CLI_DIR, { recursive: true, force: true })
             .then(() => fs.mkdir(CLI_DIR, { recursive: true }))
@@ -35,7 +35,7 @@ beforeAll(async () => {
                 fs.writeFile(path.resolve(CLI_DIR, 'package.json'), '{}'),
             ),
     ]);
-    await execa('npm', ['install', '--no-save', PROJECT_ROOT], {
+    await execa('pnpm', ['add', PROJECT_ROOT], {
         cwd: CLI_DIR,
     });
 });
@@ -559,6 +559,12 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
     test.each(
         Object.entries<Case>({
             'npm exec {command}': {
+                pkgJson: {
+                    // Note: npm v8 is available for Node.js 14.15.0 and above.
+                    //       Not available for Node.js 14.14.0.
+                    //       That is why use npm v7.
+                    packageManager: 'npm@7.24.2',
+                },
                 commad: {
                     getPrefix: ['npm', 'config', 'get', 'tag-version-prefix'],
                     execCli: ['npm', 'exec', '--no', PKG_DATA.name],
@@ -575,6 +581,7 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
                     scripts: {
                         'xxx-run-cli': PKG_DATA.name,
                     },
+                    packageManager: 'npm@7.24.2',
                 },
                 commad: {
                     getPrefix: ['npm', 'config', 'get', 'tag-version-prefix'],
@@ -637,9 +644,9 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
             [configFile]: customPrefix,
         };
 
-        // Use the "npm install <folder>" command even if the package manager is yarn.
+        // Use the "pnpm add <folder>" command even if the package manager is yarn.
         // This is because the "yarn add /path/to/local/folder" command may fail on GitHub Actions.
-        await exec(['npm', 'install', '--no-save', PROJECT_ROOT]);
+        await exec(['pnpm', 'add', PROJECT_ROOT]);
         await Promise.all([
             fs.writeFile(path.join(gitDirpath, '.gitignore'), 'node_modules/'),
             fs.writeFile(
