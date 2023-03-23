@@ -42,7 +42,6 @@
     "lint:eslint": "eslint ./",
     "lint:tsc-src": "tsc --noEmit",
     "lint:tsc-test": "tsc -p ./test/ --noEmit",
-    "prepare": "patch-package",
     "release": "run-s release:validation release:build release:publish",
     "release:build": "run-s clean build",
     "release:publish": "run-s release:publish:git release:publish:npm",
@@ -102,5 +101,10 @@
   "packageManager": "pnpm@7.30.0+blake2b512.53e226d8a21f5cb24a0e353043a90da7188c8d6f0747bead13762a40f157e7b065c7f369b323b98186441cc923c36dd9be0f40417166f624ba05f28d6de674d7",
   "engines": {
     "node": "^14.14.0 || 16.x || >=18.x"
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "check-peer-deps@1.1.3": "patches/check-peer-deps@1.1.3.patch"
+    }
   }
 }

@@ -1,7 +1,7 @@
-diff --git a/node_modules/check-peer-deps/check-peer-deps.js b/node_modules/check-peer-deps/check-peer-deps.js
-index 58c073b..5895e7f 100644
---- a/node_modules/check-peer-deps/check-peer-deps.js
-+++ b/node_modules/check-peer-deps/check-peer-deps.js
+diff --git a/check-peer-deps.js b/check-peer-deps.js
+index 58c073bdda52c428c656b4e6898ddc37433beef7..5895e7f0f3311faf2a53ba5c3a55b32dcfed99fa 100644
+--- a/check-peer-deps.js
++++ b/check-peer-deps.js
 @@ -1,3 +1,5 @@
 +// @ts-check
 +
