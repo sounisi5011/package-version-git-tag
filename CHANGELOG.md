@@ -127,6 +127,7 @@ Because it is the minimum version available for Vitest.
 * [#185] - `husky`
 * [#185] - `lint-staged`
 * [#186] - `make-dir`
+* [#216] - `patch-package`
 
 ### Tests
 
