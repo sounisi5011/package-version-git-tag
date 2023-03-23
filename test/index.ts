@@ -622,6 +622,39 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
                 },
                 configFile: '.yarnrc',
             },
+            'pnpm exec {command}': {
+                pkgJson: {
+                    packageManager: 'pnpm@7.30.0',
+                },
+                commad: {
+                    getPrefix: ['pnpm', 'config', 'get', 'tag-version-prefix'],
+                    execCli: ['pnpm', 'exec', PKG_DATA.name],
+                    setNewVersion: (newVersion) => [
+                        'pnpm',
+                        'version',
+                        newVersion,
+                    ],
+                },
+                configFile: '.npmrc',
+            },
+            'pnpm run {npm-script}': {
+                pkgJson: {
+                    scripts: {
+                        'xxx-run-cli': PKG_DATA.name,
+                    },
+                    packageManager: 'pnpm@7.30.0',
+                },
+                commad: {
+                    getPrefix: ['pnpm', 'config', 'get', 'tag-version-prefix'],
+                    execCli: ['pnpm', 'run', 'xxx-run-cli'],
+                    setNewVersion: (newVersion) => [
+                        'pnpm',
+                        'version',
+                        newVersion,
+                    ],
+                },
+                configFile: '.npmrc',
+            },
         }),
     )('%s', async (testName, { pkgJson, configFile, commad }) => {
         const { exec, gitDirpath, version } = await initGit(
@@ -689,7 +722,15 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
         const newVersion = `${version}1`;
         await exec(['git', 'add', '--all']);
         await exec(['git', 'commit', '-m', 'Second commit']);
-        await exec(commad.setNewVersion(newVersion));
+        await exec(commad.setNewVersion(newVersion), {
+            env: {
+                // The "pnpm version" command executes the "npm version" command internally.
+                // see https://github.com/pnpm/pnpm/blob/v7.30.0/pnpm/src/pnpm.ts#L27-L61
+                // Thus, we will set this environment variable so that npm can be used.
+                // see https://github.com/nodejs/corepack/tree/v0.14.0#environment-variables
+                COREPACK_ENABLE_STRICT: '0',
+            },
+        });
         await expect(
             exec([
                 'git',
