@@ -167,6 +167,11 @@ jobs:
           }
 
           echo '::group::Install Corepack'
+          if [[ "$(npm --version)" == [0-6].* ]]; then
+            # Using older npm may throw an EEXIST error when installing Corepack.
+            # So, update npm before installing Corepack.
+            exec_with_debug npm install --global --force 'npm@7'
+          fi
           # Corepack v0.17 supports Node.js 14.14.0 or later.
           # Corepack v0.18 or later (not yet released as of March 23, 2023) may also be supported, but this is not certain.
           exec_with_debug npm install --global --force 'corepack@0.17.x'
