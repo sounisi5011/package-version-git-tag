@@ -195,6 +195,8 @@ jobs:
             exec_with_debug npm install --global --force "$1"
 
             if [[ '${{ runner.os }}' == 'Windows' ]]; then
+              node -p 'Object.fromEntries(Object.entries(process.env).filter(([k]) => /^path$/i.test(k)))'
+
               # Windows installs global packages to a directory that has lower priority than the default node install so we also need to edit $PATH
               # see https://github.com/vercel/turbo/pull/1632/files#diff-b92a3120126a9ffe46d7d5ec3a8496ef1eac951db09e1972fac7c78438e36c42R69
               local -r globalPath="$(npm config get prefix)"
