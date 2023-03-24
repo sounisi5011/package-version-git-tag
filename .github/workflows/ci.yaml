@@ -202,10 +202,6 @@ jobs:
               echo "[command]npm config get prefix >> \$GITHUB_PATH"
               echo "${globalPath}" >> "${GITHUB_PATH}"
               export PATH="${globalPath}:${unixLikeGlobalPath}:${PATH}"
-
-              echo "globalPath: '${globalPath}'"
-              echo "PATH: '${PATH}'"
-              exec_with_debug which corepack
             fi
           }
 
