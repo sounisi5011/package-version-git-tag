@@ -192,14 +192,6 @@ jobs:
           # On Windows we can't use the CLI we installed just by running the "npm install --global ..." command.
           # This function allows use of the installed CLI.
           npm_install_global() {
-            # Older npm may not succeed in global install.
-            # Therefore, if npm is old, update it.
-            if version_lte '7.0' "$(npm --version)"; then
-              :
-            else
-              exec_with_debug npm install --global --force 'npm@7.x'
-            fi
-
             exec_with_debug npm install --global --force "$1"
 
             if [[ '${{ runner.os }}' == 'Windows' ]]; then
