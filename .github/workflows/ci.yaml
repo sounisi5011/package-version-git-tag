@@ -194,6 +194,11 @@ jobs:
           npm_install_global() {
             exec_with_debug npm install --global --force "$1"
 
+            # Clear the bash command cache.
+            # If the package is overwritten, the path to the command may change.
+            # To track this, remove the command cache.
+            exec_with_debug hash -r
+
             if [[ '${{ runner.os }}' == 'Windows' ]]; then
               # Windows installs global packages to a directory that has lower priority than the default node install so we also need to edit $PATH
               # see https://github.com/vercel/turbo/pull/1632/files#diff-b92a3120126a9ffe46d7d5ec3a8496ef1eac951db09e1972fac7c78438e36c42R69
