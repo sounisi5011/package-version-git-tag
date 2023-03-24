@@ -76,43 +76,63 @@ $ git push origin v1.2.3
 
 ### Customize tag name format
 
-If you want to customize the tag name format, you can take the following steps:
+If you want to change the tag name, you can customize it in the same way as the `npm/yarn/pnpm version` command:
 
-* If you are execute this command with [yarn], change [the `version-tag-prefix` setting of yarn](https://classic.yarnpkg.com/docs/cli/version#toc-git-tags).
-  This can be achieved by executing the following command:
+#### npm / [pnpm]
 
-  ```sh
-  # Set the tag prefix to "foo-bar-"
-  yarn config set version-tag-prefix foo-bar-
-  ```
+[pnpm]: https://pnpm.io/
 
-  Another way is to create [the `.yarnrc` file](https://classic.yarnpkg.com/docs/yarnrc):
+If you want to run this command in npm or [pnpm], you can change the prefix of the git tag by using [`tag-version-prefix`](https://docs.npmjs.com/cli/v6/using-npm/config#tag-version-prefix).
+You can change the configurations using the following commands:
 
-  **`.yarnrc`**
-  ```
-  # Set the tag prefix to "foo-bar-"
-  version-tag-prefix foo-bar-
-  ```
+```sh
+# Set the tag prefix to "foo-bar-"
+npm config set --location=project tag-version-prefix foo-bar-
+# Or, if you are using pnpm, run the following command:
+pnpm config set --location=project tag-version-prefix foo-bar-
+```
 
-  Note: Currently, **[Yarn 2](https://github.com/yarnpkg/berry) is not supported**.
+> **Note**: Forgetting [the `--location` option](https://docs.npmjs.com/cli/v7/commands/npm-config#location) will change the user configuration.
+> If you want to change the prefix only within your project, **do not forget the `--location` option**.
+>
+> If you are using npm v7.19 or earlier, or pnpm v7.20 or earlier, you need to edit the `.npmrc` file directly, because it does not support the `--location` option.
+
+Alternatively, you can directly edit [the `.npmrc` file](https://docs.npmjs.com/cli/v6/configuring-npm/npmrc):
+
+**`.npmrc`**
+```ini
+; Set the tag prefix to "foo-bar-"
+tag-version-prefix = "foo-bar-"
+```
+
+After editing the `.npmrc` file, check the value using the `npm config get tag-version-prefix` command (or the `pnpm config get tag-version-prefix` command).
+
+#### [Yarn][yarn]
 
 [yarn]: https://yarnpkg.com
 
-* Otherwise, change [the `tag-version-prefix` setting of npm](https://docs.npmjs.com/misc/config#tag-version-prefix).
-  This can be achieved by executing the following command:
+> **Note**: Currently, **[Yarn 2 and Yarn 3](https://github.com/yarnpkg/berry) is not supported**.
 
-  ```sh
-  # Set the tag prefix to "foo-bar-"
-  npm config set tag-version-prefix foo-bar-
-  ```
+If you want to run this command in [yarn], [you can change the prefix of the git tag by using `version-tag-prefix`](https://classic.yarnpkg.com/lang/en/docs/cli/version/#toc-git-tags).
+You can change the configuration by editing [the `.yarnrc` file](https://classic.yarnpkg.com/lang/en/docs/yarnrc/):
 
-  Another way is to create [the `.npmrc` file](https://docs.npmjs.com/files/npmrc):
+**`.yarnrc`**
+```
+# Set the tag prefix to "foo-bar-"
+version-tag-prefix foo-bar-
+```
 
-  **`.npmrc`**
-  ```ini
-  ; Set the tag prefix to "foo-bar-"
-  tag-version-prefix = "foo-bar-"
-  ```
+After editing the `.yarnrc` file, check the value using the `yarn config get version-tag-prefix` command.
+
+Alternatively, you can use [the `yarn config set` command](https://classic.yarnpkg.com/en/docs/cli/config#toc-yarn-config-set-g-global).
+
+> **Note**: The `yarn config set` command updates the `.yarnrc` file in the home directory.
+> If you want to change the prefix only within your project, you need to edit the `.yarnrc` file directly.
+
+```sh
+# Set the tag prefix to "foo-bar-"
+yarn config set version-tag-prefix foo-bar-
+```
 
 ## Tests
 
