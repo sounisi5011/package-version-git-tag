@@ -201,7 +201,7 @@ jobs:
               printf "%s\n[command]echo '%s' >> \$GITHUB_PATH\n" "${globalPath}" "${globalPath}"
               echo "${globalPath}" >> "${GITHUB_PATH}"
 
-              local -r unixLikeGlobalPath="$(exec_with_debug cygpath --unix "${globalPath}")"
+              local -r unixLikeGlobalPath="$(exec_with_debug cygpath --mixed "${globalPath}")"
               printf "%s\n[command]export PATH='%s':\$PATH\n" "${unixLikeGlobalPath}" "${unixLikeGlobalPath}"
               export PATH="${unixLikeGlobalPath}:${PATH}"
             fi
