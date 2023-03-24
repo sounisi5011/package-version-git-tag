@@ -231,6 +231,8 @@ jobs:
 
           if type corepack >/dev/null 2>&1; then
             if version_lte "${COREPACK_MIN_VERSION}" "$(corepack --version)"; then
+              exec_with_debug corepack --version
+
               echo '::group::Try enable Corepack'
             else
               echo "::group::Old Corepack is detected ( corepack@$(corepack --version 2>/dev/null || echo '[Execution failed; Unknown version]') ). Update this"
