@@ -228,6 +228,9 @@ jobs:
               echo '::endgroup::'
 
               exec_with_debug corepack --version
+              if [[ "$(corepack --version)" != "${COREPACK_MIN_VERSION}."* ]]; then
+                exit 1
+              fi
 
               echo '::group::Enable Corepack'
             fi
@@ -253,6 +256,9 @@ jobs:
             echo '::endgroup::'
 
             exec_with_debug corepack --version
+            if [[ "$(corepack --version)" != "${COREPACK_MIN_VERSION}."* ]]; then
+              exit 1
+            fi
 
             echo '::group::Enable Corepack'
             exec_with_debug corepack enable
