@@ -4,6 +4,7 @@ import crossSpawn from 'cross-spawn';
 import fs from 'fs/promises';
 import path from 'path';
 import v8 from 'v8';
+import whichPMRuns from 'which-pm-runs';
 
 export interface PkgDataInterface {
     version: string;
@@ -171,7 +172,7 @@ export function getNpmExecPath(): {
     isYarn: boolean;
 } {
     // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-    const npmPath = process.env['npm_execpath'] || 'npm';
+    const npmPath = process.env['npm_execpath'] || whichPMRuns()?.name || 'npm';
     const npmPathIsJs = /^\.m?js$/.test(path.extname(npmPath));
     const execPath = npmPathIsJs ? process.execPath : npmPath;
     const isYarn = path.basename(npmPath).startsWith('yarn');
