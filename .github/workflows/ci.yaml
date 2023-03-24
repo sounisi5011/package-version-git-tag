@@ -203,6 +203,8 @@ jobs:
               echo "[command]npm config get prefix >> \$GITHUB_PATH"
               echo "${globalPath}" >> "${GITHUB_PATH}"
               export PATH="${globalPath};${PATH}"
+
+              node -p 'Object.fromEntries(Object.entries(process.env).filter(([k]) => /^path$/i.test(k)))'
             fi
           }
 
