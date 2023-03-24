@@ -156,6 +156,7 @@ Because it is the minimum version available for Vitest.
 * [#211] - Migrate from [`cac`](https://www.npmjs.com/package/cac/v/6.6.1) to [`mri`](https://www.npmjs.com/package/mri/v/1.2.0)
 * [#213] - Enable the `esModuleInterop` option in `tsconfig.json`
 * [#218] - Using Corepack with all Node.js
+* [#219] - Fix Corepack updating process
 
 [#182]: https://github.com/sounisi5011/package-version-git-tag/pull/182
 [#183]: https://github.com/sounisi5011/package-version-git-tag/pull/183
@@ -181,6 +182,7 @@ Because it is the minimum version available for Vitest.
 [#213]: https://github.com/sounisi5011/package-version-git-tag/pull/213
 [#214]: https://github.com/sounisi5011/package-version-git-tag/pull/214
 [#218]: https://github.com/sounisi5011/package-version-git-tag/pull/218
+[#219]: https://github.com/sounisi5011/package-version-git-tag/pull/219
 [#217]: https://github.com/sounisi5011/package-version-git-tag/pull/217
 
 ## [3.0.0] (2020-06-02 UTC)
