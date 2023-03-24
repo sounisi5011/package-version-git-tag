@@ -93,11 +93,13 @@ Because it is the minimum version available for Vitest.
 #### dependencies
 
 * [#211] - `mri@^1.2.0`
+* [#217] - `which-pm-runs@^1.1.0`
 
 #### devDependencies
 
 * [#214] - `@sindresorhus/slugify@1.1.2`
 * [#186] - `@tsconfig/node14@1.0.3`
+* [#217] - `@types/which-pm-runs@1.0.0`
 * [#185] - `eslint-plugin-n@15.6.1`
 * [#200] - `eslint-plugin-vitest@0.0.54`
 * [#185] - `execa@5.1.1`
@@ -177,6 +179,7 @@ Because it is the minimum version available for Vitest.
 [#211]: https://github.com/sounisi5011/package-version-git-tag/pull/211
 [#213]: https://github.com/sounisi5011/package-version-git-tag/pull/213
 [#214]: https://github.com/sounisi5011/package-version-git-tag/pull/214
+[#217]: https://github.com/sounisi5011/package-version-git-tag/pull/217
 
 ## [3.0.0] (2020-06-02 UTC)
 
