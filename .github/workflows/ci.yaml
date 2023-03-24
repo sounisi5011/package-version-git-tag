@@ -228,13 +228,9 @@ jobs:
             if version_lte "${COREPACK_MIN_VERSION}" "$(corepack --version)"; then
               echo '::group::Try enable Corepack'
             else
-              echo "PATH: '${PATH}'"
-
               echo "::group::Old Corepack is detected ( corepack@$(corepack --version 2>/dev/null || echo '[Execution failed; Unknown version]') ). Update this"
               npm_install_global "corepack@${COREPACK_MIN_VERSION}"
               echo '::endgroup::'
-
-              echo "PATH: '${PATH}'"
 
               exec_with_debug corepack --version
               if [[ "$(corepack --version)" != "${COREPACK_MIN_VERSION}."* ]]; then
