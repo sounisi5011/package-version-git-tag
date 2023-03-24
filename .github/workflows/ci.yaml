@@ -198,7 +198,7 @@ jobs:
               # Windows installs global packages to a directory that has lower priority than the default node install so we also need to edit $PATH
               # see https://github.com/vercel/turbo/pull/1632/files#diff-b92a3120126a9ffe46d7d5ec3a8496ef1eac951db09e1972fac7c78438e36c42R69
               local -r globalPath="$(npm config get prefix)"
-              locar -r unixLikeGlobalPath="$(node -p 'process.argv.pop().replace(/^([A-Z]):|\\/gi, (_, driveLetter="") => "/" + driveLetter.toLowerCase())' "${globalPath}")"
+              local -r unixLikeGlobalPath="$(node -p 'process.argv.pop().replace(/^([A-Z]):|\\/gi, (_, driveLetter="") => "/" + driveLetter.toLowerCase())' "${globalPath}")"
               echo "[command]npm config get prefix >> \$GITHUB_PATH"
               echo "${globalPath}" >> "${GITHUB_PATH}"
               export PATH="${globalPath}:${unixLikeGlobalPath}:${PATH}"
