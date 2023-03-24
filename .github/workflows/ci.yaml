@@ -235,10 +235,6 @@ jobs:
               echo '::endgroup::'
 
               exec_with_debug corepack --version
-              if [[ '${{ runner.os }}' == 'Windows' ]]; then
-                exec_with_debug ls -lhpa "$(npm config get prefix)"
-                exec_with_debug "$(npm config get prefix)/corepack" --version
-              fi
 
               echo '::group::Enable Corepack'
             fi
