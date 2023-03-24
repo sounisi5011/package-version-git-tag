@@ -197,8 +197,13 @@ jobs:
             if [[ '${{ runner.os }}' == 'Windows' ]]; then
               # Windows installs global packages to a directory that has lower priority than the default node install so we also need to edit $PATH
               # see https://github.com/vercel/turbo/pull/1632/files#diff-b92a3120126a9ffe46d7d5ec3a8496ef1eac951db09e1972fac7c78438e36c42R69
-              echo "[command]npm config get prefix >> \$GITHUB_PATH"
-              npm config get prefix >> "${GITHUB_PATH}"
+              local -r globalPath="$(exec_with_debug npm config get prefix)"
+              printf "${globalPath}\n[command]echo '${globalPath}' >> \$GITHUB_PATH\n"
+              echo "${globalPath}" >> "${GITHUB_PATH}"
+
+              local -r unixLikeGlobalPath="$(exec_with_debug cygpath --unix "${globalPath}")"
+              printf "${unixLikeGlobalPath}\n[command]export PATH='${unixLikeGlobalPath}':\$PATH\n"
+              export PATH="${unixLikeGlobalPath}:${PATH}"
             fi
           }
 
