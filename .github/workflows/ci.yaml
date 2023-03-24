@@ -231,8 +231,6 @@ jobs:
               echo '::group::Try enable Corepack'
             else
               echo "::group::Old Corepack is detected ( corepack@$(corepack --version 2>/dev/null || echo '[Execution failed; Unknown version]') ). Update this"
-              # Note: On Windows, Corepack cannot be updated with just the "npm install --global ..." command
-              exec_with_debug npm uninstall --global 'corepack'
               npm_install_global "corepack@${COREPACK_MIN_VERSION}"
               echo '::endgroup::'
 
