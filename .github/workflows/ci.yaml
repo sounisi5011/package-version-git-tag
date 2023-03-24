@@ -204,6 +204,10 @@ jobs:
               echo "${globalPath}" >> "${GITHUB_PATH}"
               export PATH="${globalPath};${PATH}"
 
+              echo "globalPath: '${globalPath}'"
+              echo "PATH: '${PATH}'"
+              exec_with_debug which corepack
+
               node -p 'Object.fromEntries(Object.entries(process.env).filter(([k]) => /^path$/i.test(k)))'
             fi
           }
