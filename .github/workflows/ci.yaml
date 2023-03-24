@@ -194,11 +194,26 @@ jobs:
           npm_install_global() {
             exec_with_debug npm install --global --force "$1"
 
+            # Clear the bash command cache.
+            # If the package is overwritten, the path to the command may change.
+            # To track this, remove the command cache.
+            exec_with_debug hash -r
+
             if [[ '${{ runner.os }}' == 'Windows' ]]; then
               # Windows installs global packages to a directory that has lower priority than the default node install so we also need to edit $PATH
               # see https://github.com/vercel/turbo/pull/1632/files#diff-b92a3120126a9ffe46d7d5ec3a8496ef1eac951db09e1972fac7c78438e36c42R69
-              echo "[command]npm config get prefix >> \$GITHUB_PATH"
-              npm config get prefix >> "${GITHUB_PATH}"
+              local -r globalPath="$(exec_with_debug npm config get prefix)"
+              echo "${globalPath}"
+              local -r unixLikeGlobalPath="$(exec_with_debug cygpath --unix "${globalPath}")"
+              echo "${unixLikeGlobalPath}"
+
+              if [[ "${PATH}" != "${unixLikeGlobalPath}:"* ]]; then
+                echo "[command]echo '${globalPath}' >> \$GITHUB_PATH"
+                echo "${globalPath}" >> "${GITHUB_PATH}"
+
+                echo "[command]PATH='${unixLikeGlobalPath}':\$PATH"
+                PATH="${unixLikeGlobalPath}:${PATH}"
+              fi
             fi
           }
 
@@ -221,11 +236,15 @@ jobs:
 
           if type corepack >/dev/null 2>&1; then
             if version_lte "${COREPACK_MIN_VERSION}" "$(corepack --version)"; then
+              exec_with_debug corepack --version
+
               echo '::group::Try enable Corepack'
             else
               echo "::group::Old Corepack is detected ( corepack@$(corepack --version 2>/dev/null || echo '[Execution failed; Unknown version]') ). Update this"
               npm_install_global "corepack@${COREPACK_MIN_VERSION}"
               echo '::endgroup::'
+
+              exec_with_debug corepack --version
 
               echo '::group::Enable Corepack'
             fi
@@ -249,6 +268,8 @@ jobs:
             fi
             npm_install_global "corepack@${COREPACK_MIN_VERSION}"
             echo '::endgroup::'
+
+            exec_with_debug corepack --version
 
             echo '::group::Enable Corepack'
             exec_with_debug corepack enable
