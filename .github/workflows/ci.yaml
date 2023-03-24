@@ -202,7 +202,7 @@ jobs:
               local -r globalPath="$(npm config get prefix)"
               echo "[command]npm config get prefix >> \$GITHUB_PATH"
               echo "${globalPath}" >> "${GITHUB_PATH}"
-              Path="${globalPath};${Path}"
+              export PATH="${globalPath};${PATH}"
             fi
           }
 
