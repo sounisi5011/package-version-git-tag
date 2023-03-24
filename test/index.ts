@@ -669,6 +669,12 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
             '.yarnrc': 'this-is-yarn-tag-prefix-',
             [configFile]: customPrefix,
         };
+        const env: NodeJS.ProcessEnv = {
+            // On Windows, the pnpm command will fail if the "APPDATA" environment variable does not exist.
+            // This is caused by pnpm's dependency "@pnpm/npm-conf".
+            // see https://github.com/pnpm/npm-conf/blob/ff043813516e16597de96a787c710de0b15e9aa9/lib/defaults.js#L29-L30
+            APPDATA: process.env['APPDATA'],
+        };
 
         // Use the "npm install <folder>" command even if the package manager is yarn.
         // This is because the "yarn add /path/to/local/folder" command may fail on GitHub Actions.
@@ -693,7 +699,7 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
         ]);
 
         await expect(
-            exec(commad.getPrefix),
+            exec(commad.getPrefix, { env }),
             'version tag prefix should be defined in the config',
         ).resolves.toMatchObject({ stdout: customPrefix });
         await expect(
@@ -702,7 +708,7 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
         ).resolves.toMatchObject({ stdout: '', stderr: '' });
 
         await expect(
-            exec(commad.execCli),
+            exec(commad.execCli, { env }),
             'CLI should exits successfully',
         ).resolves.toSatisfy(() => true);
 
@@ -724,6 +730,7 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
         await exec(['git', 'commit', '-m', 'Second commit']);
         await exec(commad.setNewVersion(newVersion), {
             env: {
+                ...env,
                 // The "pnpm version" command executes the "npm version" command internally.
                 // see https://github.com/pnpm/pnpm/blob/v7.30.0/pnpm/src/pnpm.ts#L27-L61
                 // Thus, we will set this environment variable so that npm can be used.
