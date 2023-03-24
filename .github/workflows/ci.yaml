@@ -232,6 +232,7 @@ jobs:
               npm_install_global "corepack@${COREPACK_MIN_VERSION}"
               echo '::endgroup::'
 
+              exec_with_debug which corepack
               exec_with_debug corepack --version
               if [[ "$(corepack --version)" != "${COREPACK_MIN_VERSION}."* ]]; then
                 exit 1
@@ -260,6 +261,7 @@ jobs:
             npm_install_global "corepack@${COREPACK_MIN_VERSION}"
             echo '::endgroup::'
 
+            exec_with_debug which corepack
             exec_with_debug corepack --version
             if [[ "$(corepack --version)" != "${COREPACK_MIN_VERSION}."* ]]; then
               exit 1
