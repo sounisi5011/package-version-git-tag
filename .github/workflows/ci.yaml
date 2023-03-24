@@ -131,6 +131,12 @@ jobs:
       - name: Enable Corepack (Automatically setup a package manager for Node.js)
         shell: bash
         run: |
+          # Corepack v0.14 is the earliest version that can use the environment variable COREPACK_ENABLE_STRICT.
+          # see https://github.com/nodejs/corepack/blob/v0.14.0/CHANGELOG.md#0140-2022-09-02
+          # In addition, this version supports Node.js 14.14.0 or later.
+          # see https://github.com/nodejs/corepack/pull/227
+          readonly COREPACK_MIN_VERSION='0.14'
+
           exec_with_debug() {
             node - "$@" << 'EOS'
               // These characters cannot be wrapped in double quotes:
@@ -161,6 +167,28 @@ jobs:
             "$@"
           }
 
+          version_lte() {
+            local op1 op2 i max_i
+
+            # see https://genzouw.com/entry/2019/12/17/120057/1831/
+            # see https://www.shellcheck.net/wiki/SC2206
+            IFS='.' read -r -a op1 <<< "$1"
+            IFS='.' read -r -a op2 <<< "$2"
+            max_i="${#op1[@]}"
+            if [[ "${#op2[@]}" -lt "${max_i}" ]]; then
+              max_i="${#op2[@]}"
+            fi
+
+            for ((i=0; i<"${max_i}"; i++)); do
+              if [[ "${op1[i]}" -lt "${op2[i]}" ]]; then
+                return 0
+              elif [[ "${op2[i]}" -lt "${op1[i]}" ]]; then
+                return 1
+              fi
+            done
+            return 0
+          }
+
           # On Windows we can't use the CLI we installed just by running the "npm install --global ..." command.
           # This function allows use of the installed CLI.
           npm_install_global() {
@@ -174,72 +202,57 @@ jobs:
             fi
           }
 
-          # Old Corepack throws ENOTEMPTY errors (or EPERM errors on Windows) when running package managers in parallel.
-          # This function detects such old Corepack.
-          # see https://github.com/nodejs/corepack/issues/110
-          # see https://github.com/nodejs/corepack/pull/84
-          is_old_corepack() {
-            local -r TEST_COREPACK_DIRPATH="$(mktemp -dt test-corepack-ENOTEMPTY-error-XXXXXXXXXX)"
-            echo '{"packageManager":"yarn@1.22.19"}' > "${TEST_COREPACK_DIRPATH}/package.json"
-
-            # see https://github.com/nodejs/corepack/pull/84/files#diff-12cd00a89af03f1fc6f74460b886289151edce062c60319b0c58fb8465558ed6
-            (
-              cd "${TEST_COREPACK_DIRPATH}" && \
-              {
-                yarn --version 2>&1 &
-                yarn --version 2>&1 &
-                yarn --version 2>&1 &
-                wait
-              } | grep -Eq '\b(ENOTEMPTY: directory not empty|EPERM: operation not permitted), rename\b'
-            )
-            local -r exitCode="${?}"
-
-            rm -rf "${TEST_COREPACK_DIRPATH}" || true
-            return "${exitCode}"
+          # Note: On Windows, the `npm ls --global corepack` command cannot be used to detect the builtin Corepack.
+          #       So, use this complex conditional expression.
+          corepack_not_enabled() {
+            local -r packageManager="$(< "${GITHUB_WORKSPACE}/package.json" jq --raw-output '.packageManager')"
+            if [[ "${packageManager}" == 'npm@'* ]]; then
+              [[ "npm@$(npm --version)" != "${packageManager%%+*}" ]]
+            elif [[ "${packageManager}" == 'yarn@'* ]]; then
+              [[ "yarn@$(yarn --version)" != "${packageManager%%+*}" ]]
+            elif [[ "${packageManager}" == 'pnpm@'* ]]; then
+              [[ "pnpm@$(pnpm --version)" != "${packageManager%%+*}" ]]
+            else
+              # see https://stackoverflow.com/a/23550347
+              >&2 echo "Unsupported package manager specification: '${packageManager}'"
+              exit 1
+            fi
           }
 
           if type corepack >/dev/null 2>&1; then
-            echo '::group::Enable Corepack'
+            if version_lte "${COREPACK_MIN_VERSION}" "$(corepack --version)"; then
+              echo '::group::Try enable Corepack'
+            else
+              echo "::group::Old Corepack is detected ( corepack@$(corepack --version 2>/dev/null || echo '[Execution failed; Unknown version]') ). Update this"
+              npm_install_global "corepack@${COREPACK_MIN_VERSION}"
+              echo '::endgroup::'
+
+              echo '::group::Enable Corepack'
+            fi
             exec_with_debug corepack enable
             exec_with_debug corepack enable npm
             echo '::endgroup::'
           fi
 
-          # If Corepack is not available, manually update npm
-          # Note: I have tried to enable Corepack, but could not use Corepack in older Node.js or Windows environments.
-          #       You can see what I did here: https://github.com/sounisi5011/package-version-git-tag/compare/24791b6ddab5cd2b8fdc735855556640746cc863~1...349c11acb35cfc0096bc6e9324bd9748e429ca17~1
-          packageManager="$(< "${GITHUB_WORKSPACE}/package.json" jq --raw-output '.packageManager')"
-          if [[ "${packageManager}" == 'npm@'* && "npm@$(npm --version)" != "${packageManager%%+*}" ]]; then
+          # If Corepack is not available, install it manually.
+          # Note: Corepack is already installed on GitHub Actions.
+          #       But it does not manage npm versions.
+          #       To manage npm, Corepack must be installed via npm, which is builtin to the installed Node.js.
+          if corepack_not_enabled; then
             echo '::warning::Failed to enable Corepack'
-            echo '::group::Install the specified npm manually'
 
-            # Disable the built-in Corepack in GitHub Actions.
-            # If enabled, problems will occur when the yarn command is executed.
+            echo '::group::Install Corepack manually'
             if type corepack >/dev/null 2>&1; then
+              # Disable the built-in Corepack in GitHub Actions.
+              # If enabled, problems will occur when the yarn command is executed.
               exec_with_debug corepack disable
             fi
-
-            npm_install_global "${packageManager%%+*}"
-
+            npm_install_global "corepack@${COREPACK_MIN_VERSION}"
             echo '::endgroup::'
-          elif type corepack >/dev/null 2>&1; then
-            # Old Corepack throws ENOTEMPTY errors (or EPERM errors on Windows) when running package managers in parallel.
-            # This has been fixed in Corepack v0.11, so if the old Corepack is detected, this will be updated.
-            # see https://github.com/nodejs/corepack/issues/110
-            # see https://github.com/nodejs/corepack/pull/84
-            if is_old_corepack; then
-              echo "::group::Old Corepack is detected ( corepack@$(corepack --version 2>/dev/null || echo '[Execution failed; Unknown version]') ). Update this"
-              npm_install_global 'corepack@0.11.2'
-              echo '::endgroup::'
-            fi
-          fi
 
-          # If yarn is not available, install it
-          if type yarn >/dev/null 2>&1; then
-            :
-          else
-            echo '::group::Install yarn'
-            npm_install_global 'yarn@1.x'
+            echo '::group::Enable Corepack'
+            exec_with_debug corepack enable
+            exec_with_debug corepack enable npm
             echo '::endgroup::'
           fi
 
