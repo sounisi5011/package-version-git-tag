@@ -227,6 +227,8 @@ jobs:
               npm_install_global "corepack@${COREPACK_MIN_VERSION}"
               echo '::endgroup::'
 
+              exec_with_debug corepack --version
+
               echo '::group::Enable Corepack'
             fi
             exec_with_debug corepack enable
@@ -249,6 +251,8 @@ jobs:
             fi
             npm_install_global "corepack@${COREPACK_MIN_VERSION}"
             echo '::endgroup::'
+
+            exec_with_debug corepack --version
 
             echo '::group::Enable Corepack'
             exec_with_debug corepack enable
