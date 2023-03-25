@@ -12,6 +12,10 @@ const PROJECT_ROOT = path.resolve(__dirname, '..');
 const TEST_TMP_DIR = path.resolve(__dirname, '.temp');
 const CLI_DIR = path.resolve(TEST_TMP_DIR, '.cli');
 const CLI_PATH = path.resolve(CLI_DIR, 'node_modules', '.bin', PKG_DATA.name);
+/**
+ * @see https://github.com/nodejs/corepack/tree/v0.14.0#environment-variables
+ */
+const COREPACK_HOME = path.resolve(TEST_TMP_DIR, '.corepack');
 
 const createdTmpDirSet = new Set<string>();
 function tmpDir(...uniqueNameList: (string | undefined)[]): string {
@@ -29,11 +33,11 @@ function tmpDir(...uniqueNameList: (string | undefined)[]): string {
 beforeAll(async () => {
     // Set npm supporting the current Node.js to Corepack's "Last Known Good" release.
     // This allows specifying the version of npm to use when forced to run npm using the environment variable "COREPACK_ENABLE_STRICT".
-    await execa('corepack', [
-        'prepare',
-        '--activate',
-        corepackPackageManager.latestNpm,
-    ]);
+    await execa(
+        'corepack',
+        ['prepare', '--activate', corepackPackageManager.latestNpm],
+        { env: { COREPACK_HOME } },
+    );
 
     await Promise.all([
         execa('npm', ['run', 'build'], { cwd: PROJECT_ROOT }),
@@ -587,6 +591,7 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
                       }
                     : undefined;
             const env: NodeJS.ProcessEnv = {
+                COREPACK_HOME,
                 // On Windows, the pnpm command will fail if the "APPDATA" environment variable does not exist.
                 // This is caused by pnpm's dependency "@pnpm/npm-conf".
                 // see https://github.com/pnpm/npm-conf/blob/ff043813516e16597de96a787c710de0b15e9aa9/lib/defaults.js#L29-L30
