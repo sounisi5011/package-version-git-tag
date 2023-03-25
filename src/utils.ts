@@ -297,7 +297,8 @@ export async function getConfig(keyMap: {
         if (result !== null) return result;
     }
 
-    const key = (packageManager.name === 'yarn' && keyMap.yarn) || keyMap.npm;
+    const key =
+        packageManager.name === 'yarn' ? keyMap.yarn ?? keyMap.npm : keyMap.npm;
     const result = await execFileAsync(
         packageManager.spawnArgs[0],
         packageManager.spawnArgs[1].concat('config', 'get', key),
