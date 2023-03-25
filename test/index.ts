@@ -613,35 +613,6 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
                     : null,
             ]);
 
-            if (commad.getPrefix[0] === 'pnpm' && customPrefix === undefined) {
-                const env_ = { ...env, COREPACK_ENABLE_STRICT: '0' };
-                console.log({
-                    testName,
-                    'pnpm --version': await exec(['pnpm', '--version'], {
-                        env,
-                    }).catch((e) => e),
-                    'pnpm config list': await exec(['pnpm', 'config', 'list'], {
-                        env: env_,
-                    }).catch((e) => e),
-                    'pnpm config get tag-version-prefix': await exec(
-                        ['pnpm', 'config', 'get', 'tag-version-prefix'],
-                        { env },
-                    ).catch((e) => e),
-                    'pnpm config get tag-version-prefix (COREPACK_ENABLE_STRICT=0)':
-                        await exec(
-                            ['pnpm', 'config', 'get', 'tag-version-prefix'],
-                            { env: env_ },
-                        ).catch((e) => e),
-                    'npm config get tag-version-prefix': await exec(
-                        ['npm', 'config', 'get', 'tag-version-prefix'],
-                        { env: env_ },
-                    ).catch((e) => e),
-                    'pnpm config get node-version': await exec(
-                        ['pnpm', 'config', 'get', 'node-version'],
-                        { env: env_ },
-                    ).catch((e) => e),
-                });
-            }
             {
                 // `true` if pnpm version is less than 7.20
                 // see https://github.com/pnpm/pnpm/blob/v7.20.0/pnpm/CHANGELOG.md#7200
