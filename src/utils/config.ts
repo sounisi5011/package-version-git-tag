@@ -126,11 +126,8 @@ export async function getConfig(keyMap: {
     // The "pnpm version" command executes the "npm version" command internally.
     // see https://github.com/pnpm/pnpm/blob/v7.30.0/pnpm/src/pnpm.ts#L27-L61
     // If possible, the "npm config get ..." command should be executed instead.
-    {
-        const result =
-            packageManager.name === 'pnpm'
-                ? await tryNpmConfigGet(keyMap.npm)
-                : null;
+    if (packageManager.name === 'pnpm') {
+        const result = await tryNpmConfigGet(keyMap.npm);
         if (result !== null) return result;
     }
 
