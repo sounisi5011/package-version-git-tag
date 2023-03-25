@@ -634,8 +634,13 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
                     }).catch((e) => e),
                     'pnpm config get tag-version-prefix': await exec(
                         ['pnpm', 'config', 'get', 'tag-version-prefix'],
-                        { env: env_ },
+                        { env },
                     ).catch((e) => e),
+                    'pnpm config get tag-version-prefix (COREPACK_ENABLE_STRICT=0)':
+                        await exec(
+                            ['pnpm', 'config', 'get', 'tag-version-prefix'],
+                            { env: env_ },
+                        ).catch((e) => e),
                     'pnpm config get node-version': await exec(
                         ['pnpm', 'config', 'get', 'node-version'],
                         { env: env_ },
