@@ -116,13 +116,13 @@ const npmBuiltinConfig: Record<string, string> = {
 
 export async function getConfig(keyMap: {
     npm: string;
-    yarn?: string | undefined;
+    yarn?: string;
 }): Promise<string> {
     const packageManager = getPackageManagerData();
     const key = {
+        yarn: keyMap.npm,
         pnpm: keyMap.npm,
         ...keyMap,
-        yarn: keyMap.yarn ?? keyMap.npm,
     }[packageManager.name ?? 'npm'];
 
     // The "pnpm version" command executes the "npm version" command internally.
