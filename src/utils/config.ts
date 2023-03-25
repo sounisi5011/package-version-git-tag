@@ -119,8 +119,11 @@ export async function getConfig(keyMap: {
     yarn?: string | undefined;
 }): Promise<string> {
     const packageManager = getPackageManagerData();
-    const key =
-        packageManager.name === 'yarn' ? keyMap.yarn ?? keyMap.npm : keyMap.npm;
+    const key = {
+        pnpm: keyMap.npm,
+        ...keyMap,
+        yarn: keyMap.yarn ?? keyMap.npm,
+    }[packageManager.name ?? 'npm'];
 
     // The "pnpm version" command executes the "npm version" command internally.
     // see https://github.com/pnpm/pnpm/blob/v7.30.0/pnpm/src/pnpm.ts#L27-L61
