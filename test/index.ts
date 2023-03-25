@@ -618,6 +618,14 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
             const isOldPnpmConfig = /^pnpm@(?:[0-6]\.|7\.(?:1?[0-9])\.)/.test(
                 String(pkgJson?.['packageManager']),
             );
+            if (commad.getPrefix[0] === 'pnpm') {
+                console.log({
+                    testName,
+                    'pnpm --version': await exec(['pnpm', '--version']).catch(
+                        (e) => e,
+                    ),
+                });
+            }
             await expect(
                 exec(commad.getPrefix, {
                     env: isOldPnpmConfig
