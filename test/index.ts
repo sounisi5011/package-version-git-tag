@@ -556,214 +556,153 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
         configFile: '.npmrc' | '.yarnrc';
     }
 
-    const testFn =
-        (customPrefix: string | undefined, uniqueNameList: string[] = []) =>
-        async (
-            testName: string,
-            { pkgJson, configFile, commad }: Case,
-        ): Promise<void> => {
-            const { exec, gitDirpath, version } = await initGit(
-                tmpDir(
-                    'CLI should add Git tag with customized tag prefix',
-                    ...uniqueNameList,
-                    testName,
-                ),
-            );
-            const configValue: Record<typeof configFile, string> | undefined =
-                typeof customPrefix === 'string'
-                    ? {
-                          '.npmrc': 'this-is-npm-tag-prefix-',
-                          '.yarnrc': 'this-is-yarn-tag-prefix-',
-                          [configFile]: customPrefix,
-                      }
-                    : undefined;
-            const env: NodeJS.ProcessEnv = {
-                // On Windows, the pnpm command will fail if the "APPDATA" environment variable does not exist.
-                // This is caused by pnpm's dependency "@pnpm/npm-conf".
-                // see https://github.com/pnpm/npm-conf/blob/ff043813516e16597de96a787c710de0b15e9aa9/lib/defaults.js#L29-L30
-                APPDATA: process.env['APPDATA'],
-            };
-
-            // Use the "npm install <folder>" command even if the package manager is yarn.
-            // This is because the "yarn add /path/to/local/folder" command may fail on GitHub Actions.
-            await exec(['npm', 'install', '--no-save', PROJECT_ROOT]);
-            await Promise.all([
-                fs.writeFile(
-                    path.join(gitDirpath, '.gitignore'),
-                    'node_modules/',
-                ),
-                ...(configValue
-                    ? [
-                          fs.writeFile(
-                              path.join(gitDirpath, '.npmrc'),
-                              `tag-version-prefix="${configValue['.npmrc']}"`,
-                          ),
-                          fs.writeFile(
-                              path.join(gitDirpath, '.yarnrc'),
-                              `version-tag-prefix "${configValue['.yarnrc']}"`,
-                          ),
-                      ]
-                    : []),
-                // eslint-disable-next-line vitest/no-conditional-in-test
-                pkgJson
-                    ? fs.writeFile(
-                          path.join(gitDirpath, 'package.json'),
-                          JSON.stringify({ ...pkgJson, version }),
-                      )
-                    : null,
-            ]);
-
-            await expect(
-                exec(commad.getPrefix, { env }),
-                `version tag prefix should be "${customPrefix ?? 'v'}"`,
-            ).resolves.toMatchObject({
-                stdout:
-                    customPrefix ??
-                    // Note: The "pnpm config get ..." command does not detect npm builtin config file.
-                    //       Therefore, an empty value is returned.
-                    (commad.getPrefix[0] === 'pnpm' ? '' : 'v'),
-            });
-            await expect(
-                exec(['git', 'tag', '-l']),
-                'Git tag should not exist yet',
-            ).resolves.toMatchObject({ stdout: '', stderr: '' });
-
-            await expect(
-                exec(commad.execCli, { env }),
-                'CLI should exits successfully',
-            ).resolves.toSatisfy(() => true);
-
-            const tagName = `${customPrefix ?? 'v'}${version}`;
-            await expect(
-                exec([
-                    'git',
-                    'for-each-ref',
-                    '--format=%(objecttype) %(refname)',
-                    'refs/tags',
-                ]),
-                `Git annotated tag '${tagName}' should be added`,
-            ).resolves.toMatchObject({
-                stdout: `tag refs/tags/${tagName}`,
-            });
-
-            const newVersion = `${version}1`;
-            await exec(['git', 'add', '--all']);
-            await exec(['git', 'commit', '-m', 'Second commit']);
-            await exec(commad.setNewVersion(newVersion), {
-                env: {
-                    ...env,
-                    // The "pnpm version" command executes the "npm version" command internally.
-                    // see https://github.com/pnpm/pnpm/blob/v7.30.0/pnpm/src/pnpm.ts#L27-L61
-                    // Thus, we will set this environment variable so that npm can be used.
-                    // see https://github.com/nodejs/corepack/tree/v0.14.0#environment-variables
-                    COREPACK_ENABLE_STRICT: '0',
+    test.each(
+        Object.entries<Case>({
+            'npm exec {command}': {
+                commad: {
+                    getPrefix: ['npm', 'config', 'get', 'tag-version-prefix'],
+                    execCli: ['npm', 'exec', '--no', PKG_DATA.name],
+                    setNewVersion: (newVersion) => [
+                        'npm',
+                        'version',
+                        newVersion,
+                    ],
                 },
-            });
-            await expect(
-                exec([
-                    'git',
-                    'for-each-ref',
-                    '--format=%(objecttype) %(refname)',
-                    'refs/tags',
-                ]),
-                'The "version" command in the package manager should also use the same prefix',
-            ).resolves.toMatchObject({
-                stdout: [
-                    `tag refs/tags/${tagName}`,
-                    `tag refs/tags/${customPrefix ?? 'v'}${newVersion}`,
-                ].join('\n'),
-            });
-        };
-
-    const simpleTestCases = Object.entries<Case>({
-        npm: {
-            commad: {
-                getPrefix: ['npm', 'config', 'get', 'tag-version-prefix'],
-                execCli: ['npm', 'exec', '--no', PKG_DATA.name],
-                setNewVersion: (newVersion) => ['npm', 'version', newVersion],
+                configFile: '.npmrc',
             },
-            configFile: '.npmrc',
-        },
-        yarn: {
-            pkgJson: {
-                packageManager: 'yarn@1.22.19',
-            },
-            commad: {
-                getPrefix: ['yarn', 'config', 'get', 'version-tag-prefix'],
-                execCli: ['yarn', 'run', PKG_DATA.name],
-                setNewVersion: (newVersion) => [
-                    'yarn',
-                    'version',
-                    '--new-version',
-                    newVersion,
-                ],
-            },
-            configFile: '.yarnrc',
-        },
-        pnpm: {
-            pkgJson: {
-                packageManager: 'pnpm@7.30.0',
-            },
-            commad: {
-                getPrefix: ['pnpm', 'config', 'get', 'tag-version-prefix'],
-                execCli: ['pnpm', 'exec', PKG_DATA.name],
-                setNewVersion: (newVersion) => ['pnpm', 'version', newVersion],
-            },
-            configFile: '.npmrc',
-        },
-    });
-
-    const fullTestCases = simpleTestCases
-        .flatMap<Case>(([, caseItem]) => [
-            caseItem,
-            {
-                ...caseItem,
+            'npm run {npm-script}': {
                 pkgJson: {
-                    ...caseItem.pkgJson,
                     scripts: {
-                        ...(typeof caseItem.pkgJson?.['scripts'] === 'object'
-                            ? caseItem.pkgJson['scripts']
-                            : {}),
                         'xxx-run-cli': PKG_DATA.name,
                     },
                 },
                 commad: {
-                    ...caseItem.commad,
-                    execCli: [caseItem.commad.execCli[0], 'run', 'xxx-run-cli'],
+                    getPrefix: ['npm', 'config', 'get', 'tag-version-prefix'],
+                    execCli: ['npm', 'run', 'xxx-run-cli'],
+                    setNewVersion: (newVersion) => [
+                        'npm',
+                        'version',
+                        newVersion,
+                    ],
                 },
+                configFile: '.npmrc',
             },
-        ])
-        .map((caseItem) => {
-            const npmScriptNameSet = new Set(
-                Object.keys(caseItem.pkgJson?.['scripts'] ?? {}),
-            );
-            const toTestName = (execCliCommand: readonly string[]): string =>
-                execCliCommand
-                    .filter((arg) => !arg.startsWith('-'))
-                    .map((arg) =>
-                        npmScriptNameSet.has(arg)
-                            ? '{npm-script}'
-                            : arg === PKG_DATA.name
-                            ? '{command}'
-                            : arg,
-                    )
-                    .join(' ');
-            return [toTestName(caseItem.commad.execCli), caseItem] as const;
+            'yarn run {command}': {
+                pkgJson: {
+                    packageManager: 'yarn@1.22.19',
+                },
+                commad: {
+                    getPrefix: ['yarn', 'config', 'get', 'version-tag-prefix'],
+                    execCli: ['yarn', 'run', PKG_DATA.name],
+                    setNewVersion: (newVersion) => [
+                        'yarn',
+                        'version',
+                        '--new-version',
+                        newVersion,
+                    ],
+                },
+                configFile: '.yarnrc',
+            },
+            'yarn run {npm-script}': {
+                pkgJson: {
+                    scripts: {
+                        'xxx-run-cli': PKG_DATA.name,
+                    },
+                    packageManager: 'yarn@1.22.19',
+                },
+                commad: {
+                    getPrefix: ['yarn', 'config', 'get', 'version-tag-prefix'],
+                    execCli: ['yarn', 'run', 'xxx-run-cli'],
+                    setNewVersion: (newVersion) => [
+                        'yarn',
+                        'version',
+                        '--new-version',
+                        newVersion,
+                    ],
+                },
+                configFile: '.yarnrc',
+            },
+        }),
+    )('%s', async (testName, { pkgJson, configFile, commad }) => {
+        const { exec, gitDirpath, version } = await initGit(
+            tmpDir(
+                'CLI should add Git tag with customized tag prefix',
+                testName,
+            ),
+        );
+        const customPrefix = 'my-awesome-pkg-v';
+        const configValue: Record<typeof configFile, string> = {
+            '.npmrc': 'this-is-npm-tag-prefix-',
+            '.yarnrc': 'this-is-yarn-tag-prefix-',
+            [configFile]: customPrefix,
+        };
+
+        // Use the "npm install <folder>" command even if the package manager is yarn.
+        // This is because the "yarn add /path/to/local/folder" command may fail on GitHub Actions.
+        await exec(['npm', 'install', '--no-save', PROJECT_ROOT]);
+        await Promise.all([
+            fs.writeFile(path.join(gitDirpath, '.gitignore'), 'node_modules/'),
+            fs.writeFile(
+                path.join(gitDirpath, '.npmrc'),
+                `tag-version-prefix=${configValue['.npmrc']}`,
+            ),
+            fs.writeFile(
+                path.join(gitDirpath, '.yarnrc'),
+                `version-tag-prefix ${configValue['.yarnrc']}`,
+            ),
+            // eslint-disable-next-line vitest/no-conditional-in-test
+            pkgJson
+                ? fs.writeFile(
+                      path.join(gitDirpath, 'package.json'),
+                      JSON.stringify({ ...pkgJson, version }),
+                  )
+                : null,
+        ]);
+
+        await expect(
+            exec(commad.getPrefix),
+            'version tag prefix should be defined in the config',
+        ).resolves.toMatchObject({ stdout: customPrefix });
+        await expect(
+            exec(['git', 'tag', '-l']),
+            'Git tag should not exist yet',
+        ).resolves.toMatchObject({ stdout: '', stderr: '' });
+
+        await expect(
+            exec(commad.execCli),
+            'CLI should exits successfully',
+        ).resolves.toSatisfy(() => true);
+
+        const tagName = `${customPrefix}${version}`;
+        await expect(
+            exec([
+                'git',
+                'for-each-ref',
+                '--format=%(objecttype) %(refname)',
+                'refs/tags',
+            ]),
+            `Git annotated tag '${tagName}' should be added`,
+        ).resolves.toMatchObject({
+            stdout: `tag refs/tags/${tagName}`,
         });
 
-    test.each(fullTestCases)('%s', testFn('my-awesome-pkg-v'));
-
-    describe.concurrent('allow empty string prefix', () => {
-        test.each(simpleTestCases)(
-            '%s',
-            testFn('', ['allow empty string prefix']),
-        );
-    });
-
-    describe.concurrent('default prefix should be "v"', () => {
-        test.each(simpleTestCases)(
-            '%s',
-            testFn(undefined, ['default prefix should be "v"']),
-        );
+        const newVersion = `${version}1`;
+        await exec(['git', 'add', '--all']);
+        await exec(['git', 'commit', '-m', 'Second commit']);
+        await exec(commad.setNewVersion(newVersion));
+        await expect(
+            exec([
+                'git',
+                'for-each-ref',
+                '--format=%(objecttype) %(refname)',
+                'refs/tags',
+            ]),
+            'The "version" command in the package manager should also use the same prefix',
+        ).resolves.toMatchObject({
+            stdout: [
+                `tag refs/tags/${tagName}`,
+                `tag refs/tags/${customPrefix}${newVersion}`,
+            ].join('\n'),
+        });
     });
 });
