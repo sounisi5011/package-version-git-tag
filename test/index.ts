@@ -618,11 +618,7 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
             const isOldPnpmConfig = /^pnpm@(?:[0-6]\.|7\.(?:1?[0-9])\.)/.test(
                 String(pkgJson?.['packageManager']),
             );
-            if (
-                commad.getPrefix[0] === 'pnpm' &&
-                isOldPnpmConfig &&
-                customPrefix === undefined
-            ) {
+            if (commad.getPrefix[0] === 'pnpm' && customPrefix === undefined) {
                 const env_ = { ...env, COREPACK_ENABLE_STRICT: '0' };
                 console.log({
                     testName,
@@ -641,6 +637,10 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
                             ['pnpm', 'config', 'get', 'tag-version-prefix'],
                             { env: env_ },
                         ).catch((e) => e),
+                    'npm config get tag-version-prefix': await exec(
+                        ['npm', 'config', 'get', 'tag-version-prefix'],
+                        { env: env_ },
+                    ).catch((e) => e),
                     'pnpm config get node-version': await exec(
                         ['pnpm', 'config', 'get', 'node-version'],
                         { env: env_ },
