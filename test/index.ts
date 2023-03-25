@@ -613,15 +613,33 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
                     : null,
             ]);
 
+            // `true` if pnpm version is less than 7.20
+            // see https://github.com/pnpm/pnpm/blob/v7.20.0/pnpm/CHANGELOG.md#7200
+            const isOldPnpmConfig = /^pnpm@(?:[0-6]\.|7\.(?:1?[0-9])\.)/.test(
+                String(pkgJson?.['packageManager']),
+            );
             await expect(
-                exec(commad.getPrefix, { env }),
+                exec(commad.getPrefix, {
+                    env: isOldPnpmConfig
+                        ? {
+                              ...env,
+                              // The old pnpm "pnpm config" command executes the "npm config" command internally.
+                              // see https://github.com/pnpm/pnpm/blob/v7.19.0/pnpm/src/pnpm.ts#L27-L64
+                              // Thus, we will set this environment variable so that npm can be used.
+                              // see https://github.com/nodejs/corepack/tree/v0.14.0#environment-variables
+                              COREPACK_ENABLE_STRICT: '0',
+                          }
+                        : env,
+                }),
                 `version tag prefix should be "${customPrefix ?? 'v'}"`,
             ).resolves.toMatchObject({
                 stdout:
                     customPrefix ??
                     // Note: The "pnpm config get ..." command does not detect npm builtin config file.
                     //       Therefore, an empty value is returned.
-                    (commad.getPrefix[0] === 'pnpm' ? '' : 'v'),
+                    (commad.getPrefix[0] === 'pnpm' && !isOldPnpmConfig
+                        ? ''
+                        : 'v'),
             });
             await expect(
                 exec(['git', 'tag', '-l']),
@@ -711,29 +729,48 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
             },
             configFile: '.npmrc',
         },
+        'pnpm@6': {
+            pkgJson: {
+                packageManager: 'pnpm@6.35.1',
+            },
+            commad: {
+                getPrefix: ['pnpm', 'config', 'get', 'tag-version-prefix'],
+                execCli: ['pnpm', 'exec', PKG_DATA.name],
+                setNewVersion: (newVersion) => ['pnpm', 'version', newVersion],
+            },
+            configFile: '.npmrc',
+        },
     });
 
     const fullTestCases = simpleTestCases
-        .flatMap<Case>(([, caseItem]) => [
-            caseItem,
-            {
-                ...caseItem,
-                pkgJson: {
-                    ...caseItem.pkgJson,
-                    scripts: {
-                        ...(typeof caseItem.pkgJson?.['scripts'] === 'object'
-                            ? caseItem.pkgJson['scripts']
-                            : {}),
-                        'xxx-run-cli': PKG_DATA.name,
+        .flatMap<[testName: string, caseItem: Case]>(([testName, caseItem]) => [
+            [testName, caseItem],
+            [
+                testName,
+                {
+                    ...caseItem,
+                    pkgJson: {
+                        ...caseItem.pkgJson,
+                        scripts: {
+                            ...(typeof caseItem.pkgJson?.['scripts'] ===
+                            'object'
+                                ? caseItem.pkgJson['scripts']
+                                : {}),
+                            'xxx-run-cli': PKG_DATA.name,
+                        },
+                    },
+                    commad: {
+                        ...caseItem.commad,
+                        execCli: [
+                            caseItem.commad.execCli[0],
+                            'run',
+                            'xxx-run-cli',
+                        ],
                     },
                 },
-                commad: {
-                    ...caseItem.commad,
-                    execCli: [caseItem.commad.execCli[0], 'run', 'xxx-run-cli'],
-                },
-            },
+            ],
         ])
-        .map((caseItem) => {
+        .map(([testName, caseItem]) => {
             const npmScriptNameSet = new Set(
                 Object.keys(caseItem.pkgJson?.['scripts'] ?? {}),
             );
@@ -748,7 +785,10 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
                             : arg,
                     )
                     .join(' ');
-            return [toTestName(caseItem.commad.execCli), caseItem] as const;
+            return [
+                toTestName([testName, ...caseItem.commad.execCli.slice(1)]),
+                caseItem,
+            ] as const;
         });
 
     test.each(fullTestCases)('%s', testFn('my-awesome-pkg-v'));
