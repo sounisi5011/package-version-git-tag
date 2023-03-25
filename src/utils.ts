@@ -136,24 +136,18 @@ export async function execFileAsync(
         const stdoutList: unknown[] = [];
         const stderrList: unknown[] = [];
 
-        if (process.stdout) {
-            process.stdout.on('data', (data) => stdoutList.push(data));
-        }
-        if (process.stderr) {
-            process.stderr.on('data', (data) => stderrList.push(data));
-        }
+        process.stdout?.on('data', (data) => stdoutList.push(data));
+        process.stderr?.on('data', (data) => stderrList.push(data));
 
-        process.on(
-            'close',
-            execExithandler({
-                command: args[0],
-                args: args[1] ?? [],
-                stdoutList,
-                stderrList,
-                resolve,
-                reject,
-            }),
-        );
+        const exitHandler = execExithandler({
+            command: args[0],
+            args: args[1] ?? [],
+            stdoutList,
+            stderrList,
+            resolve,
+            reject,
+        });
+        process.on('close', exitHandler);
         process.on(
             'error',
             execErrorhandler({ process, stdoutList, stderrList, reject }),
