@@ -145,13 +145,14 @@ export async function getConfig(keyMap: {
     // And if the config is not defined, the "pnpm config get ..." command returns an empty string.
     // So, if the "pnpm config get ..." command returns an empty string, it checks to see if the config is defined.
     // If the config is undefined, the npm builtin config is returned.
+    const defaultValue = npmBuiltinConfig[key];
     if (
         packageManager.name === 'pnpm' &&
         result === '' &&
+        defaultValue !== undefined &&
         !(await isConfigDefined(packageManager.spawnArgs, key))
-    ) {
-        return npmBuiltinConfig[key] ?? result;
-    }
+    )
+        return defaultValue;
 
     return result;
 }
