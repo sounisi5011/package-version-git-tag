@@ -5,6 +5,7 @@ import path from 'path';
 import { beforeAll, describe, expect, test } from 'vitest';
 
 import PKG_DATA from '../package.json';
+import * as corepackPackageManager from './helpers/corepack-package-managers';
 import { initGit } from './helpers/git';
 
 const PROJECT_ROOT = path.resolve(__dirname, '..');
@@ -26,6 +27,14 @@ function tmpDir(...uniqueNameList: (string | undefined)[]): string {
 }
 
 beforeAll(async () => {
+    // Set npm supporting the current Node.js to Corepack's "Last Known Good" release.
+    // This allows specifying the version of npm to use when forced to run npm using the environment variable "COREPACK_ENABLE_STRICT".
+    await execa('corepack', [
+        'prepare',
+        '--activate',
+        corepackPackageManager.latestNpm,
+    ]);
+
     await Promise.all([
         execa('npm', ['run', 'build'], { cwd: PROJECT_ROOT }),
         fs

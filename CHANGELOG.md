@@ -99,6 +99,7 @@ Because it is the minimum version available for Vitest.
 
 * [#214] - `@sindresorhus/slugify@1.1.2`
 * [#186] - `@tsconfig/node14@1.0.3`
+* [#217] - `@types/semver@7.3.13`
 * [#217] - `@types/which-pm-runs@1.0.0`
 * [#185] - `eslint-plugin-n@15.6.1`
 * [#200] - `eslint-plugin-vitest@0.0.54`
@@ -106,6 +107,7 @@ Because it is the minimum version available for Vitest.
 
     We will not use v6 or later because the ESM cannot yet be used for unit testing in this project.
 * [#185] - `lefthook@1.3.3`
+* [#217] - `semver@7.3.8`
 * [#200] - `vite@4.1.4`
 
     This is needed for vitest.

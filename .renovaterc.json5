@@ -34,8 +34,10 @@
     {
       packageNames: [
         "@sindresorhus/slugify",
+        "@types/semver",
         "execa",
         "node-git-server",
+        "semver",
         "ts-node",
         "vite", // This is needed for vitest
         "vitest",
