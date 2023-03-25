@@ -691,6 +691,16 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
             const newVersion = `${version}1`;
             await exec(['git', 'add', '--all']);
             await exec(['git', 'commit', '-m', 'Second commit']);
+            // DEBUG //
+            if (testName.startsWith('pnpm')) {
+                console.log({
+                    testName: [...uniqueNameList, testName],
+                    'npm --version': await exec(['npm', '--version'], {
+                        env: { ...env, COREPACK_ENABLE_STRICT: '0' },
+                    }).catch((e) => e),
+                });
+            }
+            // DEBUG //
             await exec(commad.setNewVersion(newVersion), {
                 env: {
                     ...env,
