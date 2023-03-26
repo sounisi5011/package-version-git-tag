@@ -676,33 +676,13 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
                 // see https://github.com/pnpm/pnpm/blob/v7.20.0/pnpm/CHANGELOG.md#7200
                 const isOldPnpmConfig =
                     /^pnpm@(?:[0-6]\.|7\.(?:1?[0-9])\.)/.test(packageManager);
-
-                let expectedPrefix = customPrefix;
-                if (expectedPrefix === undefined) {
-                    if (!isOldPnpmConfig) {
-                        // The "pnpm config get ..." command does not detect npm builtin config file.
-                        // Therefore, an empty value is set to the expected value.
-                        if (commad.getPrefix[0] === 'pnpm') expectedPrefix = '';
-                    } else {
-                        // Older pnpm may not return npm builtin config even when using "npm config" commands internally.
-                        // In such cases, an empty value is set to the expected value.
-
-                        const opts: NonNullable<Parameters<typeof exec>[1]> = {
-                            env: { ...env, COREPACK_ENABLE_STRICT: '0' },
-                        };
-                        // We use "node-version" for testing because it has the following advantages:
-                        // + It cannot be set to an empty string. It is not affected by user or global configurations.
-                        // + It is supported since the earliest npm.
-                        const isReturnEmptyString = await exec(
-                            ['pnpm', 'config', 'get', 'node-version'],
-                            opts,
-                        )
-                            .then(({ stdout }) => stdout === '')
-                            .catch(() => false);
-                        if (isReturnEmptyString) expectedPrefix = '';
-                    }
-                }
-
+                const expectedPrefix =
+                    customPrefix ??
+                    // Note: The "pnpm config get ..." command does not detect npm builtin config file.
+                    //       Therefore, an empty value is returned.
+                    (commad.getPrefix[0] === 'pnpm' && !isOldPnpmConfig
+                        ? ''
+                        : customPrefix);
                 await expect(
                     exec(commad.getPrefix, {
                         env: isOldPnpmConfig
