@@ -38,3 +38,10 @@ export const npmList = getAvailablePackageManagerList({
         '^14.17.0 || ^16.13.0 || >=18.0.0',
 });
 export const latestNpm = getLatestPackageManager(npmList);
+
+export const pnpmList = getAvailablePackageManagerList({
+    'pnpm@6.35.1+blake2b512.5d0f8e66b6e6d0f67f9430991b507709b3cc9e7b584e412ed8cd191fe289a6a7dd7acc878f8fa2de6d289cfc7827168892d3069107c5e023884990146ef54cc4':
+        '>=12.17',
+    'pnpm@7.30.4+blake2b512.89bc2a182193a526fb4df064e0b798f4e11d9bf2c99323314eb85e778d4a9a61f7014a574a04203afb5cfa2bec33dc04ba978609502207fe0be9e61c78737e39':
+        '>=14.6',
+});

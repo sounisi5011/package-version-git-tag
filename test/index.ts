@@ -756,29 +756,41 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
             },
             configFile: '.yarnrc',
         },
-        pnpm: {
-            pkgJson: {
-                packageManager: 'pnpm@7.30.0',
+    }).concat(
+        corepackPackageManager.pnpmList.map<[string, Case]>(
+            (packageManager) => {
+                const major = Number(
+                    /^pnpm@(\d+)/.exec(packageManager)?.[1] ?? '0',
+                );
+                return [
+                    packageManager.replace(/\+.+$/, ''),
+                    {
+                        pkgJson: {
+                            packageManager,
+                        },
+                        commad: {
+                            getPrefix: [
+                                'pnpm',
+                                'config',
+                                'get',
+                                'tag-version-prefix',
+                            ],
+                            execCli:
+                                major >= 6
+                                    ? ['pnpm', 'exec', PKG_DATA.name]
+                                    : ['pnpx', '--no-install', PKG_DATA.name],
+                            setNewVersion: (newVersion) => [
+                                'pnpm',
+                                'version',
+                                newVersion,
+                            ],
+                        },
+                        configFile: '.npmrc',
+                    },
+                ];
             },
-            commad: {
-                getPrefix: ['pnpm', 'config', 'get', 'tag-version-prefix'],
-                execCli: ['pnpm', 'exec', PKG_DATA.name],
-                setNewVersion: (newVersion) => ['pnpm', 'version', newVersion],
-            },
-            configFile: '.npmrc',
-        },
-        'pnpm@6': {
-            pkgJson: {
-                packageManager: 'pnpm@6.35.1',
-            },
-            commad: {
-                getPrefix: ['pnpm', 'config', 'get', 'tag-version-prefix'],
-                execCli: ['pnpm', 'exec', PKG_DATA.name],
-                setNewVersion: (newVersion) => ['pnpm', 'version', newVersion],
-            },
-            configFile: '.npmrc',
-        },
-    });
+        ),
+    );
 
     const fullTestCases = simpleTestCases
         .flatMap<[testName: string, caseItem: Case]>(([testName, caseItem]) => [
