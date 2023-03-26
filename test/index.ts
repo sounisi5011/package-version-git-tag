@@ -559,7 +559,7 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
     interface Case {
         pkgJson?: Record<string, unknown>;
         commad: Record<
-            'getPrefix' | 'execCli',
+            'version' | 'getPrefix' | 'execCli',
             readonly [string, ...string[]]
         > & {
             setNewVersion: (
@@ -569,6 +569,20 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
         configFile: '.npmrc' | '.yarnrc';
     }
 
+    const retryExec = async (
+        fn: () => execa.ExecaChildProcess,
+        isSkip: (error: execa.ExecaError) => boolean,
+    ): Promise<Awaited<execa.ExecaChildProcess>> => {
+        let retries = 10;
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+        while (true) {
+            const result = await fn().catch((error) => {
+                if (retries-- && isSkip(error)) return null;
+                throw error;
+            });
+            if (result) return result;
+        }
+    };
     const testFn =
         (customPrefix: string | undefined, uniqueNameList: string[] = []) =>
         async (
@@ -627,13 +641,40 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
                     : null,
             ]);
 
+            const packageManager = String(pkgJson?.['packageManager']);
+            {
+                const expectedVersion = /^[^@]+@([^+]+)/.exec(
+                    packageManager,
+                )?.[1];
+                if (expectedVersion) {
+                    // Corepack throws an error if it cannot fetch the package manager.
+                    // This error also occurs on GitHub Actions in rare cases.
+                    // To avoid this, retry the version command if the error is caused by the network.
+                    // If the version command succeeds here, subsequent commands will not cause network errors.
+                    await expect(
+                        retryExec(
+                            () =>
+                                exec(commad.version, {
+                                    env,
+                                }),
+                            ({ stdout, stderr }) =>
+                                [stdout, stderr].some((stdoutOrStderr) =>
+                                    /\bError when performing the request\b/i.test(
+                                        stdoutOrStderr,
+                                    ),
+                                ),
+                        ),
+                    ).resolves.toMatchObject({
+                        stdout: expectedVersion,
+                        stderr: '',
+                    });
+                }
+            }
             {
                 // `true` if pnpm version is less than 7.20
                 // see https://github.com/pnpm/pnpm/blob/v7.20.0/pnpm/CHANGELOG.md#7200
                 const isOldPnpmConfig =
-                    /^pnpm@(?:[0-6]\.|7\.(?:1?[0-9])\.)/.test(
-                        String(pkgJson?.['packageManager']),
-                    );
+                    /^pnpm@(?:[0-6]\.|7\.(?:1?[0-9])\.)/.test(packageManager);
 
                 let expectedPrefix = customPrefix;
                 if (expectedPrefix === undefined) {
@@ -715,6 +756,7 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
                     COREPACK_ENABLE_STRICT: '0',
                 },
             });
+            // eslint-disable-next-line vitest/max-expects
             await expect(
                 exec([
                     'git',
@@ -734,6 +776,7 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
     const simpleTestCases = Object.entries<Case>({
         npm: {
             commad: {
+                version: ['npm', '--version'],
                 getPrefix: ['npm', 'config', 'get', 'tag-version-prefix'],
                 execCli: ['npm', 'exec', '--no', PKG_DATA.name],
                 setNewVersion: (newVersion) => ['npm', 'version', newVersion],
@@ -745,6 +788,7 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
                 packageManager: 'yarn@1.22.19',
             },
             commad: {
+                version: ['yarn', '--version'],
                 getPrefix: ['yarn', 'config', 'get', 'version-tag-prefix'],
                 execCli: ['yarn', 'run', PKG_DATA.name],
                 setNewVersion: (newVersion) => [
@@ -769,6 +813,7 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
                             packageManager,
                         },
                         commad: {
+                            version: ['pnpm', '--version'],
                             getPrefix: [
                                 'pnpm',
                                 'config',
