@@ -3,7 +3,9 @@ import semver from 'semver';
 type PackageManagerType = 'npm' | 'yarn' | 'pnpm';
 type PackageManagerSpec<
     PMType extends PackageManagerType = PackageManagerType,
-> = `${PMType}@${number}.${number}.${number}+blake2b512.${string}`;
+> = `${PMType}@${number}.${number}.${number}${
+    | ''
+    | `-${string}`}+blake2b512.${string}`;
 type GetPackageManagerType<PMSpec extends PackageManagerSpec> =
     PMSpec extends PackageManagerSpec<infer PMType> ? PMType : never;
 
@@ -44,4 +46,6 @@ export const pnpmList = getAvailablePackageManagerList({
         '>=12.17',
     'pnpm@7.30.4+blake2b512.89bc2a182193a526fb4df064e0b798f4e11d9bf2c99323314eb85e778d4a9a61f7014a574a04203afb5cfa2bec33dc04ba978609502207fe0be9e61c78737e39':
         '>=14.6',
+    'pnpm@8.0.0-rc.1+blake2b512.e13d8f613e00f5bae52c1960fef959309c406963259cc86d690e2ba3d3a37ec847c36bae1b40e98191b27ab18c60cdbd701b9fcd755299a3552755a2804bc7b8':
+        '>=16.14',
 });
