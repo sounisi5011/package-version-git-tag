@@ -30,12 +30,44 @@ function tmpDir(...uniqueNameList: (string | undefined)[]): string {
     return path.resolve(TEST_TMP_DIR, dirname);
 }
 
+async function retryExec(
+    fn: () => execa.ExecaChildProcess,
+    isSkip: (error: execa.ExecaError) => boolean,
+): Promise<Awaited<execa.ExecaChildProcess>> {
+    const ignoredError = Symbol('ignoredExecError');
+    let retries = 10;
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    while (true) {
+        // Note: The `try...catch` statement is not used here,
+        //       because the type of the `error` variable will only be `execa.ExecaError` if the `.catch()` method is used.
+        const result = await fn().catch<typeof ignoredError>((error) => {
+            if (retries-- && isSkip(error)) return ignoredError;
+            throw error;
+        });
+        if (result !== ignoredError) return result;
+    }
+}
+
 beforeAll(async () => {
+    // Corepack throws an error if it cannot fetch the package manager.
+    // This error also occurs on GitHub Actions in rare cases.
+    // To avoid this, pre-fetch all package managers used in the tests.
+    await retryExec(
+        () =>
+            execa('corepack', ['prepare', ...corepackPackageManager.allList], {
+                env: { COREPACK_HOME },
+            }),
+        ({ stdout, stderr }) =>
+            [stdout, stderr].some((stdoutOrStderr) =>
+                /\bError when performing the request\b/i.test(stdoutOrStderr),
+            ),
+    );
     // Set npm supporting the current Node.js to Corepack's "Last Known Good" release.
     // This allows specifying the version of npm to use when forced to run npm using the environment variable "COREPACK_ENABLE_STRICT".
+    // Note: To avoid the "Error when performing the request" error, set all package managers other than npm to the "Last Known Good" release.
     await execa(
         'corepack',
-        ['prepare', '--activate', corepackPackageManager.latestNpm],
+        ['prepare', '--activate', ...corepackPackageManager.latestList],
         { env: { COREPACK_HOME } },
     );
 
@@ -569,20 +601,6 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
         configFile: '.npmrc' | '.yarnrc';
     }
 
-    const retryExec = async (
-        fn: () => execa.ExecaChildProcess,
-        isSkip: (error: execa.ExecaError) => boolean,
-    ): Promise<Awaited<execa.ExecaChildProcess>> => {
-        let retries = 10;
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-        while (true) {
-            const result = await fn().catch((error) => {
-                if (retries-- && isSkip(error)) return null;
-                throw error;
-            });
-            if (result) return result;
-        }
-    };
     const testFn =
         (customPrefix: string | undefined, uniqueNameList: string[] = []) =>
         async (
@@ -642,33 +660,16 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
             ]);
 
             const packageManager = String(pkgJson?.['packageManager']);
-            {
-                const expectedVersion = /^[^@]+@([^+]+)/.exec(
-                    packageManager,
-                )?.[1];
-                if (expectedVersion) {
-                    // Corepack throws an error if it cannot fetch the package manager.
-                    // This error also occurs on GitHub Actions in rare cases.
-                    // To avoid this, retry the version command if the error is caused by the network.
-                    // If the version command succeeds here, subsequent commands will not cause network errors.
-                    await expect(
-                        retryExec(
-                            () =>
-                                exec(commad.version, {
-                                    env,
-                                }),
-                            ({ stdout, stderr }) =>
-                                [stdout, stderr].some((stdoutOrStderr) =>
-                                    /\bError when performing the request\b/i.test(
-                                        stdoutOrStderr,
-                                    ),
-                                ),
-                        ),
-                    ).resolves.toMatchObject({
-                        stdout: expectedVersion,
-                        stderr: '',
-                    });
-                }
+            const packageManagerVersion = /^[^@]+@([^+]+)/.exec(
+                packageManager,
+            )?.[1];
+            if (packageManagerVersion) {
+                await expect(
+                    exec(commad.version, { env }),
+                ).resolves.toMatchObject({
+                    stdout: packageManagerVersion,
+                    stderr: '',
+                });
             }
             {
                 // `true` if pnpm version is less than 7.20
