@@ -6,6 +6,8 @@ specifiers:
   '@tsconfig/node14': 1.0.3
   '@types/cross-spawn': 6.0.2
   '@types/node': 14.18.37
+  '@types/semver': 7.3.13
+  '@types/which-pm-runs': 1.0.0
   '@typescript-eslint/eslint-plugin': 5.54.1
   '@typescript-eslint/parser': 5.54.1
   can-npm-publish: 1.3.6
@@ -30,17 +32,20 @@ specifiers:
   npm-run-all: 4.1.5
   prettier: 2.8.4
   prettier-package-json: 2.8.0
+  semver: 7.3.8
   sort-package-json: 2.4.1
   ts-node: 10.9.1
   typescript: 4.9.5
   vite: 4.1.4
   vitest: 0.29.2
   vitest-mock-process: 1.0.4
+  which-pm-runs: ^1.1.0
 
 dependencies:
   command-join: 3.0.0
   cross-spawn: 7.0.3
   mri: 1.2.0
+  which-pm-runs: 1.1.0
 
 devDependencies:
   '@sindresorhus/slugify': 1.1.2
@@ -48,6 +53,8 @@ devDependencies:
   '@tsconfig/node14': 1.0.3
   '@types/cross-spawn': 6.0.2
   '@types/node': 14.18.37
+  '@types/semver': 7.3.13
+  '@types/which-pm-runs': 1.0.0
   '@typescript-eslint/eslint-plugin': 5.54.1_4rfaf6mlw2mmutqjcopwvbftpu
   '@typescript-eslint/parser': 5.54.1_vgl77cfdswitgr47lm5swmv43m
   can-npm-publish: 1.3.6
@@ -69,6 +76,7 @@ devDependencies:
   npm-run-all: 4.1.5
   prettier: 2.8.4
   prettier-package-json: 2.8.0
+  semver: 7.3.8
   sort-package-json: 2.4.1
   ts-node: 10.9.1_6cnmuszcetnto3gtv64ajxyacy
   typescript: 4.9.5
@@ -480,6 +488,10 @@ packages:
 
   /@types/semver/7.3.13:
     resolution: {integrity: sha512-21cFJr9z3g5dW8B0CVI9g2O9beqaThGQ6ZFBqHfwhzLDKUxaqTIy3vnfah/UPkfOiF2pLq+tGz+W8RyCskuslw==}
+    dev: true
+
+  /@types/which-pm-runs/1.0.0:
+    resolution: {integrity: sha512-BXfdlYLWvRhngJbih4N57DjO+63Z7AxiFiip8yq3rD46U7V4I2W538gngPvBsZiMehhD8sfGf4xLI6k7TgXvNw==}
     dev: true
 
   /@typescript-eslint/eslint-plugin/5.54.1_4rfaf6mlw2mmutqjcopwvbftpu:
@@ -3814,6 +3826,11 @@ packages:
       is-string: 1.0.7
       is-symbol: 1.0.4
     dev: true
+
+  /which-pm-runs/1.1.0:
+    resolution: {integrity: sha512-n1brCuqClxfFfq/Rb0ICg9giSZqCS+pLtccdag6C2HyufBrh3fBOiy9nb6ggRMvWOVH5GrdJskj5iGTZNxd7SA==}
+    engines: {node: '>=4'}
+    dev: false
 
   /which-typed-array/1.1.9:
     resolution: {integrity: sha512-w9c4xkx6mPidwp7180ckYWfMmvxpjlZuIudNtDf4N/tTAUB8VJbX25qZoAsrtGuYNnGw3pa0AXgbGKRB8/EceA==}

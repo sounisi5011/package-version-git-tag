@@ -1,16 +1,25 @@
+/* eslint vitest/max-expects: [warn, { max: 10 }] */
+
 import slugify from '@sindresorhus/slugify';
+import { commandJoin } from 'command-join';
 import execa from 'execa';
 import fs from 'fs/promises';
 import path from 'path';
+import semver from 'semver';
 import { beforeAll, describe, expect, test } from 'vitest';
 
 import PKG_DATA from '../package.json';
+import * as corepackPackageManager from './helpers/corepack-package-managers';
 import { initGit } from './helpers/git';
 
 const PROJECT_ROOT = path.resolve(__dirname, '..');
 const TEST_TMP_DIR = path.resolve(__dirname, '.temp');
 const CLI_DIR = path.resolve(TEST_TMP_DIR, '.cli');
 const CLI_PATH = path.resolve(CLI_DIR, 'node_modules', '.bin', PKG_DATA.name);
+/**
+ * @see https://github.com/nodejs/corepack/tree/v0.14.0#environment-variables
+ */
+const COREPACK_HOME = path.resolve(TEST_TMP_DIR, '.corepack');
 
 const createdTmpDirSet = new Set<string>();
 function tmpDir(...uniqueNameList: (string | undefined)[]): string {
@@ -25,7 +34,47 @@ function tmpDir(...uniqueNameList: (string | undefined)[]): string {
     return path.resolve(TEST_TMP_DIR, dirname);
 }
 
+async function retryExec(
+    fn: () => execa.ExecaChildProcess,
+    isSkip: (error: execa.ExecaError) => boolean,
+): Promise<Awaited<execa.ExecaChildProcess>> {
+    const ignoredError = Symbol('ignoredExecError');
+    let retries = 10;
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    while (true) {
+        // Note: The `try...catch` statement is not used here,
+        //       because the type of the `error` variable will only be `execa.ExecaError` if the `.catch()` method is used.
+        const result = await fn().catch<typeof ignoredError>((error) => {
+            if (retries-- && isSkip(error)) return ignoredError;
+            throw error;
+        });
+        if (result !== ignoredError) return result;
+    }
+}
+
 beforeAll(async () => {
+    // Corepack throws an error if it cannot fetch the package manager.
+    // This error also occurs on GitHub Actions in rare cases.
+    // To avoid this, pre-fetch all package managers used in the tests.
+    await retryExec(
+        () =>
+            execa('corepack', ['prepare', ...corepackPackageManager.allList], {
+                env: { COREPACK_HOME },
+            }),
+        ({ stdout, stderr }) =>
+            [stdout, stderr].some((stdoutOrStderr) =>
+                /\bError when performing the request\b/i.test(stdoutOrStderr),
+            ),
+    );
+    // Set npm supporting the current Node.js to Corepack's "Last Known Good" release.
+    // This allows specifying the version of npm to use when forced to run npm using the environment variable "COREPACK_ENABLE_STRICT".
+    // Note: To avoid the "Error when performing the request" error, set all package managers other than npm to the "Last Known Good" release.
+    await execa(
+        'corepack',
+        ['prepare', '--activate', ...corepackPackageManager.latestList],
+        { env: { COREPACK_HOME } },
+    );
+
     await Promise.all([
         execa('pnpm', ['run', 'build'], { cwd: PROJECT_ROOT }),
         fs
@@ -546,7 +595,7 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
     interface Case {
         pkgJson?: Record<string, unknown>;
         commad: Record<
-            'getPrefix' | 'execCli',
+            'version' | 'getPrefix' | 'execCli',
             readonly [string, ...string[]]
         > & {
             setNewVersion: (
@@ -556,160 +605,355 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
         configFile: '.npmrc' | '.yarnrc';
     }
 
-    test.each(
-        Object.entries<Case>({
-            'npm exec {command}': {
-                pkgJson: {
-                    // Note: npm v8 is available for Node.js 14.15.0 and above.
-                    //       Not available for Node.js 14.14.0.
-                    //       That is why use npm v7.
-                    packageManager: 'npm@7.24.2',
-                },
-                commad: {
-                    getPrefix: ['npm', 'config', 'get', 'tag-version-prefix'],
-                    execCli: ['npm', 'exec', '--no', PKG_DATA.name],
-                    setNewVersion: (newVersion) => [
-                        'npm',
-                        'version',
-                        newVersion,
-                    ],
-                },
-                configFile: '.npmrc',
+    const simpleTestCases = Object.entries<Case>({
+        npm: {
+            pkgJson: {
+                packageManager: corepackPackageManager.latestNpm,
             },
-            'npm run {npm-script}': {
-                pkgJson: {
-                    scripts: {
-                        'xxx-run-cli': PKG_DATA.name,
+            commad: {
+                version: ['npm', '--version'],
+                getPrefix: ['npm', 'config', 'get', 'tag-version-prefix'],
+                execCli: ['npm', 'exec', '--no', PKG_DATA.name],
+                setNewVersion: (newVersion) => ['npm', 'version', newVersion],
+            },
+            configFile: '.npmrc',
+        },
+        yarn: {
+            pkgJson: {
+                packageManager: 'yarn@1.22.19',
+            },
+            commad: {
+                version: ['yarn', '--version'],
+                getPrefix: ['yarn', 'config', 'get', 'version-tag-prefix'],
+                execCli: ['yarn', 'run', PKG_DATA.name],
+                setNewVersion: (newVersion) => [
+                    'yarn',
+                    'version',
+                    '--new-version',
+                    newVersion,
+                ],
+            },
+            configFile: '.yarnrc',
+        },
+    }).concat(
+        corepackPackageManager.pnpmList.map<[string, Case]>(
+            (packageManager) => {
+                const major = Number(
+                    /^pnpm@(\d+)/.exec(packageManager)?.[1] ?? '0',
+                );
+                return [
+                    packageManager.replace(/\+.+$/, ''),
+                    {
+                        pkgJson: {
+                            packageManager,
+                        },
+                        commad: {
+                            version: ['pnpm', '--version'],
+                            getPrefix: [
+                                'pnpm',
+                                'config',
+                                'get',
+                                'tag-version-prefix',
+                            ],
+                            execCli:
+                                major >= 6
+                                    ? ['pnpm', 'exec', PKG_DATA.name]
+                                    : ['pnpx', '--no-install', PKG_DATA.name],
+                            setNewVersion: (newVersion) => [
+                                'pnpm',
+                                'version',
+                                newVersion,
+                            ],
+                        },
+                        configFile: '.npmrc',
                     },
-                    packageManager: 'npm@7.24.2',
-                },
-                commad: {
-                    getPrefix: ['npm', 'config', 'get', 'tag-version-prefix'],
-                    execCli: ['npm', 'run', 'xxx-run-cli'],
-                    setNewVersion: (newVersion) => [
-                        'npm',
-                        'version',
-                        newVersion,
-                    ],
-                },
-                configFile: '.npmrc',
+                ];
             },
-            'yarn run {command}': {
-                pkgJson: {
-                    packageManager: 'yarn@1.22.19',
-                },
-                commad: {
-                    getPrefix: ['yarn', 'config', 'get', 'version-tag-prefix'],
-                    execCli: ['yarn', 'run', PKG_DATA.name],
-                    setNewVersion: (newVersion) => [
-                        'yarn',
-                        'version',
-                        '--new-version',
-                        newVersion,
-                    ],
-                },
-                configFile: '.yarnrc',
-            },
-            'yarn run {npm-script}': {
-                pkgJson: {
-                    scripts: {
-                        'xxx-run-cli': PKG_DATA.name,
-                    },
-                    packageManager: 'yarn@1.22.19',
-                },
-                commad: {
-                    getPrefix: ['yarn', 'config', 'get', 'version-tag-prefix'],
-                    execCli: ['yarn', 'run', 'xxx-run-cli'],
-                    setNewVersion: (newVersion) => [
-                        'yarn',
-                        'version',
-                        '--new-version',
-                        newVersion,
-                    ],
-                },
-                configFile: '.yarnrc',
-            },
-        }),
-    )('%s', async (testName, { pkgJson, configFile, commad }) => {
-        const { exec, gitDirpath, version } = await initGit(
-            tmpDir(
-                'CLI should add Git tag with customized tag prefix',
-                testName,
-            ),
-        );
-        const customPrefix = 'my-awesome-pkg-v';
-        const configValue: Record<typeof configFile, string> = {
-            '.npmrc': 'this-is-npm-tag-prefix-',
-            '.yarnrc': 'this-is-yarn-tag-prefix-',
-            [configFile]: customPrefix,
+        ),
+    );
+    const fullTestCases = simpleTestCases.flatMap<
+        readonly [testName: string, caseItem: Case]
+    >(([testName, caseItem]) => {
+        const toTestName = (
+            testName: string,
+            execCliCommand: readonly string[],
+            pkgJson: Record<string, unknown> | undefined,
+        ): string => {
+            const npmScriptNameSet = new Set(
+                Object.keys(pkgJson?.['scripts'] ?? {}),
+            );
+            return (
+                execCliCommand
+                    .filter((arg) => !/^-{1,2}[^-]/.test(arg))
+                    .map((arg) =>
+                        npmScriptNameSet.has(arg)
+                            ? '{npm-script}'
+                            : arg === PKG_DATA.name
+                            ? '{command}'
+                            : arg,
+                    )
+                    .join(' ') +
+                (testName !== execCliCommand[0] ? ` (${testName})` : '')
+            );
         };
 
-        // Use the "pnpm add <folder>" command even if the package manager is yarn.
-        // This is because the "yarn add /path/to/local/folder" command may fail on GitHub Actions.
-        await exec(['pnpm', 'add', PROJECT_ROOT]);
-        await Promise.all([
-            fs.writeFile(path.join(gitDirpath, '.gitignore'), 'node_modules/'),
-            fs.writeFile(
-                path.join(gitDirpath, '.npmrc'),
-                `tag-version-prefix=${configValue['.npmrc']}`,
-            ),
-            fs.writeFile(
-                path.join(gitDirpath, '.yarnrc'),
-                `version-tag-prefix ${configValue['.yarnrc']}`,
-            ),
-            // eslint-disable-next-line vitest/no-conditional-in-test
-            pkgJson
-                ? fs.writeFile(
-                      path.join(gitDirpath, 'package.json'),
-                      JSON.stringify({ ...pkgJson, version }),
-                  )
-                : null,
+        const caseList: Case[] = [
+            caseItem,
+            {
+                ...caseItem,
+                pkgJson: {
+                    ...caseItem.pkgJson,
+                    scripts: {
+                        ...(typeof caseItem.pkgJson?.['scripts'] === 'object'
+                            ? caseItem.pkgJson['scripts']
+                            : {}),
+                        'xxx-run-cli': PKG_DATA.name,
+                    },
+                },
+                commad: {
+                    ...caseItem.commad,
+                    execCli: [caseItem.commad.version[0], 'run', 'xxx-run-cli'],
+                },
+            },
+        ];
+        return caseList.map((caseItem) => [
+            toTestName(testName, caseItem.commad.execCli, caseItem.pkgJson),
+            caseItem,
         ]);
+    });
 
-        await expect(
-            exec(commad.getPrefix),
-            'version tag prefix should be defined in the config',
-        ).resolves.toMatchObject({ stdout: customPrefix });
-        await expect(
-            exec(['git', 'tag', '-l']),
-            'Git tag should not exist yet',
-        ).resolves.toMatchObject({ stdout: '', stderr: '' });
+    const defaultPrefix = 'v';
+    const testFn =
+        (customPrefix: string | undefined, uniqueNameList: string[] = []) =>
+        async (
+            testName: string,
+            { pkgJson, configFile, commad }: Case,
+        ): Promise<void> => {
+            const { exec, gitDirpath, version } = await initGit(
+                tmpDir(
+                    'CLI should add Git tag with customized tag prefix',
+                    ...uniqueNameList,
+                    testName,
+                ),
+            );
+            const configValue: Record<typeof configFile, string> | undefined =
+                typeof customPrefix === 'string'
+                    ? {
+                          '.npmrc': 'this-is-npm-tag-prefix-',
+                          '.yarnrc': 'this-is-yarn-tag-prefix-',
+                          [configFile]: customPrefix,
+                      }
+                    : undefined;
+            const packageManager = (() => {
+                const spec = pkgJson?.['packageManager'];
+                if (typeof spec !== 'string') return null;
+                const [, packageManagerType, packageManagerSemVer] =
+                    /^([^@]+)@(.+)/.exec(spec) ?? [];
+                if (!packageManagerType || !packageManagerSemVer) return null;
+                return {
+                    type: packageManagerType,
+                    semver: new semver.SemVer(packageManagerSemVer),
+                };
+            })();
+            const env: NodeJS.ProcessEnv = {
+                COREPACK_HOME,
+            };
+            // On Windows, the pnpm command will fail if the "APPDATA" environment variable does not exist.
+            // This is caused by pnpm's dependency "@pnpm/npm-conf".
+            // see https://github.com/pnpm/npm-conf/blob/ff043813516e16597de96a787c710de0b15e9aa9/lib/defaults.js#L29-L30
+            if (process.platform === 'win32' && packageManager?.type === 'pnpm')
+                env['APPDATA'] = process.env['APPDATA'];
+            const pnpmConfig =
+                packageManager?.type !== 'pnpm'
+                    ? undefined
+                    : {
+                          /**
+                           * `true` if pnpm v7.20 or later.
+                           *
+                           * Starting with pnpm v7.20, the `pnpm config` command uses its own implementation that does not execute the `npm config` command.
+                           * This implementation does not detect npm's built-in configuration, so it returns an empty value if the config setting does not exist in the ".npmrc" file.
+                           * @see https://github.com/pnpm/pnpm/blob/v7.20.0/pnpm/CHANGELOG.md#7200
+                           */
+                          isNewPnpmConfig: semver.lte(
+                              '7.20.0',
+                              packageManager.semver,
+                          ),
+                          /**
+                           * The "pnpm config get ..." command may return an empty value when it should return npm's built-in config.
+                           * In such cases, it returns `true`.
+                           */
+                          async defaultValueIsEmpty(): Promise<boolean> {
+                              // The "pnpm config get ..." command does not detect npm builtin config file.
+                              // Therefore, an empty value is set to the expected value.
+                              if (this.isNewPnpmConfig) return true;
 
-        await expect(
-            exec(commad.execCli),
-            'CLI should exits successfully',
-        ).resolves.toSatisfy(() => true);
+                              // Older pnpm may not return npm builtin config even when using "npm config" commands internally.
+                              // In such cases, an empty value is set to the expected value.
+                              return exec(
+                                  // We use "node-version" for testing because it has the following advantages:
+                                  // + It cannot be set to an empty string. It is not affected by user or global configurations.
+                                  // + It is supported since the earliest npm.
+                                  ['pnpm', 'config', 'get', 'node-version'],
+                                  {
+                                      env: {
+                                          ...env,
+                                          COREPACK_ENABLE_STRICT: '0',
+                                      },
+                                  },
+                              )
+                                  .then(({ stdout }) => stdout === '')
+                                  .catch(() => false);
+                          },
+                      };
 
-        const tagName = `${customPrefix}${version}`;
-        await expect(
-            exec([
-                'git',
-                'for-each-ref',
-                '--format=%(objecttype) %(refname)',
-                'refs/tags',
-            ]),
-            `Git annotated tag '${tagName}' should be added`,
-        ).resolves.toMatchObject({
-            stdout: `tag refs/tags/${tagName}`,
-        });
+            // Always use "pnpm add <folder>", even if the package manager is not pnpm.
+            // This is because the "yarn add /path/to/local/folder" command may fail on GitHub Actions.
+            await exec(['pnpm', 'add', PROJECT_ROOT]);
 
-        const newVersion = `${version}1`;
-        await exec(['git', 'add', '--all']);
-        await exec(['git', 'commit', '-m', 'Second commit']);
-        await exec(commad.setNewVersion(newVersion));
-        await expect(
-            exec([
-                'git',
-                'for-each-ref',
-                '--format=%(objecttype) %(refname)',
-                'refs/tags',
-            ]),
-            'The "version" command in the package manager should also use the same prefix',
-        ).resolves.toMatchObject({
-            stdout: [
-                `tag refs/tags/${tagName}`,
-                `tag refs/tags/${customPrefix}${newVersion}`,
-            ].join('\n'),
-        });
+            await Promise.all([
+                fs.writeFile(
+                    path.join(gitDirpath, '.gitignore'),
+                    'node_modules/',
+                ),
+                ...(configValue
+                    ? [
+                          fs.writeFile(
+                              path.join(gitDirpath, '.npmrc'),
+                              `tag-version-prefix="${configValue['.npmrc']}"`,
+                          ),
+                          fs.writeFile(
+                              path.join(gitDirpath, '.yarnrc'),
+                              `version-tag-prefix "${configValue['.yarnrc']}"`,
+                          ),
+                      ]
+                    : []),
+                // eslint-disable-next-line vitest/no-conditional-in-test
+                pkgJson
+                    ? fs.writeFile(
+                          path.join(gitDirpath, 'package.json'),
+                          JSON.stringify({ ...pkgJson, version }),
+                      )
+                    : null,
+            ]);
+
+            if (packageManager) {
+                await expect(
+                    exec(commad.version, { env }),
+                ).resolves.toMatchObject({
+                    stdout: packageManager.semver.version,
+                    stderr: '',
+                });
+            }
+            if (typeof customPrefix === 'string') {
+                await expect(
+                    exec(commad.getPrefix, {
+                        env: pnpmConfig?.isNewPnpmConfig
+                            ? env
+                            : {
+                                  ...env,
+                                  // The old pnpm "pnpm config" command executes the "npm config" command internally.
+                                  // see https://github.com/pnpm/pnpm/blob/v7.19.0/pnpm/src/pnpm.ts#L27-L64
+                                  // Thus, we will set this environment variable so that npm can be used.
+                                  // see https://github.com/nodejs/corepack/tree/v0.14.0#environment-variables
+                                  COREPACK_ENABLE_STRICT: '0',
+                              },
+                    }),
+                    'version tag prefix should be defined in the config',
+                ).resolves.toMatchObject({ stdout: customPrefix });
+            } else {
+                const defaultValueIsEmpty =
+                    await pnpmConfig?.defaultValueIsEmpty();
+                await expect(
+                    exec(commad.getPrefix, {
+                        env: pnpmConfig?.isNewPnpmConfig
+                            ? env
+                            : {
+                                  ...env,
+                                  // The old pnpm "pnpm config" command executes the "npm config" command internally.
+                                  // see https://github.com/pnpm/pnpm/blob/v7.19.0/pnpm/src/pnpm.ts#L27-L64
+                                  // Thus, we will set this environment variable so that npm can be used.
+                                  // see https://github.com/nodejs/corepack/tree/v0.14.0#environment-variables
+                                  COREPACK_ENABLE_STRICT: '0',
+                              },
+                    }),
+                    `version tag prefix should be "${defaultPrefix}"` +
+                        (defaultValueIsEmpty
+                            ? `, but the "${commandJoin(
+                                  commad.getPrefix,
+                              )}" command should not return anything`
+                            : ''),
+                ).resolves.toMatchObject({
+                    stdout: defaultValueIsEmpty ? '' : defaultPrefix,
+                });
+            }
+            await expect(
+                exec(['git', 'tag', '-l']),
+                'Git tag should not exist yet',
+            ).resolves.toMatchObject({ stdout: '', stderr: '' });
+
+            await expect(
+                exec(commad.execCli, { env }),
+                'CLI should exits successfully',
+            ).resolves.toSatisfy(() => true);
+
+            const tagName = `${customPrefix ?? defaultPrefix}${version}`;
+            await expect(
+                exec([
+                    'git',
+                    'for-each-ref',
+                    '--format=%(objecttype) %(refname)',
+                    'refs/tags',
+                ]),
+                `Git annotated tag '${tagName}' should be added`,
+            ).resolves.toMatchObject({
+                stdout: `tag refs/tags/${tagName}`,
+            });
+
+            const newVersion = `${version}1`;
+            const newTagName = `${customPrefix ?? defaultPrefix}${newVersion}`;
+            await exec(['git', 'add', '--all']);
+            await exec(['git', 'commit', '-m', 'Second commit']);
+            await exec(commad.setNewVersion(newVersion), {
+                env: {
+                    ...env,
+                    // The "pnpm version" command executes the "npm version" command internally.
+                    // see https://github.com/pnpm/pnpm/blob/v7.30.0/pnpm/src/pnpm.ts#L27-L61
+                    // Thus, we will set this environment variable so that npm can be used.
+                    // see https://github.com/nodejs/corepack/tree/v0.14.0#environment-variables
+                    ...(packageManager?.type === 'pnpm' && {
+                        COREPACK_ENABLE_STRICT: '0',
+                    }),
+                },
+            });
+            await expect(
+                exec([
+                    'git',
+                    'for-each-ref',
+                    '--format=%(objecttype) %(refname)',
+                    'refs/tags',
+                ]),
+                'The "version" command in the package manager should also use the same prefix',
+            ).resolves.toMatchObject({
+                stdout: [
+                    `tag refs/tags/${tagName}`,
+                    `tag refs/tags/${newTagName}`,
+                ].join('\n'),
+            });
+        };
+
+    test.each(fullTestCases)('%s', testFn('my-awesome-pkg-v'));
+
+    describe.concurrent('allow empty string prefix', () => {
+        test.each(simpleTestCases)(
+            '%s',
+            testFn('', ['allow empty string prefix']),
+        );
+    });
+
+    describe.concurrent('default prefix should be "v"', () => {
+        test.each(simpleTestCases)(
+            '%s',
+            testFn(undefined, ['default prefix should be "v"']),
+        );
     });
 });

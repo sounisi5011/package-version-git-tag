@@ -54,6 +54,11 @@ export const deepCopy: <T>(value: T) => T =
           // For older Node.js, use the v8 module instead.
           (value) => v8.deserialize(v8.serialize(value)); // eslint-disable-line @typescript-eslint/no-unsafe-return
 
+type ExecError = Error & {
+    stdout: string;
+    stderr: string;
+};
+
 /**
  * @see https://github.com/nodejs/node/blob/v12.13.0/lib/child_process.js#L250-L303
  */
@@ -70,7 +75,7 @@ function execExithandler({
     stdoutList: unknown[];
     stderrList: unknown[];
     resolve: (value: { stdout: string; stderr: string }) => void;
-    reject: (reason: Error) => void;
+    reject: (reason: ExecError) => void;
 }): (code: number, signal: string | null) => void {
     return (code, signal) => {
         const stdout = stdoutList.join('');
@@ -87,7 +92,7 @@ function execExithandler({
         }
 
         const error = new Error(`Command failed: ${cmd}\n${stderr}`);
-        reject(error);
+        reject(Object.assign(error, { code, stdout, stderr }));
     };
 }
 
@@ -96,19 +101,26 @@ function execExithandler({
  */
 function execErrorhandler({
     process,
+    stdoutList,
+    stderrList,
     reject,
 }: {
     process: childProcess.ChildProcess;
-    reject: (reason: Error) => void;
+    stdoutList: unknown[];
+    stderrList: unknown[];
+    reject: (reason: ExecError) => void;
 }): (error: Error) => void {
     return (error) => {
+        const stdout = stdoutList.join('');
+        const stderr = stderrList.join('');
+
         if (process.stdout) {
             process.stdout.destroy();
         }
         if (process.stderr) {
             process.stderr.destroy();
         }
-        reject(error);
+        reject(Object.assign(error, { stdout, stderr }));
     };
 }
 
@@ -123,25 +135,22 @@ export async function execFileAsync(
         const stdoutList: unknown[] = [];
         const stderrList: unknown[] = [];
 
-        if (process.stdout) {
-            process.stdout.on('data', (data) => stdoutList.push(data));
-        }
-        if (process.stderr) {
-            process.stderr.on('data', (data) => stderrList.push(data));
-        }
+        process.stdout?.on('data', (data) => stdoutList.push(data));
+        process.stderr?.on('data', (data) => stderrList.push(data));
 
+        const exitHandler = execExithandler({
+            command: args[0],
+            args: args[1] ?? [],
+            stdoutList,
+            stderrList,
+            resolve,
+            reject,
+        });
+        process.on('close', exitHandler);
         process.on(
-            'close',
-            execExithandler({
-                command: args[0],
-                args: args[1] ?? [],
-                stdoutList,
-                stderrList,
-                resolve,
-                reject,
-            }),
+            'error',
+            execErrorhandler({ process, stdoutList, stderrList, reject }),
         );
-        process.on('error', execErrorhandler({ process, reject }));
     });
 }
 
@@ -160,40 +169,4 @@ export function endPrintVerbose(): void {
     if (isPrintedVerbose) {
         console.error();
     }
-}
-
-/**
- * @see https://github.com/mysticatea/npm-run-all/blob/v4.1.5/lib/run-task.js#L157-L174
- */
-export function getNpmExecPath(): {
-    execPath: string;
-    spawnArgs: string[];
-    isYarn: boolean;
-} {
-    // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-    const npmPath = process.env['npm_execpath'] || 'npm';
-    const npmPathIsJs = /^\.m?js$/.test(path.extname(npmPath));
-    const execPath = npmPathIsJs ? process.execPath : npmPath;
-    const isYarn = path.basename(npmPath).startsWith('yarn');
-
-    return {
-        execPath,
-        spawnArgs: typeof npmPath === 'string' && npmPathIsJs ? [npmPath] : [],
-        isYarn,
-    };
-}
-
-export async function getConfig(keyMap: {
-    npm: string;
-    yarn?: string | undefined;
-}): Promise<string> {
-    const { execPath, spawnArgs, isYarn } = getNpmExecPath();
-
-    const { stdout } = await execFileAsync(execPath, [
-        ...spawnArgs,
-        'config',
-        'get',
-        (isYarn && keyMap.yarn) || keyMap.npm,
-    ]);
-    return stdout.replace(/\n$/, '');
 }
