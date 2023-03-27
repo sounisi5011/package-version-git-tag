@@ -164,6 +164,7 @@ Because it is the minimum version available for Vitest.
 * [#213] - Enable the `esModuleInterop` option in `tsconfig.json`
 * [#218] - Using Corepack with all Node.js
 * [#219] - Fix Corepack updating process
+* [#222] - Strictly check if the package manager has been disabled by Corepack
 
 [#182]: https://github.com/sounisi5011/package-version-git-tag/pull/182
 [#183]: https://github.com/sounisi5011/package-version-git-tag/pull/183
@@ -191,6 +192,7 @@ Because it is the minimum version available for Vitest.
 [#218]: https://github.com/sounisi5011/package-version-git-tag/pull/218
 [#219]: https://github.com/sounisi5011/package-version-git-tag/pull/219
 [#217]: https://github.com/sounisi5011/package-version-git-tag/pull/217
+[#222]: https://github.com/sounisi5011/package-version-git-tag/pull/222
 
 ## [3.0.0] (2020-06-02 UTC)
 
