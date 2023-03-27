@@ -222,6 +222,20 @@ jobs:
             fi
           }
 
+          ##### DEBUG #####
+          is_packageManager_disabled_by_corepack() {
+            local -r packageManagerSpec="${1%%@*}"
+            local -r targetPackageManagerCLI="$2"
+
+            ! type "${targetPackageManagerCLI}" >/dev/null 2>&1 && return 1
+
+            local result
+            result="$("${targetPackageManagerCLI}" --version 2>&1)" && return 1
+
+            echo "${result}" | grep -qE "\bThis project is configured to use ${packageManagerSpec}\b"
+          }
+          ##### DEBUG #####
+
           # Note: On Windows, the `npm ls --global corepack` command cannot be used to detect the builtin Corepack.
           #       So, use this complex conditional expression.
           corepack_not_enabled() {
@@ -243,7 +257,11 @@ jobs:
               ##### DEBUG #####
               echo "current packageManager: pnpm@$(pnpm --version)"
               ##### DEBUG #####
-              [[ "pnpm@$(pnpm --version)" != "${packageManager%%+*}" ]]
+              ##### DEBUG #####
+              [[ "pnpm@$(pnpm --version)" != "${packageManager%%+*}" ]] \
+              || ! is_packageManager_disabled_by_corepack "${packageManager}" npm \
+              || ! is_packageManager_disabled_by_corepack "${packageManager}" yarn
+              ##### DEBUG #####
             else
               # see https://stackoverflow.com/a/23550347
               >&2 echo "Unsupported package manager specification: '${packageManager}'"
