@@ -219,7 +219,7 @@ jobs:
 
           is_packageManager_enabled_by_corepack() {
             local -r targetPackageManagerCLI="$1"
-            local -r packageManagerSpec="${2%%+*}"
+            local -r packageManagerVersion="$2"
 
             # If the package manager CLI does not exist, Corepack is not enabled and should return false
             ! type "${targetPackageManagerCLI}" >/dev/null 2>&1 && return 1
@@ -228,7 +228,7 @@ jobs:
             local targetPackageManagerVersion
             targetPackageManagerVersion="$("${targetPackageManagerCLI}" --version 2>/dev/null)" || return 1
 
-            [[ "${targetPackageManagerVersion}" = "${packageManagerSpec#*@}" ]]
+            [[ "${targetPackageManagerVersion}" = "${packageManagerVersion%%+*}" ]]
           }
 
           is_packageManager_disabled_by_corepack() {
@@ -250,15 +250,15 @@ jobs:
           corepack_enabled() {
             local -r packageManager="$(< "${GITHUB_WORKSPACE}/package.json" jq --raw-output '.packageManager')"
             if [[ "${packageManager}" == 'npm@'* ]]; then
-              is_packageManager_enabled_by_corepack npm "${packageManager}" \
+              is_packageManager_enabled_by_corepack npm "${packageManager#*@}" \
               && is_packageManager_disabled_by_corepack yarn "${packageManager%%@*}" \
               && is_packageManager_disabled_by_corepack pnpm "${packageManager%%@*}"
             elif [[ "${packageManager}" == 'yarn@'* ]]; then
-              is_packageManager_enabled_by_corepack yarn "${packageManager}" \
+              is_packageManager_enabled_by_corepack yarn "${packageManager#*@}" \
               && is_packageManager_disabled_by_corepack npm "${packageManager%%@*}" \
               && is_packageManager_disabled_by_corepack pnpm "${packageManager%%@*}"
             elif [[ "${packageManager}" == 'pnpm@'* ]]; then
-              is_packageManager_enabled_by_corepack pnpm "${packageManager}" \
+              is_packageManager_enabled_by_corepack pnpm "${packageManager#*@}" \
               && is_packageManager_disabled_by_corepack npm "${packageManager%%@*}" \
               && is_packageManager_disabled_by_corepack yarn "${packageManager%%@*}"
             else
