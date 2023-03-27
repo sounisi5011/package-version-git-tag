@@ -5,9 +5,14 @@
 [Unreleased]: https://github.com/sounisi5011/package-version-git-tag/compare/v3.0.0...master
 
 * Drop support for Node.js 10 and 12
+* Support [pnpm](https://pnpm.io/)
 * Migrate from [`cac`](https://www.npmjs.com/package/cac/v/6.6.1) to [`mri`](https://www.npmjs.com/package/mri/v/1.2.0)
 * Fix edge cases in CLI argument parsing process
 * Update dev dependencies
+
+### Features
+
+* [#217] - Support [pnpm](https://pnpm.io/)
 
 ### Supported Node version
 
@@ -93,17 +98,21 @@ Because it is the minimum version available for Vitest.
 #### dependencies
 
 * [#211] - `mri@^1.2.0`
+* [#217] - `which-pm-runs@^1.1.0`
 
 #### devDependencies
 
 * [#214] - `@sindresorhus/slugify@1.1.2`
 * [#186] - `@tsconfig/node14@1.0.3`
+* [#217] - `@types/semver@7.3.13`
+* [#217] - `@types/which-pm-runs@1.0.0`
 * [#185] - `eslint-plugin-n@15.6.1`
 * [#200] - `eslint-plugin-vitest@0.0.54`
 * [#185] - `execa@5.1.1`
 
     We will not use v6 or later because the ESM cannot yet be used for unit testing in this project.
 * [#185] - `lefthook@1.3.3`
+* [#217] - `semver@7.3.8`
 * [#200] - `vite@4.1.4`
 
     This is needed for vitest.
@@ -181,6 +190,7 @@ Because it is the minimum version available for Vitest.
 [#214]: https://github.com/sounisi5011/package-version-git-tag/pull/214
 [#218]: https://github.com/sounisi5011/package-version-git-tag/pull/218
 [#219]: https://github.com/sounisi5011/package-version-git-tag/pull/219
+[#217]: https://github.com/sounisi5011/package-version-git-tag/pull/217
 
 ## [3.0.0] (2020-06-02 UTC)
 

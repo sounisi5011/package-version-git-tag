@@ -1,7 +1,8 @@
 import path from 'path';
 
 import { isHeadTag, push, setTag, tagExists } from './git';
-import { endPrintVerbose, getConfig, isPkgData, readJSONFile } from './utils';
+import { endPrintVerbose, isPkgData, readJSONFile } from './utils';
+import { getConfig } from './utils/config';
 
 export interface Options {
     push?: boolean | undefined;

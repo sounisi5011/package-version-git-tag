@@ -1,0 +1,12 @@
+# https://docs.codeclimate.com/docs/advanced-configuration
+
+version: 2 # required to adjust maintainability checks
+checks:
+  method-complexity:
+    config:
+      # The default threshold of "5" for Cognitive Complexity is too low
+      threshold: 10
+  method-lines:
+    config:
+      # The default threshold of "25" for the number of lines in a function may be low
+      threshold: 35
