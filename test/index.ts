@@ -676,19 +676,21 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
             execCliCommand: readonly string[],
             pkgJson: Record<string, unknown> | undefined,
         ): string => {
-            const npmScriptNameSet = new Set(
-                Object.keys(pkgJson?.['scripts'] ?? {}),
+            const replaceArgMap = new Map(
+                Object.keys(pkgJson?.['scripts'] ?? {})
+                    .map<[string, string]>((npmScriptName) => [
+                        npmScriptName,
+                        '{npm-script}',
+                    ])
+                    .concat([
+                        [PKG_DATA.name, '{command}'],
+                        [CLI_PATH, './node_modules/.bin/{command}'],
+                    ]),
             );
             return (
                 execCliCommand
                     .filter((arg) => !/^-{1,2}[^-]/.test(arg))
-                    .map((arg) =>
-                        npmScriptNameSet.has(arg)
-                            ? '{npm-script}'
-                            : arg === PKG_DATA.name
-                            ? '{command}'
-                            : arg,
-                    )
+                    .map((arg) => replaceArgMap.get(arg) ?? arg)
                     .join(' ') +
                 (testName !== execCliCommand[0] ? ` (${testName})` : '')
             );
@@ -710,6 +712,13 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
                 commad: {
                     ...caseItem.commad,
                     execCli: [caseItem.commad.version[0], 'run', 'xxx-run-cli'],
+                },
+            },
+            {
+                ...caseItem,
+                commad: {
+                    ...caseItem.commad,
+                    execCli: [CLI_PATH],
                 },
             },
         ];
@@ -803,9 +812,11 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
                           },
                       };
 
-            // Always use "npm install <folder>", even if the package manager is not npm.
-            // This is because the "yarn add /path/to/local/folder" command may fail on GitHub Actions.
-            await exec(['npm', 'install', '--no-save', PROJECT_ROOT]);
+            if (commad.execCli[0] !== CLI_PATH) {
+                // Always use "npm install <folder>", even if the package manager is not npm.
+                // This is because the "yarn add /path/to/local/folder" command may fail on GitHub Actions.
+                await exec(['npm', 'install', '--no-save', PROJECT_ROOT]);
+            }
             await Promise.all([
                 fs.writeFile(
                     path.join(gitDirpath, '.gitignore'),
