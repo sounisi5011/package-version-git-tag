@@ -3,3 +3,7 @@ export type PromiseValue<T extends Promise<unknown>> = T extends Promise<
 >
     ? P
     : never;
+
+export type WithUndefinedProp<T, K extends keyof T> = {
+    [P in K]: T[P] | undefined;
+} & Omit<T, K>;

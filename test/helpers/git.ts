@@ -4,11 +4,11 @@ import path from 'path';
 
 import { getRandomInt } from '.';
 import initGitServer from './git-server';
-import type { PromiseValue } from './types';
+import type { PromiseValue, WithUndefinedProp } from './types';
 
 export type ExecFunc = (
     cmd: readonly [string, ...string[]],
-    options?: execa.Options,
+    options?: WithUndefinedProp<execa.Options, 'env'>,
 ) => execa.ExecaChildProcess;
 export type GitRemote = PromiseValue<ReturnType<typeof initGitServer>>;
 
