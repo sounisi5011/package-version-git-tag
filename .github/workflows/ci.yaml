@@ -247,20 +247,20 @@ jobs:
 
           # Note: On Windows, the `npm ls --global corepack` command cannot be used to detect the builtin Corepack.
           #       So, use this complex conditional expression.
-          corepack_not_enabled() {
+          corepack_enabled() {
             local -r packageManager="$(< "${GITHUB_WORKSPACE}/package.json" jq --raw-output '.packageManager')"
             if [[ "${packageManager}" == 'npm@'* ]]; then
-              ! is_packageManager_enabled_by_corepack npm "${packageManager}" \
-              || ! is_packageManager_disabled_by_corepack yarn "${packageManager%%@*}" \
-              || ! is_packageManager_disabled_by_corepack pnpm "${packageManager%%@*}"
+              is_packageManager_enabled_by_corepack npm "${packageManager}" \
+              && is_packageManager_disabled_by_corepack yarn "${packageManager%%@*}" \
+              && is_packageManager_disabled_by_corepack pnpm "${packageManager%%@*}"
             elif [[ "${packageManager}" == 'yarn@'* ]]; then
-              ! is_packageManager_enabled_by_corepack yarn "${packageManager}" \
-              || ! is_packageManager_disabled_by_corepack npm "${packageManager%%@*}" \
-              || ! is_packageManager_disabled_by_corepack pnpm "${packageManager%%@*}"
+              is_packageManager_enabled_by_corepack yarn "${packageManager}" \
+              && is_packageManager_disabled_by_corepack npm "${packageManager%%@*}" \
+              && is_packageManager_disabled_by_corepack pnpm "${packageManager%%@*}"
             elif [[ "${packageManager}" == 'pnpm@'* ]]; then
-              ! is_packageManager_enabled_by_corepack pnpm "${packageManager}" \
-              || ! is_packageManager_disabled_by_corepack npm "${packageManager%%@*}" \
-              || ! is_packageManager_disabled_by_corepack yarn "${packageManager%%@*}"
+              is_packageManager_enabled_by_corepack pnpm "${packageManager}" \
+              && is_packageManager_disabled_by_corepack npm "${packageManager%%@*}" \
+              && is_packageManager_disabled_by_corepack yarn "${packageManager%%@*}"
             else
               # see https://stackoverflow.com/a/23550347
               >&2 echo "Unsupported package manager specification: '${packageManager}'"
@@ -291,7 +291,7 @@ jobs:
           # Note: Corepack is already installed on GitHub Actions.
           #       But it does not manage npm versions.
           #       To manage npm, Corepack must be installed via npm, which is builtin to the installed Node.js.
-          if corepack_not_enabled; then
+          if ! corepack_enabled; then
             echo '::warning::Failed to enable Corepack'
 
             echo '::group::Install Corepack manually'
