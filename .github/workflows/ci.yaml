@@ -217,16 +217,50 @@ jobs:
             fi
           }
 
+          is_packageManager_enabled_by_corepack() {
+            local -r targetPackageManagerCLI="$1"
+            local -r packageManagerSpec="${2%%+*}"
+
+            # If the package manager CLI does not exist, Corepack is not enabled and should return false
+            ! type "${targetPackageManagerCLI}" >/dev/null 2>&1 && return 1
+
+            # If the "npm/yarn/pnpm --version" command fails, Corepack has disabled this package manager and should return false
+            local targetPackageManagerVersion
+            targetPackageManagerVersion="$("${targetPackageManagerCLI}" --version 2>/dev/null)" || return 1
+
+            [[ "${targetPackageManagerVersion}" = "${packageManagerSpec#*@}" ]]
+          }
+
+          is_packageManager_disabled_by_corepack() {
+            local -r targetPackageManagerCLI="$1"
+            local -r packageManagerName="$2"
+
+            # If the package manager CLI does not exist, Corepack is not enabled and should return false
+            ! type "${targetPackageManagerCLI}" >/dev/null 2>&1 && return 1
+
+            # If the "npm/yarn/pnpm --version" command succeeds, Corepack has not disabled this package manager and should return false
+            local errorMessage
+            errorMessage="$("${targetPackageManagerCLI}" --version 2>&1)" && return 1
+
+            echo "${errorMessage}" | grep -qE "\bThis project is configured to use ${packageManagerName}\b"
+          }
+
           # Note: On Windows, the `npm ls --global corepack` command cannot be used to detect the builtin Corepack.
           #       So, use this complex conditional expression.
           corepack_not_enabled() {
             local -r packageManager="$(< "${GITHUB_WORKSPACE}/package.json" jq --raw-output '.packageManager')"
             if [[ "${packageManager}" == 'npm@'* ]]; then
-              [[ "npm@$(npm --version)" != "${packageManager%%+*}" ]]
+              ! is_packageManager_enabled_by_corepack npm "${packageManager}" \
+              || ! is_packageManager_disabled_by_corepack yarn "${packageManager%%@*}" \
+              || ! is_packageManager_disabled_by_corepack pnpm "${packageManager%%@*}"
             elif [[ "${packageManager}" == 'yarn@'* ]]; then
-              [[ "yarn@$(yarn --version)" != "${packageManager%%+*}" ]]
+              ! is_packageManager_enabled_by_corepack yarn "${packageManager}" \
+              || ! is_packageManager_disabled_by_corepack npm "${packageManager%%@*}" \
+              || ! is_packageManager_disabled_by_corepack pnpm "${packageManager%%@*}"
             elif [[ "${packageManager}" == 'pnpm@'* ]]; then
-              [[ "pnpm@$(pnpm --version)" != "${packageManager%%+*}" ]]
+              ! is_packageManager_enabled_by_corepack pnpm "${packageManager}" \
+              || ! is_packageManager_disabled_by_corepack npm "${packageManager%%@*}" \
+              || ! is_packageManager_disabled_by_corepack yarn "${packageManager%%@*}"
             else
               # see https://stackoverflow.com/a/23550347
               >&2 echo "Unsupported package manager specification: '${packageManager}'"
