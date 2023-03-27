@@ -5,9 +5,14 @@
 [Unreleased]: https://github.com/sounisi5011/package-version-git-tag/compare/v3.0.0...master
 
 * Drop support for Node.js 10 and 12
+* Support [pnpm](https://pnpm.io/)
 * Migrate from [`cac`](https://www.npmjs.com/package/cac/v/6.6.1) to [`mri`](https://www.npmjs.com/package/mri/v/1.2.0)
 * Fix edge cases in CLI argument parsing process
 * Update dev dependencies
+
+### Features
+
+* [#217] - Support [pnpm](https://pnpm.io/)
 
 ### Supported Node version
 
