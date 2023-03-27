@@ -79,6 +79,7 @@ $ git push origin v1.2.3
 If you want to change the tag name, you can customize it in the same way as the `npm/yarn/pnpm version` command:
 
 <details><summary>npm / pnpm</summary>
+
 [pnpm]: https://pnpm.io/
 
 If you want to run this command in npm or [pnpm], you can change the prefix of the git tag by using [`tag-version-prefix`](https://docs.npmjs.com/cli/v6/using-npm/config#tag-version-prefix).
@@ -105,9 +106,11 @@ tag-version-prefix = "foo-bar-"
 ```
 
 After editing the `.npmrc` file, check the value using the `npm config get tag-version-prefix` command (or the `pnpm config get tag-version-prefix` command).
+
 </details>
 
 <details><summary>Yarn</summary>
+
 [yarn]: https://yarnpkg.com
 
 > **Note**: Currently, **[Yarn 2 and Yarn 3](https://github.com/yarnpkg/berry) is not supported**.
@@ -132,6 +135,7 @@ Alternatively, you can use [the `yarn config set` command](https://classic.yarnp
 # Set the tag prefix to "foo-bar-"
 yarn config set version-tag-prefix foo-bar-
 ```
+
 </details>
 
 ## Tests
