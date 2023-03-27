@@ -136,6 +136,12 @@ jobs:
       - name: Enable Corepack (Automatically setup a package manager for Node.js)
         shell: bash
         run: |
+          # Corepack v0.14 is the earliest version that can use the environment variable COREPACK_ENABLE_STRICT.
+          # see https://github.com/nodejs/corepack/blob/v0.14.0/CHANGELOG.md#0140-2022-09-02
+          # In addition, this version supports Node.js 14.14.0 or later.
+          # see https://github.com/nodejs/corepack/pull/227
+          readonly COREPACK_MIN_VERSION='0.14'
+
           exec_with_debug() {
             node - "$@" << 'EOS'
               // These characters cannot be wrapped in double quotes:
@@ -216,23 +222,65 @@ jobs:
             fi
           }
 
-          echo '::group::Install Corepack'
-          if version_lte "$(npm --version)" '6'; then
-            # Using older npm may throw an EEXIST error when installing Corepack.
-            # So, update npm before installing Corepack.
-            exec_with_debug npm install --global --force 'npm@7'
+          # Note: On Windows, the `npm ls --global corepack` command cannot be used to detect the builtin Corepack.
+          #       So, use this complex conditional expression.
+          corepack_not_enabled() {
+            local -r packageManager="$(< "${GITHUB_WORKSPACE}/package.json" jq --raw-output '.packageManager')"
+            if [[ "${packageManager}" == 'npm@'* ]]; then
+              [[ "npm@$(npm --version)" != "${packageManager%%+*}" ]]
+            elif [[ "${packageManager}" == 'yarn@'* ]]; then
+              [[ "yarn@$(yarn --version)" != "${packageManager%%+*}" ]]
+            elif [[ "${packageManager}" == 'pnpm@'* ]]; then
+              [[ "pnpm@$(pnpm --version)" != "${packageManager%%+*}" ]]
+            else
+              # see https://stackoverflow.com/a/23550347
+              >&2 echo "Unsupported package manager specification: '${packageManager}'"
+              exit 1
+            fi
+          }
+
+          if type corepack >/dev/null 2>&1; then
+            if version_lte "${COREPACK_MIN_VERSION}" "$(corepack --version)"; then
+              exec_with_debug corepack --version
+
+              echo '::group::Try enable Corepack'
+            else
+              echo "::group::Old Corepack is detected ( corepack@$(corepack --version 2>/dev/null || echo '[Execution failed; Unknown version]') ). Update this"
+              npm_install_global "corepack@${COREPACK_MIN_VERSION}"
+              echo '::endgroup::'
+
+              exec_with_debug corepack --version
+
+              echo '::group::Enable Corepack'
+            fi
+            exec_with_debug corepack enable
+            exec_with_debug corepack enable npm
+            echo '::endgroup::'
           fi
-          # Corepack v0.17 supports Node.js 14.14.0 or later.
-          # Corepack v0.18 or later (not yet released as of March 23, 2023) may also be supported, but this is not certain.
-          npm_install_global 'corepack@0.17.x'
-          echo '::endgroup::'
 
-          exec_with_debug corepack --version
+          # If Corepack is not available, install it manually.
+          # Note: Corepack is already installed on GitHub Actions.
+          #       But it does not manage npm versions.
+          #       To manage npm, Corepack must be installed via npm, which is builtin to the installed Node.js.
+          if corepack_not_enabled; then
+            echo '::warning::Failed to enable Corepack'
 
-          echo '::group::Enable Corepack'
-          exec_with_debug corepack enable
-          exec_with_debug corepack enable npm
-          echo '::endgroup::'
+            echo '::group::Install Corepack manually'
+            if type corepack >/dev/null 2>&1; then
+              # Disable the built-in Corepack in GitHub Actions.
+              # If enabled, problems will occur when the yarn command is executed.
+              exec_with_debug corepack disable
+            fi
+            npm_install_global "corepack@${COREPACK_MIN_VERSION}"
+            echo '::endgroup::'
+
+            exec_with_debug corepack --version
+
+            echo '::group::Enable Corepack'
+            exec_with_debug corepack enable
+            exec_with_debug corepack enable npm
+            echo '::endgroup::'
+          fi
 
       - name: Show node and package manager version
         shell: bash
