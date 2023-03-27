@@ -240,23 +240,11 @@ jobs:
           #       So, use this complex conditional expression.
           corepack_not_enabled() {
             local -r packageManager="$(< "${GITHUB_WORKSPACE}/package.json" jq --raw-output '.packageManager')"
-            ##### DEBUG #####
-            echo "defined packageManager: ${packageManager%%+*}"
-            ##### DEBUG #####
             if [[ "${packageManager}" == 'npm@'* ]]; then
-              ##### DEBUG #####
-              echo "current packageManager: npm@$(npm --version)"
-              ##### DEBUG #####
               [[ "npm@$(npm --version)" != "${packageManager%%+*}" ]]
             elif [[ "${packageManager}" == 'yarn@'* ]]; then
-              ##### DEBUG #####
-              echo "current packageManager: yarn@$(yarn --version)"
-              ##### DEBUG #####
               [[ "yarn@$(yarn --version)" != "${packageManager%%+*}" ]]
             elif [[ "${packageManager}" == 'pnpm@'* ]]; then
-              ##### DEBUG #####
-              echo "current packageManager: pnpm@$(pnpm --version)"
-              ##### DEBUG #####
               ##### DEBUG #####
               [[ "pnpm@$(pnpm --version)" != "${packageManager%%+*}" ]] \
               || ! is_packageManager_disabled_by_corepack "${packageManager}" npm \
