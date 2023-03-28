@@ -9,16 +9,17 @@ import {
 const virtualFileSystem = new Map<string, string | object>();
 vi.mock('fs/promises', () => {
     // eslint-disable-next-line @typescript-eslint/require-await
-    const readFile = async (path: string): Promise<string> => {
-        const rawData = virtualFileSystem.get(path);
+    const readFile = async (filepath: string): Promise<string> => {
+        filepath = path.normalize(filepath);
+        const rawData = virtualFileSystem.get(filepath);
         if (rawData === undefined) {
-            const message = `ENOENT: no such file or directory, open '${path}'`;
+            const message = `ENOENT: no such file or directory, open '${filepath}'`;
             throw Object.assign(new Error(message), {
                 stack: message,
                 errno: -2,
                 code: 'ENOENT',
                 syscall: 'open',
-                path,
+                path: filepath,
             });
         }
         return typeof rawData === 'string' ? rawData : JSON.stringify(rawData);
@@ -219,8 +220,13 @@ describe(`detect package manager using the "packageManager" field in "package.js
             },
         }),
     )('%s', async (_, { cwd: customCwd, fileSystem, expected }) => {
+        // We use the "path.join()" function instead of the "path.normalize()" function.
+        // This is because the "path.normalize()" function on Windows does not convert the prefix "//" to "\".
+        // For example:
+        //     path.normalize('/' + 'path/to')  // => \foo\bar\baz  // Converted to absolute path as expected
+        //     path.normalize('/' + '/path/to') // => \\foo\bar\baz // Oops!
         // eslint-disable-next-line vitest/no-conditional-in-test
-        const cwd_ = path.normalize('/' + (customCwd ?? cwd));
+        const cwd_ = path.join('/', customCwd ?? cwd);
         virtualFileSystem.clear();
 
         for (const [filepath, filedata] of Object.entries(fileSystem)) {
