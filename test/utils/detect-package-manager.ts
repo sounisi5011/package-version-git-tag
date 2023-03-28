@@ -46,7 +46,7 @@ describe(`detect package manager using the "packageManager" field in "package.js
             'should read the "package.json" file in the current working directory':
                 {
                     fileSystem: {
-                        '{cwd}/package.json': {
+                        'package.json': {
                             packageManager: 'npm@123.4.5',
                         },
                     },
@@ -57,7 +57,7 @@ describe(`detect package manager using the "packageManager" field in "package.js
                 },
             'should read the "package.json" file in the parent directory': {
                 fileSystem: {
-                    '{cwd}/../package.json': {
+                    '../package.json': {
                         packageManager: 'yarn@123.4.5',
                     },
                 },
@@ -79,10 +79,10 @@ describe(`detect package manager using the "packageManager" field in "package.js
             },
             'should read the "package.json" file in the nearest directory': {
                 fileSystem: {
-                    '{cwd}/package.json': {
+                    'package.json': {
                         packageManager: 'yarn@123.4.5',
                     },
-                    '{cwd}/../package.json': {
+                    '../package.json': {
                         packageManager: 'pnpm@123.4.5',
                     },
                     '/package.json': {
@@ -97,10 +97,10 @@ describe(`detect package manager using the "packageManager" field in "package.js
             'should skip "package.json" files that do not contain the "packageManager" field':
                 {
                     fileSystem: {
-                        '{cwd}/package.json': {
+                        'package.json': {
                             foo: 42,
                         },
-                        '{cwd}/../package.json': {
+                        '../package.json': {
                             packageManager: 'pnpm@123.4.5',
                         },
                         '/package.json': {
@@ -115,10 +115,10 @@ describe(`detect package manager using the "packageManager" field in "package.js
             'should not skip "package.json" files that contain invalid "packageManager" fields':
                 {
                     fileSystem: {
-                        '{cwd}/package.json': {
+                        'package.json': {
                             packageManager: 42,
                         },
-                        '{cwd}/../package.json': {
+                        '../package.json': {
                             packageManager: 'pnpm@123.4.5',
                         },
                         '/package.json': {
@@ -134,10 +134,10 @@ describe(`detect package manager using the "packageManager" field in "package.js
                 {
                     cwd: '/path/to/node_modules/foo',
                     fileSystem: {
-                        '{cwd}/package.json': {
+                        'package.json': {
                             packageManager: 'yarn@123.4.5',
                         },
-                        '{cwd}/../package.json': {
+                        '../package.json': {
                             packageManager: 'pnpm@123.4.5',
                         },
                     },
@@ -150,13 +150,13 @@ describe(`detect package manager using the "packageManager" field in "package.js
                 {
                     cwd: '/path/to/node_modules/@foo/bar',
                     fileSystem: {
-                        '{cwd}/package.json': {
+                        'package.json': {
                             packageManager: 'yarn@123.4.5',
                         },
-                        '{cwd}/../package.json': {
+                        '../package.json': {
                             packageManager: 'npm@123.4.5',
                         },
-                        '{cwd}/../../package.json': {
+                        '../../package.json': {
                             packageManager: 'pnpm@123.4.5',
                         },
                     },
@@ -176,7 +176,7 @@ describe(`detect package manager using the "packageManager" field in "package.js
             'should return undefined if an unknown package manager is detected':
                 {
                     fileSystem: {
-                        '{cwd}/package.json': {
+                        'package.json': {
                             packageManager: 'dragon@123.4.5',
                         },
                     },
@@ -187,7 +187,7 @@ describe(`detect package manager using the "packageManager" field in "package.js
                 },
             'package manager names should be lowercase (Yarn)': {
                 fileSystem: {
-                    '{cwd}/../package.json': {
+                    'package.json': {
                         packageManager: 'Yarn@123.4.5',
                     },
                 },
@@ -198,7 +198,7 @@ describe(`detect package manager using the "packageManager" field in "package.js
             },
             'package manager names should be lowercase (NPM)': {
                 fileSystem: {
-                    '{cwd}/../package.json': {
+                    'package.json': {
                         packageManager: 'NPM@123.4.5',
                     },
                 },
@@ -209,7 +209,7 @@ describe(`detect package manager using the "packageManager" field in "package.js
             },
             'package manager names should be lowercase (pnPm)': {
                 fileSystem: {
-                    '{cwd}/../package.json': {
+                    'package.json': {
                         packageManager: 'pnPm@123.4.5',
                     },
                 },
@@ -230,10 +230,7 @@ describe(`detect package manager using the "packageManager" field in "package.js
         virtualFileSystem.clear();
 
         for (const [filepath, filedata] of Object.entries(fileSystem)) {
-            virtualFileSystem.set(
-                path.normalize(filepath.replace(/\{cwd\}/gi, cwd_)),
-                filedata,
-            );
+            virtualFileSystem.set(path.resolve(cwd_, filepath), filedata);
         }
 
         await expect(
