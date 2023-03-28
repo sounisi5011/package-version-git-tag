@@ -1,54 +1,57 @@
+import mockFs from 'mock-fs';
 import * as path from 'path';
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import {
     getPackageManagerData,
     PackageManagerData,
 } from '../../src/utils/detect-package-manager';
-
-const virtualFileSystem = new Map<string, string | object>();
-vi.mock('fs/promises', () => {
-    // eslint-disable-next-line @typescript-eslint/require-await
-    const readFile = async (filepath: string): Promise<string> => {
-        filepath = path.normalize(filepath);
-        const rawData = virtualFileSystem.get(filepath);
-        if (rawData === undefined) {
-            const message = `ENOENT: no such file or directory, open '${filepath}'`;
-            throw Object.assign(new Error(message), {
-                stack: message,
-                errno: -2,
-                code: 'ENOENT',
-                syscall: 'open',
-                path: filepath,
-            });
-        }
-        return typeof rawData === 'string' ? rawData : JSON.stringify(rawData);
-    };
-    return {
-        readFile,
-        default: {
-            readFile,
-        },
-    };
-});
+import { valueFinally } from '../helpers';
 
 process.env = {};
 
-describe(`detect package manager using the "packageManager" field in "package.json"`, () => {
-    const cwd = '/foo/bar/baz';
+function mockCwd<T>(
+    newCwd: string | undefined,
+    fn: () => T,
+): T extends PromiseLike<unknown> ? Promise<Awaited<T>> : T {
+    // We do not use the "process.chdir()" function for the following reasons:
+    // 1. "process.chdir()" cannot specify a path that does not exist
+    // 2. "process.chdir()" cannot be used in Vitest test code
+    //    see https://github.com/vitest-dev/vitest/issues/1436
 
+    let originalCwdDesc: PropertyDescriptor | undefined;
+    if (newCwd !== undefined) {
+        // We use the "path.join()" function instead of the "path.normalize()" function.
+        // This is because the "path.normalize()" function on Windows does not convert the prefix "//" to "\".
+        // For example:
+        //     path.normalize('/' + 'path/to')  // => \foo\bar\baz  // Converted to absolute path as expected
+        //     path.normalize('/' + '/path/to') // => \\foo\bar\baz // Oops!
+        const normalizedNewCWD = path.join('/', newCwd);
+
+        originalCwdDesc = Object.getOwnPropertyDescriptor(process, 'cwd')!;
+        Object.defineProperty(process, 'cwd', {
+            value: () => normalizedNewCWD,
+        });
+    }
+    return valueFinally(fn(), () => {
+        if (originalCwdDesc)
+            Object.defineProperty(process, 'cwd', originalCwdDesc);
+    });
+}
+
+describe(`detect package manager using the "packageManager" field in "package.json"`, () => {
     it.each(
         Object.entries<{
             cwd?: string;
-            fileSystem: Record<string, string | object>;
+            fileSystem: NonNullable<Parameters<typeof mockFs>[0]>;
             expected: PackageManagerData;
         }>({
             'should read the "package.json" file in the current working directory':
                 {
                     fileSystem: {
-                        'package.json': {
+                        'package.json': JSON.stringify({
                             packageManager: 'npm@123.4.5',
-                        },
+                        }),
                     },
                     expected: {
                         name: 'npm',
@@ -57,9 +60,9 @@ describe(`detect package manager using the "packageManager" field in "package.js
                 },
             'should read the "package.json" file in the parent directory': {
                 fileSystem: {
-                    '../package.json': {
+                    '../package.json': JSON.stringify({
                         packageManager: 'yarn@123.4.5',
-                    },
+                    }),
                 },
                 expected: {
                     name: 'yarn',
@@ -68,9 +71,9 @@ describe(`detect package manager using the "packageManager" field in "package.js
             },
             'should read the "package.json" file in the ancestor directory': {
                 fileSystem: {
-                    '/package.json': {
+                    '/package.json': JSON.stringify({
                         packageManager: 'yarn@123.4.5',
-                    },
+                    }),
                 },
                 expected: {
                     name: 'yarn',
@@ -79,15 +82,15 @@ describe(`detect package manager using the "packageManager" field in "package.js
             },
             'should read the "package.json" file in the nearest directory': {
                 fileSystem: {
-                    'package.json': {
+                    'package.json': JSON.stringify({
                         packageManager: 'yarn@123.4.5',
-                    },
-                    '../package.json': {
+                    }),
+                    '../package.json': JSON.stringify({
                         packageManager: 'pnpm@123.4.5',
-                    },
-                    '/package.json': {
+                    }),
+                    '/package.json': JSON.stringify({
                         packageManager: 'npm@123.4.5',
-                    },
+                    }),
                 },
                 expected: {
                     name: 'yarn',
@@ -97,15 +100,15 @@ describe(`detect package manager using the "packageManager" field in "package.js
             'should skip "package.json" files that do not contain the "packageManager" field':
                 {
                     fileSystem: {
-                        'package.json': {
+                        'package.json': JSON.stringify({
                             foo: 42,
-                        },
-                        '../package.json': {
+                        }),
+                        '../package.json': JSON.stringify({
                             packageManager: 'pnpm@123.4.5',
-                        },
-                        '/package.json': {
+                        }),
+                        '/package.json': JSON.stringify({
                             packageManager: 'npm@123.4.5',
-                        },
+                        }),
                     },
                     expected: {
                         name: 'pnpm',
@@ -115,15 +118,15 @@ describe(`detect package manager using the "packageManager" field in "package.js
             'should not skip "package.json" files that contain invalid "packageManager" fields':
                 {
                     fileSystem: {
-                        'package.json': {
+                        'package.json': JSON.stringify({
                             packageManager: 42,
-                        },
-                        '../package.json': {
+                        }),
+                        '../package.json': JSON.stringify({
                             packageManager: 'pnpm@123.4.5',
-                        },
-                        '/package.json': {
+                        }),
+                        '/package.json': JSON.stringify({
                             packageManager: 'npm@123.4.5',
-                        },
+                        }),
                     },
                     expected: {
                         name: undefined,
@@ -134,12 +137,12 @@ describe(`detect package manager using the "packageManager" field in "package.js
                 {
                     cwd: '/path/to/node_modules/foo',
                     fileSystem: {
-                        'package.json': {
+                        'package.json': JSON.stringify({
                             packageManager: 'yarn@123.4.5',
-                        },
-                        '../package.json': {
+                        }),
+                        '../package.json': JSON.stringify({
                             packageManager: 'pnpm@123.4.5',
-                        },
+                        }),
                     },
                     expected: {
                         name: 'pnpm',
@@ -150,15 +153,15 @@ describe(`detect package manager using the "packageManager" field in "package.js
                 {
                     cwd: '/path/to/node_modules/@foo/bar',
                     fileSystem: {
-                        'package.json': {
+                        'package.json': JSON.stringify({
                             packageManager: 'yarn@123.4.5',
-                        },
-                        '../package.json': {
+                        }),
+                        '../package.json': JSON.stringify({
                             packageManager: 'npm@123.4.5',
-                        },
-                        '../../package.json': {
+                        }),
+                        '../../package.json': JSON.stringify({
                             packageManager: 'pnpm@123.4.5',
-                        },
+                        }),
                     },
                     expected: {
                         name: 'npm',
@@ -176,9 +179,9 @@ describe(`detect package manager using the "packageManager" field in "package.js
             'should return undefined if an unknown package manager is detected':
                 {
                     fileSystem: {
-                        'package.json': {
+                        'package.json': JSON.stringify({
                             packageManager: 'dragon@123.4.5',
-                        },
+                        }),
                     },
                     expected: {
                         name: undefined,
@@ -187,9 +190,9 @@ describe(`detect package manager using the "packageManager" field in "package.js
                 },
             'package manager names should be lowercase (Yarn)': {
                 fileSystem: {
-                    'package.json': {
+                    'package.json': JSON.stringify({
                         packageManager: 'Yarn@123.4.5',
-                    },
+                    }),
                 },
                 expected: {
                     name: undefined,
@@ -198,9 +201,9 @@ describe(`detect package manager using the "packageManager" field in "package.js
             },
             'package manager names should be lowercase (NPM)': {
                 fileSystem: {
-                    'package.json': {
+                    'package.json': JSON.stringify({
                         packageManager: 'NPM@123.4.5',
-                    },
+                    }),
                 },
                 expected: {
                     name: undefined,
@@ -209,9 +212,9 @@ describe(`detect package manager using the "packageManager" field in "package.js
             },
             'package manager names should be lowercase (pnPm)': {
                 fileSystem: {
-                    'package.json': {
+                    'package.json': JSON.stringify({
                         packageManager: 'pnPm@123.4.5',
-                    },
+                    }),
                 },
                 expected: {
                     name: undefined,
@@ -220,23 +223,16 @@ describe(`detect package manager using the "packageManager" field in "package.js
             },
         }),
     )('%s', async (_, { cwd: customCwd, fileSystem, expected }) => {
-        // We use the "path.join()" function instead of the "path.normalize()" function.
-        // This is because the "path.normalize()" function on Windows does not convert the prefix "//" to "\".
-        // For example:
-        //     path.normalize('/' + 'path/to')  // => \foo\bar\baz  // Converted to absolute path as expected
-        //     path.normalize('/' + '/path/to') // => \\foo\bar\baz // Oops!
-        // eslint-disable-next-line vitest/no-conditional-in-test
-        const cwd_ = path.join('/', customCwd ?? cwd);
-        virtualFileSystem.clear();
+        await mockCwd(customCwd, async () => {
+            try {
+                mockFs(fileSystem);
 
-        for (const [filepath, filedata] of Object.entries(fileSystem)) {
-            virtualFileSystem.set(path.resolve(cwd_, filepath), filedata);
-        }
-
-        await expect(
-            getPackageManagerData({ cwd: cwd_ }),
-        ).resolves.toStrictEqual(expected);
-
-        virtualFileSystem.clear();
+                await expect(
+                    getPackageManagerData({ cwd: process.cwd() }),
+                ).resolves.toStrictEqual(expected);
+            } finally {
+                mockFs.restore();
+            }
+        });
     });
 });

@@ -104,6 +104,7 @@ Because it is the minimum version available for Vitest.
 
 * [#214] - `@sindresorhus/slugify@1.1.2`
 * [#186] - `@tsconfig/node14@1.0.3`
+* [#221] - `@types/mock-fs@4.13.1`
 * [#217] - `@types/semver@7.3.13`
 * [#217] - `@types/which-pm-runs@1.0.0`
 * [#185] - `eslint-plugin-n@15.6.1`
@@ -112,6 +113,7 @@ Because it is the minimum version available for Vitest.
 
     We will not use v6 or later because the ESM cannot yet be used for unit testing in this project.
 * [#185] - `lefthook@1.3.3`
+* [#221] - `mock-fs@5.2.0`
 * [#217] - `semver@7.3.8`
 * [#200] - `vite@4.1.4`
 
@@ -191,6 +193,7 @@ Because it is the minimum version available for Vitest.
 [#218]: https://github.com/sounisi5011/package-version-git-tag/pull/218
 [#219]: https://github.com/sounisi5011/package-version-git-tag/pull/219
 [#217]: https://github.com/sounisi5011/package-version-git-tag/pull/217
+[#221]: https://github.com/sounisi5011/package-version-git-tag/pull/221
 
 ## [3.0.0] (2020-06-02 UTC)
 
