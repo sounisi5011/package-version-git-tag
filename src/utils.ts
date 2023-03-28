@@ -10,6 +10,11 @@ export interface PkgDataInterface {
     [index: string]: unknown;
 }
 
+/**
+ * Same as "any" or "unknown" type, but property access is available
+ */
+type AllowPropAny = null | undefined | Partial<Record<string, unknown>>;
+
 export function isObject(value: unknown): value is Record<string, unknown> {
     return typeof value === 'object' && value !== null;
 }
@@ -21,6 +26,20 @@ export function relativePath(pathStr: string): string {
         : `.${path.sep}${relativePathStr}`;
 }
 
+/**
+ * Walk up parent directories
+ */
+export function* readParentIter(filepath: string): IterableIterator<string> {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    while (true) {
+        yield filepath;
+
+        const parentDir = path.dirname(filepath);
+        if (filepath === parentDir) break;
+        filepath = parentDir;
+    }
+}
+
 export function isPkgData(value: unknown): value is PkgDataInterface {
     if (isObject(value)) {
         return typeof value['version'] === 'string';
@@ -28,7 +47,10 @@ export function isPkgData(value: unknown): value is PkgDataInterface {
     return false;
 }
 
-export async function readJSONFile(filepath: string): Promise<unknown> {
+export async function readJSONFile(
+    filepath: string,
+    options?: { allowNotExist?: boolean },
+): Promise<unknown> {
     try {
         const dataText = await fs.readFile(filepath, 'utf8');
         try {
@@ -37,6 +59,13 @@ export async function readJSONFile(filepath: string): Promise<unknown> {
             throw new Error(`Invalid JSON: ${relativePath(filepath)}`);
         }
     } catch (error) {
+        if (
+            options?.allowNotExist &&
+            (error as AllowPropAny)?.['code'] === 'ENOENT'
+        ) {
+            return undefined;
+        }
+
         throw new Error(`Could not read file: ${relativePath(filepath)}`);
     }
 }

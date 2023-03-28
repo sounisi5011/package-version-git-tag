@@ -92,7 +92,7 @@ export async function getConfig(keyMap: {
     npm: string;
     yarn?: string;
 }): Promise<string> {
-    const packageManager = getPackageManagerData();
+    const packageManager = await getPackageManagerData({ cwd: process.cwd() });
     const key = { yarn: keyMap.npm, pnpm: keyMap.npm, ...keyMap }[
         packageManager.name ?? 'npm'
     ];

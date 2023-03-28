@@ -1,6 +1,8 @@
 import path from 'path';
 import whichPMRuns from 'which-pm-runs';
 
+import { isObject, readJSONFile, readParentIter, relativePath } from '../utils';
+
 const packageManagerTypeList = [
     'npm',
     'yarn',
@@ -11,6 +13,12 @@ export type PackageManagerType = (typeof packageManagerTypeList)[number];
 export interface PackageManagerData {
     name: PackageManagerType | undefined;
     spawnArgs: [commandName: string, prefixArgs: string[]];
+}
+
+// The "Array.prototype.includes()" method is slow, so we create a Set object to use the "Set.prototype.has()" method instead.
+const packageManagerTypeSet = new Set(packageManagerTypeList);
+function isPackageManagerType(value: unknown): value is PackageManagerType {
+    return (packageManagerTypeSet as Set<unknown>).has(value);
 }
 
 const jsFileExtentions = ['.cjs', '.mjs', '.js'] as const;
@@ -48,9 +56,55 @@ function detectPackageManagerUsingEnv(): {
 
     const packageManager = whichPMRuns()?.name;
     return {
-        type: packageManagerTypeList.find((type) => packageManager === type),
+        type: isPackageManagerType(packageManager) ? packageManager : undefined,
         npmPath: undefined,
     };
+}
+
+interface PackageManagerInfo {
+    name: PackageManagerType;
+}
+
+const nodeModulesRegExp =
+    /[\\/]node_modules[\\/](?:@[^\\/]*[\\/])?(?:[^@\\/][^\\/]*)$/;
+
+/**
+ * @see https://github.com/nodejs/corepack/blob/v0.17.1/sources/specUtils.ts
+ */
+async function detectPackageManagerUsingCorepackConfig({
+    cwd,
+}: {
+    readonly cwd: string;
+}): Promise<PackageManagerInfo | undefined> {
+    let packageManager: unknown;
+
+    for (const dirpath of readParentIter(cwd)) {
+        if (nodeModulesRegExp.test(dirpath)) continue;
+
+        const pkgJsonPath = path.join(dirpath, 'package.json');
+        const pkgJson = await readJSONFile(pkgJsonPath, {
+            allowNotExist: true,
+        });
+        if (pkgJson === undefined) continue;
+        if (!isObject(pkgJson)) {
+            throw new Error(
+                `Invalid package.json: ${relativePath(pkgJsonPath)}`,
+            );
+        }
+        packageManager = pkgJson['packageManager'];
+
+        // Corepack's algorithm seems to finish reading "package.json" if the value of the "packageManager" field is truthy.
+        // see https://github.com/nodejs/corepack/blob/v0.17.1/sources/specUtils.ts#L91
+        if (packageManager) break;
+    }
+
+    const match =
+        typeof packageManager === 'string' &&
+        /^(?!_)(.+)@./.exec(packageManager);
+    // This CLI is not Corepack, so it will ignore the invalid "packageManager" field without throwing an error.
+    if (!match || !isPackageManagerType(match[1])) return undefined;
+
+    return { name: match[1] };
 }
 
 /**
@@ -58,14 +112,37 @@ function detectPackageManagerUsingEnv(): {
  * @see https://github.com/mysticatea/npm-run-all/blob/v4.1.5/lib/run-task.js#L157-L174
  * @see https://github.com/BendingBender/yarpm/blob/v1.2.0/lib/index.js#L55-L67
  */
-export function getPackageManagerData(): PackageManagerData {
+export async function getPackageManagerData(options: {
+    readonly cwd: string;
+}): Promise<PackageManagerData> {
     const pmEnv = detectPackageManagerUsingEnv();
+    if (pmEnv.npmPath) {
+        return {
+            name: pmEnv.type,
+            spawnArgs: isJsPath(pmEnv.npmPath)
+                ? [process.execPath, [pmEnv.npmPath]]
+                : [pmEnv.npmPath, []],
+        };
+    }
+    if (pmEnv.type) {
+        return {
+            name: pmEnv.type,
+            spawnArgs: [pmEnv.type, []],
+        };
+    }
+
+    for (const detector of [detectPackageManagerUsingCorepackConfig]) {
+        const packageManager = await detector(options);
+        if (packageManager) {
+            return {
+                name: packageManager.name,
+                spawnArgs: [packageManager.name, []],
+            };
+        }
+    }
 
     return {
-        name: pmEnv.type,
-        spawnArgs:
-            pmEnv.npmPath && isJsPath(pmEnv.npmPath)
-                ? [process.execPath, [pmEnv.npmPath]]
-                : [pmEnv.npmPath ?? pmEnv.type ?? 'npm', []],
+        name: undefined,
+        spawnArgs: ['npm', []],
     };
 }
