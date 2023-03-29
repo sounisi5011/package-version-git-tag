@@ -1,5 +1,5 @@
 import mockFs from 'mock-fs';
-import * as path from 'path';
+import path from 'path';
 import { describe, expect, it } from 'vitest';
 
 import {
