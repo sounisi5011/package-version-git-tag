@@ -1,6 +1,5 @@
 /* eslint vitest/max-expects: [warn, { max: 10 }] */
 
-import slugify from '@sindresorhus/slugify';
 import { commandJoin } from 'command-join';
 import execa from 'execa';
 import fs from 'fs/promises';
@@ -9,48 +8,14 @@ import semver from 'semver';
 import { beforeAll, describe, expect, test } from 'vitest';
 
 import PKG_DATA from '../package.json';
+import { retryExec } from './helpers';
+import { COREPACK_HOME, PROJECT_ROOT, TEST_TMP_DIR } from './helpers/const';
 import * as corepackPackageManager from './helpers/corepack-package-managers';
 import { initGit } from './helpers/git';
+import { tmpDir } from './helpers/tmp';
 
-const PROJECT_ROOT = path.resolve(__dirname, '..');
-const TEST_TMP_DIR = path.resolve(__dirname, '.temp');
 const CLI_DIR = path.resolve(TEST_TMP_DIR, '.cli');
 const CLI_PATH = path.resolve(CLI_DIR, 'node_modules', '.bin', PKG_DATA.name);
-/**
- * @see https://github.com/nodejs/corepack/tree/v0.14.0#environment-variables
- */
-const COREPACK_HOME = path.resolve(TEST_TMP_DIR, '.corepack');
-
-const createdTmpDirSet = new Set<string>();
-function tmpDir(...uniqueNameList: (string | undefined)[]): string {
-    const uniqueName = slugify(
-        uniqueNameList.map((name) => name ?? '').join(' ') || 'test',
-    );
-    let dirname: string = uniqueName;
-    for (let i = 2; createdTmpDirSet.has(dirname); i++) {
-        dirname = `${uniqueName}_${i}`;
-    }
-    createdTmpDirSet.add(dirname);
-    return path.resolve(TEST_TMP_DIR, dirname);
-}
-
-async function retryExec(
-    fn: () => execa.ExecaChildProcess,
-    isSkip: (error: execa.ExecaError) => boolean,
-): Promise<Awaited<execa.ExecaChildProcess>> {
-    const ignoredError = Symbol('ignoredExecError');
-    let retries = 10;
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-    while (true) {
-        // Note: The `try...catch` statement is not used here,
-        //       because the type of the `error` variable will only be `execa.ExecaError` if the `.catch()` method is used.
-        const result = await fn().catch<typeof ignoredError>((error) => {
-            if (retries-- && isSkip(error)) return ignoredError;
-            throw error;
-        });
-        if (result !== ignoredError) return result;
-    }
-}
 
 beforeAll(async () => {
     // Corepack throws an error if it cannot fetch the package manager.
@@ -639,7 +604,7 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
                     /^pnpm@(\d+)/.exec(packageManager)?.[1] ?? '0',
                 );
                 return [
-                    packageManager.replace(/\+.+$/, ''),
+                    corepackPackageManager.omitPmHash(packageManager),
                     {
                         pkgJson: {
                             packageManager,

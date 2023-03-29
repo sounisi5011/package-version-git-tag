@@ -1,14 +1,35 @@
+import execa from 'execa';
+import fs from 'fs/promises';
 import mockFs from 'mock-fs';
+import os from 'os';
 import path from 'path';
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 
+import { name as packageName } from '../../package.json';
 import {
     getPackageManagerData,
     PackageManagerData,
 } from '../../src/utils/detect-package-manager';
-import { valueFinally } from '../helpers';
+import { getTestNameList, retryExec, valueFinally } from '../helpers';
+import { COREPACK_HOME, TINY_NPM_PACKAGE } from '../helpers/const';
+import * as corepackPackageManager from '../helpers/corepack-package-managers';
+import { tmpDir } from '../helpers/tmp';
 
-process.env = {};
+// Remove all environment variables except "PATH" and "APPDATA"
+// On Windows, the pnpm command will fail if the "APPDATA" environment variable does not exist.
+// This is caused by pnpm's dependency "@pnpm/npm-conf".
+// see https://github.com/pnpm/npm-conf/blob/ff043813516e16597de96a787c710de0b15e9aa9/lib/defaults.js#L29-L30
+process.env = Object.fromEntries(
+    Object.entries(process.env).flatMap<[string, (typeof process.env)[string]]>(
+        (envEntry) =>
+            // Windows uses "Path" instead of "PATH".
+            // Therefore, it filters the "PATH" environment variable case-insensitively.
+            // see https://github.com/zkochan/path-name/blob/263b42c3db6466e0bf5497cb338780daec941879/index.js
+            /^PATH$/i.test(envEntry[0]) || envEntry[0] === 'APPDATA'
+                ? [envEntry]
+                : [],
+    ),
+);
 
 function mockCwd<T>(
     newCwd: string | undefined,
@@ -38,6 +59,22 @@ function mockCwd<T>(
             Object.defineProperty(process, 'cwd', originalCwdDesc);
     });
 }
+
+beforeAll(async () => {
+    // Corepack throws an error if it cannot fetch the package manager.
+    // This error also occurs on GitHub Actions in rare cases.
+    // To avoid this, pre-fetch all package managers used in the tests.
+    await retryExec(
+        () =>
+            execa('corepack', ['prepare', ...corepackPackageManager.allList], {
+                env: { COREPACK_HOME },
+            }),
+        ({ stdout, stderr }) =>
+            [stdout, stderr].some((stdoutOrStderr) =>
+                /\bError when performing the request\b/i.test(stdoutOrStderr),
+            ),
+    );
+});
 
 describe(`detect package manager using the "packageManager" field in "package.json"`, () => {
     it.each(
@@ -235,4 +272,140 @@ describe(`detect package manager using the "packageManager" field in "package.js
             }
         });
     });
+});
+
+describe(`detect package manager by reading the "node_modules" directory`, () => {
+    interface TestCase {
+        readonly packageManager: (typeof corepackPackageManager.allList)[number];
+        readonly installCommand: (
+            pkg: string[],
+        ) => readonly [string, readonly string[]];
+        readonly expected: PackageManagerData;
+    }
+
+    const testCases: readonly TestCase[] = [
+        ...corepackPackageManager.npmList.map<TestCase>((packageManager) => ({
+            packageManager,
+            installCommand: (pkg) => ['npm', ['install', ...pkg]],
+            expected: {
+                name: 'npm',
+                spawnArgs: ['npm', []],
+            },
+        })),
+        ...corepackPackageManager.yarnList.map<TestCase>((packageManager) => ({
+            packageManager,
+            installCommand: (pkg) => ['yarn', ['add', ...pkg]],
+            expected: {
+                name: 'yarn',
+                spawnArgs: ['yarn', []],
+            },
+        })),
+        ...corepackPackageManager.pnpmList.map<TestCase>((packageManager) => ({
+            packageManager,
+            installCommand: (pkg) => ['pnpm', ['add', ...pkg]],
+            expected: {
+                name: 'pnpm',
+                spawnArgs: ['pnpm', []],
+            },
+        })),
+    ];
+
+    function ignoreError(code: string): (error: unknown) => null {
+        return (error) => {
+            if ((error as Record<string, unknown> | null)?.['code'] === code)
+                return null;
+            // eslint-disable-next-line @typescript-eslint/no-throw-literal
+            throw error;
+        };
+    }
+
+    const updateSymlink = async (
+        target: string,
+        linkpath: string,
+    ): Promise<void> => {
+        let tmpLinkpath = linkpath;
+        while (
+            !(await fs
+                .symlink(target, tmpLinkpath)
+                .then(() => true, ignoreError('EEXIST')))
+        ) {
+            const randStr = Math.random().toString(36).substring(2);
+            tmpLinkpath = `${linkpath}~${randStr}`;
+        }
+        if (tmpLinkpath !== linkpath) await fs.rename(tmpLinkpath, linkpath);
+    };
+
+    for (const { packageManager, installCommand, expected } of testCases) {
+        it.concurrent(
+            corepackPackageManager.omitPmHash(packageManager),
+            // eslint-disable-next-line vitest/no-done-callback
+            async (ctx) => {
+                const virtualTestDirpath = tmpDir(...getTestNameList(ctx.meta));
+                const actualTestDirpath = await fs.mkdtemp(
+                    path.join(
+                        os.tmpdir(),
+                        `${packageName}.test-fixtures.${path.basename(
+                            virtualTestDirpath,
+                        )}.`,
+                    ),
+                );
+                await Promise.all([
+                    (async () => {
+                        const intsallDirpath = path.join(
+                            actualTestDirpath,
+                            '.installed',
+                        );
+                        await fs.mkdir(intsallDirpath, { recursive: true });
+                        await fs.writeFile(
+                            path.join(intsallDirpath, 'package.json'),
+                            JSON.stringify({ packageManager }),
+                        );
+                        await execa(...installCommand([TINY_NPM_PACKAGE]), {
+                            cwd: intsallDirpath,
+                            env: { COREPACK_HOME },
+                        });
+                        await fs.rename(
+                            path.join(intsallDirpath, 'node_modules'),
+                            path.join(actualTestDirpath, 'node_modules'),
+                        );
+                    })(),
+                    fs
+                        .realpath(virtualTestDirpath)
+                        .then(async (oldTestDirpath) => {
+                            await Promise.all([
+                                fs.rm(oldTestDirpath, {
+                                    recursive: true,
+                                    force: true,
+                                }),
+                                updateSymlink(
+                                    actualTestDirpath,
+                                    virtualTestDirpath,
+                                ),
+                            ]);
+                        })
+                        .catch(async (error) => {
+                            await updateSymlink(
+                                actualTestDirpath,
+                                virtualTestDirpath,
+                            );
+                            ignoreError('ENOENT')(error);
+                        }),
+                ]);
+
+                for (const [message, cwd] of Object.entries({
+                    'should read the "node_modules" directory in the current working directory':
+                        actualTestDirpath,
+                    'should read the "node_modules" directory in the parent directory':
+                        path.join(actualTestDirpath, 'child'),
+                    'should read the "node_modules" directory in the ancestor directory':
+                        path.join(actualTestDirpath, 'path/to/foo/bar'),
+                })) {
+                    await expect(
+                        getPackageManagerData({ cwd }),
+                        message,
+                    ).resolves.toStrictEqual(expected);
+                }
+            },
+        );
+    }
 });
