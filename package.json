@@ -62,6 +62,7 @@
     "command-join": "^3.0.0",
     "cross-spawn": "^7.0.2",
     "mri": "^1.2.0",
+    "which-pm": "^2.0.0",
     "which-pm-runs": "^1.1.0"
   },
   "devDependencies": {

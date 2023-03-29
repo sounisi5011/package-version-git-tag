@@ -98,6 +98,7 @@ Because it is the minimum version available for Vitest.
 #### dependencies
 
 * [#211] - `mri@^1.2.0`
+* [#221] - `which-pm@^2.0.0`
 * [#217] - `which-pm-runs@^1.1.0`
 
 #### devDependencies
