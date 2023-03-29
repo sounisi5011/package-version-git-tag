@@ -15,19 +15,10 @@ import { COREPACK_HOME, TINY_NPM_PACKAGE } from '../helpers/const';
 import * as corepackPackageManager from '../helpers/corepack-package-managers';
 import { tmpDir } from '../helpers/tmp';
 
-// Remove all environment variables except "PATH" and "APPDATA"
-// On Windows, the pnpm command will fail if the "APPDATA" environment variable does not exist.
-// This is caused by pnpm's dependency "@pnpm/npm-conf".
-// see https://github.com/pnpm/npm-conf/blob/ff043813516e16597de96a787c710de0b15e9aa9/lib/defaults.js#L29-L30
+// Remove all environment variables set by npm
 process.env = Object.fromEntries(
     Object.entries(process.env).flatMap<[string, (typeof process.env)[string]]>(
-        (envEntry) =>
-            // Windows uses "Path" instead of "PATH".
-            // Therefore, it filters the "PATH" environment variable case-insensitively.
-            // see https://github.com/zkochan/path-name/blob/263b42c3db6466e0bf5497cb338780daec941879/index.js
-            /^PATH$/i.test(envEntry[0]) || envEntry[0] === 'APPDATA'
-                ? [envEntry]
-                : [],
+        (envEntry) => (!/^npm[_-]/i.test(envEntry[0]) ? [envEntry] : []),
     ),
 );
 
