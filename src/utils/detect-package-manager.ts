@@ -1,4 +1,5 @@
 import path from 'path';
+import whichPm from 'which-pm';
 import whichPMRuns from 'which-pm-runs';
 
 import { isObject, readJSONFile, readParentIter, relativePath } from '../utils';
@@ -107,6 +108,22 @@ async function detectPackageManagerUsingCorepackConfig({
     return { name: match[1] };
 }
 
+async function detectPackageManagerUsingNodeModulesDir({
+    cwd,
+}: {
+    readonly cwd: string;
+}): Promise<PackageManagerInfo | undefined> {
+    for (const dirpath of readParentIter(cwd)) {
+        const pm = await (whichPm(dirpath) as Promise<Awaited<
+            ReturnType<typeof whichPm>
+        > | null>);
+        if (pm && isPackageManagerType(pm.name)) {
+            return { name: pm.name };
+        }
+    }
+    return undefined;
+}
+
 /**
  * Detects what package manager was used to run this script.
  * @see https://github.com/mysticatea/npm-run-all/blob/v4.1.5/lib/run-task.js#L157-L174
@@ -131,7 +148,10 @@ export async function getPackageManagerData(options: {
         };
     }
 
-    for (const detector of [detectPackageManagerUsingCorepackConfig]) {
+    for (const detector of [
+        detectPackageManagerUsingCorepackConfig,
+        detectPackageManagerUsingNodeModulesDir,
+    ]) {
         const packageManager = await detector(options);
         if (packageManager) {
             return {
