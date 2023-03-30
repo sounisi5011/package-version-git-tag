@@ -113,6 +113,7 @@ Because it is the minimum version available for Vitest.
 * [#185] - `execa@5.1.1`
 
     We will not use v6 or later because the ESM cannot yet be used for unit testing in this project.
+* [#221] - `is-promise@4.0.0`
 * [#185] - `lefthook@1.3.3`
 * [#221] - `mock-fs@5.2.0`
 * [#217] - `semver@7.3.8`
