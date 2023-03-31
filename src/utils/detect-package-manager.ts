@@ -145,25 +145,30 @@ async function detectPackageManagerUsingNodeModulesDirOrLockfile({
 }: {
     readonly cwd: string;
 }): Promise<PackageManagerInfo | undefined> {
+    let maybeNpm = false;
     for (const dirpath of readParentIter(cwd)) {
         type WhichPmResult = Awaited<ReturnType<typeof whichPm>> | null;
         const pm = await (whichPm(dirpath) as Promise<WhichPmResult>);
+
+        let maybeNpm_ = false;
         if (
             pm &&
             isPackageManagerType(pm.name) &&
-            // which-pm@2.0.0 determines npm simply by checking if the "node_modules" directory exists.
+            // which-pm@2.0.0 determines "npm" simply by checking if the "node_modules" directory exists.
             // However, this result is not reliable because the "node_modules" directory is created by all package managers.
-            // Therefore, we exclude this result.
-            !(pm.name === 'npm' && (pm as whichPm.Other).version === undefined)
+            // Therefore, we will use this result after trying all other methods.
+            !(maybeNpm_ =
+                pm.name === 'npm' &&
+                (pm as whichPm.Other).version === undefined)
         )
             return { name: pm.name };
 
         const pmByLock = await detectPackageManagerUsingLockfile(dirpath);
         if (pmByLock) return { name: pmByLock };
 
-        if (pm?.name === 'npm') return { name: pm.name };
+        if (maybeNpm_) maybeNpm = true;
     }
-    return undefined;
+    return maybeNpm ? { name: 'npm' } : undefined;
 }
 
 /**
