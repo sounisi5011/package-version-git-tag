@@ -13,6 +13,25 @@ const nodeModulesRegExp =
     /[\\/]node_modules[\\/](?:@[^\\/]*[\\/])?(?:[^@\\/][^\\/]*)$/;
 
 /**
+ * @see https://github.com/nodejs/corepack/blob/v0.17.1/sources/specUtils.ts#L95-L110
+ */
+async function tryReadPackageManagerField(
+    cwd: string,
+): Promise<{ packageManager: unknown } | undefined> {
+    if (nodeModulesRegExp.test(cwd)) return undefined;
+
+    const pkgJsonPath = path.join(cwd, 'package.json');
+    const pkgJson = await readJSONFile(pkgJsonPath, {
+        allowNotExist: true,
+    });
+    if (pkgJson === undefined) return undefined;
+    if (!isObject(pkgJson)) {
+        throw new Error(`Invalid package.json: ${relativePath(pkgJsonPath)}`);
+    }
+    return { packageManager: pkgJson['packageManager'] };
+}
+
+/**
  * @see https://github.com/nodejs/corepack/blob/v0.17.1/sources/specUtils.ts
  */
 export async function detectPackageManagerUsingCorepackConfig({
@@ -23,19 +42,9 @@ export async function detectPackageManagerUsingCorepackConfig({
     let packageManager: unknown;
 
     for (const dirpath of walkParentDir(cwd)) {
-        if (nodeModulesRegExp.test(dirpath)) continue;
-
-        const pkgJsonPath = path.join(dirpath, 'package.json');
-        const pkgJson = await readJSONFile(pkgJsonPath, {
-            allowNotExist: true,
-        });
-        if (pkgJson === undefined) continue;
-        if (!isObject(pkgJson)) {
-            throw new Error(
-                `Invalid package.json: ${relativePath(pkgJsonPath)}`,
-            );
-        }
-        packageManager = pkgJson['packageManager'];
+        const result = await tryReadPackageManagerField(dirpath);
+        if (!result) continue;
+        packageManager = result.packageManager;
 
         // Corepack's algorithm seems to finish reading "package.json" if the value of the "packageManager" field is truthy.
         // see https://github.com/nodejs/corepack/blob/v0.17.1/sources/specUtils.ts#L91
