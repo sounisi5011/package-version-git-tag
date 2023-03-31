@@ -6,6 +6,7 @@
 
 * Drop support for Node.js 10 and 12
 * Support [pnpm](https://pnpm.io/)
+* Support for direct CLI execution
 * Migrate from [`cac`](https://www.npmjs.com/package/cac/v/6.6.1) to [`mri`](https://www.npmjs.com/package/mri/v/1.2.0)
 * Fix edge cases in CLI argument parsing process
 * Update dev dependencies
@@ -13,6 +14,7 @@
 ### Features
 
 * [#217] - Support [pnpm](https://pnpm.io/)
+* [#221] - Support for direct CLI execution
 
 ### Supported Node version
 
