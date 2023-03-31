@@ -29,7 +29,7 @@ export function relativePath(pathStr: string): string {
 /**
  * Walk up parent directories
  */
-export function* readParentIter(filepath: string): IterableIterator<string> {
+export function* walkParentDir(filepath: string): IterableIterator<string> {
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     while (true) {
         yield filepath;
