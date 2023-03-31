@@ -10,7 +10,7 @@ import { name as packageName } from '../../package.json';
 import { walkParentDir } from '../../src/utils';
 import { getPackageManagerData } from '../../src/utils/detect-package-manager';
 import type { PackageManagerData } from '../../src/utils/detect-package-manager/types';
-import { getTestNameList, retryExec, valueFinally } from '../helpers';
+import { getTestNameList, retryAsync, valueFinally } from '../helpers';
 import { COREPACK_HOME, TINY_NPM_PACKAGE } from '../helpers/const';
 import * as corepackPackageManager from '../helpers/corepack-package-managers';
 import { tmpDir } from '../helpers/tmp';
@@ -154,7 +154,7 @@ beforeAll(async () => {
     // Corepack throws an error if it cannot fetch the package manager.
     // This error also occurs on GitHub Actions in rare cases.
     // To avoid this, pre-fetch all package managers used in the tests.
-    await retryExec(
+    await retryAsync(
         () =>
             execa('corepack', ['prepare', ...corepackPackageManager.allList], {
                 env: { COREPACK_HOME },

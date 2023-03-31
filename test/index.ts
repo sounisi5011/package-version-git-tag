@@ -8,7 +8,7 @@ import semver from 'semver';
 import { beforeAll, describe, expect, test } from 'vitest';
 
 import PKG_DATA from '../package.json';
-import { retryExec } from './helpers';
+import { retryAsync } from './helpers';
 import { COREPACK_HOME, PROJECT_ROOT, TEST_TMP_DIR } from './helpers/const';
 import * as corepackPackageManager from './helpers/corepack-package-managers';
 import { initGit } from './helpers/git';
@@ -21,7 +21,7 @@ beforeAll(async () => {
     // Corepack throws an error if it cannot fetch the package manager.
     // This error also occurs on GitHub Actions in rare cases.
     // To avoid this, pre-fetch all package managers used in the tests.
-    await retryExec(
+    await retryAsync(
         () =>
             execa('corepack', ['prepare', ...corepackPackageManager.allList], {
                 env: { COREPACK_HOME },
