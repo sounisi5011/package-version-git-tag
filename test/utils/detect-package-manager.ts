@@ -7,11 +7,9 @@ import path from 'path';
 import { beforeAll, describe, expect, it } from 'vitest';
 
 import { name as packageName } from '../../package.json';
-import { readParentIter } from '../../src/utils';
-import {
-    getPackageManagerData,
-    PackageManagerData,
-} from '../../src/utils/detect-package-manager';
+import { walkParentDir } from '../../src/utils';
+import { getPackageManagerData } from '../../src/utils/detect-package-manager';
+import type { PackageManagerData } from '../../src/utils/detect-package-manager/types';
 import { getTestNameList, retryExec, valueFinally } from '../helpers';
 import { COREPACK_HOME, TINY_NPM_PACKAGE } from '../helpers/const';
 import * as corepackPackageManager from '../helpers/corepack-package-managers';
@@ -499,7 +497,7 @@ describe(`detect package manager using the "packageManager" field in "package.js
             await fs.realpath(path).catch(() => path);
         const tmpDir = await tryRealpath(os.tmpdir());
 
-        for (const dirname of readParentIter(await tryRealpath(filename))) {
+        for (const dirname of walkParentDir(await tryRealpath(filename))) {
             if (path.dirname(dirname) === tmpDir) {
                 return dirname;
             }
