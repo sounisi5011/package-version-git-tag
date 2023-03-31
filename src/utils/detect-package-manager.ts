@@ -2,7 +2,13 @@ import path from 'path';
 import whichPm from 'which-pm';
 import whichPMRuns from 'which-pm-runs';
 
-import { isObject, readJSONFile, readParentIter, relativePath } from '../utils';
+import {
+    isFile,
+    isObject,
+    readJSONFile,
+    readParentIter,
+    relativePath,
+} from '../utils';
 
 const packageManagerTypeList = [
     'npm',
@@ -108,18 +114,54 @@ async function detectPackageManagerUsingCorepackConfig({
     return { name: match[1] };
 }
 
-async function detectPackageManagerUsingNodeModulesDir({
+const lockfileEntries = Object.entries<PackageManagerType>({
+    'pnpm-lock.yaml': 'pnpm',
+    'yarn.lock': 'yarn',
+    'package-lock.json': 'npm',
+    'npm-shrinkwrap.json': 'npm',
+    // Note: The "shrinkwrap.yaml" file is not used for detection.
+    //       This file was used in pnpm v1 and pnpm v2.
+    //       However, both are now deprecated and no longer need to be supported.
+});
+
+/**
+ * @see https://github.com/zkochan/packages/blob/d34bc098838af5369fcd7849af9c7f6bee5605f9/preferred-pm/index.js#L12-L41
+ * @see https://github.com/antfu/ni/blob/v0.21.2/src/agents.ts#L86-L93
+ */
+async function detectPackageManagerUsingLockfile(
+    pkgPath: string,
+): Promise<PackageManagerType | undefined> {
+    for (const [lockfile, type] of lockfileEntries) {
+        const lockfilePath = path.join(pkgPath, lockfile);
+        if (await isFile(lockfilePath, { allowNotExist: true })) {
+            return type;
+        }
+    }
+    return undefined;
+}
+
+async function detectPackageManagerUsingNodeModulesDirOrLockfile({
     cwd,
 }: {
     readonly cwd: string;
 }): Promise<PackageManagerInfo | undefined> {
     for (const dirpath of readParentIter(cwd)) {
-        const pm = await (whichPm(dirpath) as Promise<Awaited<
-            ReturnType<typeof whichPm>
-        > | null>);
-        if (pm && isPackageManagerType(pm.name)) {
+        type WhichPmResult = Awaited<ReturnType<typeof whichPm>> | null;
+        const pm = await (whichPm(dirpath) as Promise<WhichPmResult>);
+        if (
+            pm &&
+            isPackageManagerType(pm.name) &&
+            // which-pm@2.0.0 determines npm simply by checking if the "node_modules" directory exists.
+            // However, this result is not reliable because the "node_modules" directory is created by all package managers.
+            // Therefore, we exclude this result.
+            !(pm.name === 'npm' && (pm as whichPm.Other).version === undefined)
+        )
             return { name: pm.name };
-        }
+
+        const pmByLock = await detectPackageManagerUsingLockfile(dirpath);
+        if (pmByLock) return { name: pmByLock };
+
+        if (pm?.name === 'npm') return { name: pm.name };
     }
     return undefined;
 }
@@ -150,7 +192,7 @@ export async function getPackageManagerData(options: {
 
     for (const detector of [
         detectPackageManagerUsingCorepackConfig,
-        detectPackageManagerUsingNodeModulesDir,
+        detectPackageManagerUsingNodeModulesDirOrLockfile,
     ]) {
         const packageManager = await detector(options);
         if (packageManager) {

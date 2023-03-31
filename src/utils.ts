@@ -40,6 +40,24 @@ export function* readParentIter(filepath: string): IterableIterator<string> {
     }
 }
 
+export async function isFile(
+    filepath: string,
+    options?: { allowNotExist?: boolean },
+): Promise<boolean> {
+    try {
+        const stat = await fs.stat(filepath);
+        return stat.isFile();
+    } catch (error) {
+        if (
+            options?.allowNotExist &&
+            (error as AllowPropAny)?.['code'] === 'ENOENT'
+        ) {
+            return false;
+        }
+        throw error;
+    }
+}
+
 export function isPkgData(value: unknown): value is PkgDataInterface {
     if (isObject(value)) {
         return typeof value['version'] === 'string';
