@@ -173,6 +173,7 @@ Because it is the minimum version available for Vitest.
 * [#218] - Using Corepack with all Node.js
 * [#219] - Fix Corepack updating process
 * [#222] - Strictly check if the package manager has been disabled by Corepack
+* [#216] - Migrate from npm to pnpm
 
 [#182]: https://github.com/sounisi5011/package-version-git-tag/pull/182
 [#183]: https://github.com/sounisi5011/package-version-git-tag/pull/183
