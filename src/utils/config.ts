@@ -88,11 +88,14 @@ const npmBuiltinConfig: Record<string, string> = {
     message: '%s',
 };
 
-export async function getConfig(keyMap: {
-    npm: string;
-    yarn?: string;
-}): Promise<string> {
-    const packageManager = await getPackageManagerData({ cwd: process.cwd() });
+export async function getConfig(
+    cwd: string,
+    keyMap: {
+        npm: string;
+        yarn?: string;
+    },
+): Promise<string> {
+    const packageManager = await getPackageManagerData({ cwd });
     const key = { yarn: keyMap.npm, pnpm: keyMap.npm, ...keyMap }[
         packageManager.name ?? 'npm'
     ];
