@@ -1,3 +1,4 @@
+import slugify from '@sindresorhus/slugify';
 import execa from 'execa';
 import fs from 'fs/promises';
 import mockFs from 'mock-fs';
@@ -6,6 +7,7 @@ import path from 'path';
 import { beforeAll, describe, expect, it } from 'vitest';
 
 import { name as packageName } from '../../package.json';
+import { readParentIter } from '../../src/utils';
 import {
     getPackageManagerData,
     PackageManagerData,
@@ -50,6 +52,105 @@ function mockCwd<T>(
             Object.defineProperty(process, 'cwd', originalCwdDesc);
     });
 }
+
+const createInstalledDir = (() => {
+    interface Options {
+        readonly packageManager: string;
+        readonly installCommand: (
+            pkg: string[],
+        ) => readonly [string, readonly string[]];
+    }
+    interface Result {
+        readonly nodeModulesDirOnly: string;
+        readonly lockfiles: string;
+    }
+    const cache = new Map<string, Promise<Result>>();
+
+    return (...optionsList: [Options, ...Options[]]): Promise<Result> => {
+        const packageManagerList = optionsList.map(
+            ({ installCommand: createInstallCommand, ...options }) => {
+                const installCommand = createInstallCommand([TINY_NPM_PACKAGE]);
+                return {
+                    ...options,
+                    installCommand,
+                    cacheKey: (
+                        [
+                            ...Object.values(options),
+                            ...installCommand.flat(),
+                        ] satisfies string[]
+                    ).join('\0'),
+                };
+            },
+        );
+        const cacheKey = packageManagerList
+            .map(({ cacheKey }) => cacheKey)
+            .join('\n');
+        const cacheHit = cache.get(cacheKey);
+        if (cacheHit) return cacheHit;
+
+        const result = (async (): Promise<Result> => {
+            const installedDirpath = await fs.mkdtemp(
+                path.join(
+                    os.tmpdir(),
+                    `${packageName}.test-fixtures.${slugify(
+                        packageManagerList
+                            .map(({ packageManager }) =>
+                                corepackPackageManager.omitPmHash(
+                                    packageManager,
+                                ),
+                            )
+                            .join(' '),
+                    )}.`,
+                ),
+            );
+            const lockfilesDirpath = path.join(installedDirpath, 'lockfiles');
+            const pkgJsonPath = path.join(lockfilesDirpath, 'package.json');
+
+            await fs.mkdir(lockfilesDirpath, { recursive: true });
+            for (const {
+                packageManager,
+                installCommand,
+            } of packageManagerList) {
+                const currentPkgJson = await fs
+                    .readFile(pkgJsonPath, 'utf8')
+                    .then((pkgJsonStr) => JSON.parse(pkgJsonStr) as object)
+                    .catch(() => ({}));
+                await fs.writeFile(
+                    pkgJsonPath,
+                    JSON.stringify({ ...currentPkgJson, packageManager }),
+                );
+                await execa(...installCommand, {
+                    cwd: lockfilesDirpath,
+                    env: { COREPACK_HOME },
+                });
+            }
+
+            const nodeModulesDirOnlyDirpath = path.join(
+                installedDirpath,
+                'mod-only',
+            );
+            await Promise.all([
+                (async () => {
+                    await fs.mkdir(nodeModulesDirOnlyDirpath, {
+                        recursive: true,
+                    });
+                    await fs.rename(
+                        path.join(lockfilesDirpath, 'node_modules'),
+                        path.join(nodeModulesDirOnlyDirpath, 'node_modules'),
+                    );
+                })(),
+                fs.unlink(pkgJsonPath),
+            ]);
+
+            return {
+                nodeModulesDirOnly: nodeModulesDirOnlyDirpath,
+                lockfiles: lockfilesDirpath,
+            };
+        })();
+        cache.set(cacheKey, result);
+        return result;
+    };
+})();
 
 beforeAll(async () => {
     // Corepack throws an error if it cannot fetch the package manager.
@@ -265,7 +366,7 @@ describe(`detect package manager using the "packageManager" field in "package.js
     });
 });
 
-describe(`detect package manager by reading the "node_modules" directory`, () => {
+{
     interface TestCase {
         readonly packageManager: (typeof corepackPackageManager.allList)[number];
         readonly installCommand: (
@@ -301,14 +402,23 @@ describe(`detect package manager by reading the "node_modules" directory`, () =>
         })),
     ];
 
-    function ignoreError(code: string): (error: unknown) => null {
-        return (error) => {
+    const ignoreError =
+        (code: string) =>
+        (error: unknown): null => {
             if ((error as Record<string, unknown> | null)?.['code'] === code)
                 return null;
             // eslint-disable-next-line @typescript-eslint/no-throw-literal
             throw error;
         };
-    }
+
+    const tryRm = async (filepath: string | null): Promise<void> => {
+        if (filepath !== null) {
+            await fs.rm(filepath, {
+                recursive: true,
+                force: true,
+            });
+        }
+    };
 
     const updateSymlink = async (
         target: string,
@@ -326,77 +436,107 @@ describe(`detect package manager by reading the "node_modules" directory`, () =>
         if (tmpLinkpath !== linkpath) await fs.rename(tmpLinkpath, linkpath);
     };
 
-    for (const { packageManager, installCommand, expected } of testCases) {
-        it.concurrent(
-            corepackPackageManager.omitPmHash(packageManager),
-            // eslint-disable-next-line vitest/no-done-callback
-            async (ctx) => {
-                const virtualTestDirpath = tmpDir(...getTestNameList(ctx.meta));
-                const actualTestDirpath = await fs.mkdtemp(
-                    path.join(
-                        os.tmpdir(),
-                        `${packageName}.test-fixtures.${path.basename(
-                            virtualTestDirpath,
-                        )}.`,
-                    ),
-                );
-                await Promise.all([
-                    (async () => {
-                        const intsallDirpath = path.join(
-                            actualTestDirpath,
-                            '.installed',
-                        );
-                        await fs.mkdir(intsallDirpath, { recursive: true });
-                        await fs.writeFile(
-                            path.join(intsallDirpath, 'package.json'),
-                            JSON.stringify({ packageManager }),
-                        );
-                        await execa(...installCommand([TINY_NPM_PACKAGE]), {
-                            cwd: intsallDirpath,
-                            env: { COREPACK_HOME },
-                        });
-                        await fs.rename(
-                            path.join(intsallDirpath, 'node_modules'),
-                            path.join(actualTestDirpath, 'node_modules'),
-                        );
-                    })(),
-                    fs
-                        .realpath(virtualTestDirpath)
-                        .then(async (oldTestDirpath) => {
-                            await Promise.all([
-                                fs.rm(oldTestDirpath, {
-                                    recursive: true,
-                                    force: true,
-                                }),
-                                updateSymlink(
-                                    actualTestDirpath,
-                                    virtualTestDirpath,
-                                ),
-                            ]);
-                        })
-                        .catch(async (error) => {
-                            await updateSymlink(
-                                actualTestDirpath,
-                                virtualTestDirpath,
-                            );
-                            ignoreError('ENOENT')(error);
-                        }),
-                ]);
+    const getFilenameDirectlyUnderTmpdir = async (
+        filename: string,
+    ): Promise<string> => {
+        const tryRealpath = async (path: string): Promise<string> =>
+            await fs.realpath(path).catch(() => path);
+        const tmpDir = await tryRealpath(os.tmpdir());
 
-                for (const [message, cwd] of Object.entries({
-                    'should read the "node_modules" directory in the current working directory':
-                        actualTestDirpath,
-                    'should read the "node_modules" directory in the parent directory':
-                        path.join(actualTestDirpath, 'child'),
-                    'should read the "node_modules" directory in the ancestor directory':
-                        path.join(actualTestDirpath, 'path/to/foo/bar'),
-                })) {
-                    await expect(
-                        getPackageManagerData({ cwd }),
-                        message,
-                    ).resolves.toStrictEqual(expected);
-                }
-            },
-        );
-    }
-});
+        for (const dirname of readParentIter(await tryRealpath(filename))) {
+            if (path.dirname(dirname) === tmpDir) {
+                return dirname;
+            }
+        }
+
+        return filename;
+    };
+
+    describe(`detect package manager by reading the "node_modules" directory`, () => {
+        for (const { packageManager, installCommand, expected } of testCases) {
+            it.concurrent(
+                corepackPackageManager.omitPmHash(packageManager),
+                // eslint-disable-next-line vitest/no-done-callback
+                async (ctx) => {
+                    const virtualTestDirpath = tmpDir(
+                        ...getTestNameList(ctx.meta),
+                    );
+                    const [
+                        { nodeModulesDirOnly: actualTestDirpath },
+                        oldInstalledDir,
+                    ] = await Promise.all([
+                        createInstalledDir({
+                            packageManager,
+                            installCommand,
+                        }),
+                        fs
+                            .realpath(virtualTestDirpath)
+                            .then(getFilenameDirectlyUnderTmpdir)
+                            .catch(ignoreError('ENOENT')),
+                    ]);
+                    await Promise.all([
+                        tryRm(oldInstalledDir),
+                        updateSymlink(actualTestDirpath, virtualTestDirpath),
+                    ]);
+
+                    for (const [message, cwd] of Object.entries({
+                        'should read the "node_modules" directory in the current working directory':
+                            actualTestDirpath,
+                        'should read the "node_modules" directory in the parent directory':
+                            path.join(actualTestDirpath, 'child'),
+                        'should read the "node_modules" directory in the ancestor directory':
+                            path.join(actualTestDirpath, 'path/to/foo/bar'),
+                    })) {
+                        await expect(
+                            getPackageManagerData({ cwd }),
+                            message,
+                        ).resolves.toStrictEqual(expected);
+                    }
+                },
+            );
+        }
+    });
+
+    describe(`detect package manager using lockfiles`, () => {
+        for (const { packageManager, installCommand, expected } of testCases) {
+            it.concurrent(
+                corepackPackageManager.omitPmHash(packageManager),
+                // eslint-disable-next-line vitest/no-done-callback
+                async (ctx) => {
+                    const virtualTestDirpath = tmpDir(
+                        ...getTestNameList(ctx.meta),
+                    );
+                    const [{ lockfiles: actualTestDirpath }, oldInstalledDir] =
+                        await Promise.all([
+                            createInstalledDir({
+                                packageManager,
+                                installCommand,
+                            }),
+                            fs
+                                .realpath(virtualTestDirpath)
+                                .then(getFilenameDirectlyUnderTmpdir)
+                                .catch(ignoreError('ENOENT')),
+                        ]);
+                    await Promise.all([
+                        tryRm(oldInstalledDir),
+                        updateSymlink(actualTestDirpath, virtualTestDirpath),
+                    ]);
+
+                    for (const [message, cwd] of Object.entries({
+                        'should use lockfiles in the current working directory':
+                            actualTestDirpath,
+                        'should use lockfiles in the parent directory':
+                            path.join(actualTestDirpath, 'child'),
+                        'should use lockfiles in the ancestor directory':
+                            path.join(actualTestDirpath, 'path/to/foo/bar'),
+                    })) {
+                        await expect(
+                            getPackageManagerData({ cwd }),
+                            message,
+                        ).resolves.toStrictEqual(expected);
+                    }
+                },
+            );
+        }
+    });
+}
