@@ -25,6 +25,12 @@ const getAvailablePackageManagerList = <
 
 const omitPmName = (pmSpec: PackageManagerSpec): string =>
     pmSpec.replace(/^[^@]+@/, '');
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+export function omitPmHash<T extends string>(pmSpec: T) {
+    return pmSpec.replace(/\+.*/s, '') as T extends `${infer U}+${string}`
+        ? U
+        : T;
+}
 
 const getLatestPackageManager = <T extends PackageManagerType>(
     pmList: readonly PackageManagerSpec<T>[],

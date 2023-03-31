@@ -1,31 +1,5 @@
-import path from 'path';
-import whichPMRuns from 'which-pm-runs';
-
 import { execFileAsync, isObject } from '../utils';
-
-/**
- * Detects what package manager was used to run this script.
- * @see https://github.com/mysticatea/npm-run-all/blob/v4.1.5/lib/run-task.js#L157-L174
- */
-function getPackageManagerData(): {
-    name: 'npm' | 'yarn' | 'pnpm' | undefined;
-    spawnArgs: [commandName: string, prefixArgs: string[]];
-} {
-    const npmPath = process.env['npm_execpath'];
-    // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-    const commandName = npmPath || whichPMRuns()?.name || 'npm';
-    const lowerCaseNpmPathBaseName = path.basename(commandName).toLowerCase();
-
-    return {
-        name: (['npm', 'yarn', 'pnpm'] as const).find((type) =>
-            lowerCaseNpmPathBaseName.startsWith(type),
-        ),
-        spawnArgs:
-            typeof npmPath === 'string' && /\.[cm]?js$/.test(npmPath)
-                ? [process.execPath, [npmPath]]
-                : [commandName, []],
-    };
-}
+import { getPackageManagerData } from './detect-package-manager';
 
 const corepackErrorRegExp = /\bThis project is configured to use \w+\b/i;
 const isDifferentPackageManagerError = (error: unknown): boolean =>
@@ -114,11 +88,14 @@ const npmBuiltinConfig: Record<string, string> = {
     message: '%s',
 };
 
-export async function getConfig(keyMap: {
-    npm: string;
-    yarn?: string;
-}): Promise<string> {
-    const packageManager = getPackageManagerData();
+export async function getConfig(
+    cwd: string,
+    keyMap: {
+        npm: string;
+        yarn?: string;
+    },
+): Promise<string> {
+    const packageManager = await getPackageManagerData({ cwd });
     const key = { yarn: keyMap.npm, pnpm: keyMap.npm, ...keyMap }[
         packageManager.name ?? 'npm'
     ];
