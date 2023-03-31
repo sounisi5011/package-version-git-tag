@@ -350,6 +350,62 @@ describe(`detect package manager using the "packageManager" field in "package.js
                     spawnArgs: ['npm', []],
                 },
             },
+            'the priority of the "packageManager" field should be higher than the "node_modules" directory':
+                {
+                    fileSystem: {
+                        node_modules: {
+                            '.yarn-integrity': '',
+                        },
+                        'package.json': JSON.stringify({
+                            packageManager: 'npm@123.4.5',
+                        }),
+                    },
+                    expected: {
+                        name: 'npm',
+                        spawnArgs: ['npm', []],
+                    },
+                },
+            'the priority of the "packageManager" field should be higher than the "node_modules" directory, even if "node_modules" is in the closest directory':
+                {
+                    fileSystem: {
+                        node_modules: {
+                            '.yarn-integrity': '',
+                        },
+                        '../package.json': JSON.stringify({
+                            packageManager: 'npm@123.4.5',
+                        }),
+                    },
+                    expected: {
+                        name: 'npm',
+                        spawnArgs: ['npm', []],
+                    },
+                },
+            'the priority of the "packageManager" field should be higher than the lockfiles':
+                {
+                    fileSystem: {
+                        'pnpm-lock.yaml': '',
+                        'package.json': JSON.stringify({
+                            packageManager: 'npm@123.4.5',
+                        }),
+                    },
+                    expected: {
+                        name: 'npm',
+                        spawnArgs: ['npm', []],
+                    },
+                },
+            'the priority of the "packageManager" field should be higher than the lockfiles, even if lockfiles are in the closest directory':
+                {
+                    fileSystem: {
+                        'pnpm-lock.yaml': '',
+                        '../package.json': JSON.stringify({
+                            packageManager: 'npm@123.4.5',
+                        }),
+                    },
+                    expected: {
+                        name: 'npm',
+                        spawnArgs: ['npm', []],
+                    },
+                },
         }),
     )('%s', async (_, { cwd: customCwd, fileSystem, expected }) => {
         await mockCwd(customCwd, async () => {
@@ -495,6 +551,48 @@ describe(`detect package manager using the "packageManager" field in "package.js
                 },
             );
         }
+
+        it.concurrent.each(
+            Object.entries<{
+                fileSystem: NonNullable<Parameters<typeof mockFs>[0]>;
+                expected: PackageManagerData;
+            }>({
+                'should read the "node_modules" directory in the closest directory':
+                    {
+                        fileSystem: {
+                            'node_modules/.modules.yaml':
+                                'packageManager: pnpm@123.45.6',
+                            '../node_modules/.yarn-integrity': '',
+                        },
+                        expected: {
+                            name: 'pnpm',
+                            spawnArgs: ['pnpm', []],
+                        },
+                    },
+                'the priority of the "node_modules" directory should be higher than the lockfiles, if "node_modules" is not empty':
+                    {
+                        fileSystem: {
+                            'node_modules/.modules.yaml':
+                                'packageManager: pnpm@123.45.6',
+                            'yarn.lock': '',
+                        },
+                        expected: {
+                            name: 'pnpm',
+                            spawnArgs: ['pnpm', []],
+                        },
+                    },
+            }),
+        )('%s', async (_, { fileSystem, expected }) => {
+            try {
+                mockFs(fileSystem);
+
+                await expect(
+                    getPackageManagerData({ cwd: process.cwd() }),
+                ).resolves.toStrictEqual(expected);
+            } finally {
+                mockFs.restore();
+            }
+        });
     });
 
     describe(`detect package manager using lockfiles`, () => {
@@ -538,5 +636,68 @@ describe(`detect package manager using the "packageManager" field in "package.js
                 },
             );
         }
+
+        it.concurrent.each(
+            Object.entries<{
+                fileSystem: NonNullable<Parameters<typeof mockFs>[0]>;
+                expected: PackageManagerData;
+            }>({
+                'should use lockfiles in the closest directory': {
+                    fileSystem: {
+                        'package-lock.json': '',
+                        '../pnpm-lock.yaml': '',
+                        '../../yarn.lock': '',
+                    },
+                    expected: {
+                        name: 'npm',
+                        spawnArgs: ['npm', []],
+                    },
+                },
+                'the priority of the lockfiles should be higher than the empty "node_modules" directory':
+                    {
+                        fileSystem: {
+                            node_modules: {},
+                            'yarn.lock': '',
+                        },
+                        expected: {
+                            name: 'yarn',
+                            spawnArgs: ['yarn', []],
+                        },
+                    },
+                'the priority of the lockfiles should be higher than the empty "node_modules" directory, even if "node_modules" is in the closest directory':
+                    {
+                        fileSystem: {
+                            node_modules: {},
+                            '../yarn.lock': '',
+                        },
+                        expected: {
+                            name: 'yarn',
+                            spawnArgs: ['yarn', []],
+                        },
+                    },
+                'the priority of the lockfiles should be higher than the "node_modules" directory, if lockfiles are in the closest directory':
+                    {
+                        fileSystem: {
+                            'yarn.lock': '',
+                            '../node_modules/.modules.yaml':
+                                'packageManager: pnpm@123.45.6',
+                        },
+                        expected: {
+                            name: 'yarn',
+                            spawnArgs: ['yarn', []],
+                        },
+                    },
+            }),
+        )('%s', async (_, { fileSystem, expected }) => {
+            try {
+                mockFs(fileSystem);
+
+                await expect(
+                    getPackageManagerData({ cwd: process.cwd() }),
+                ).resolves.toStrictEqual(expected);
+            } finally {
+                mockFs.restore();
+            }
+        });
     });
 }
