@@ -1,6 +1,5 @@
 /* eslint vitest/max-expects: [warn, { max: 10 }] */
 
-import slugify from '@sindresorhus/slugify';
 import { commandJoin } from 'command-join';
 import execa from 'execa';
 import fs from 'fs/promises';
@@ -9,54 +8,20 @@ import semver from 'semver';
 import { beforeAll, describe, expect, test } from 'vitest';
 
 import PKG_DATA from '../package.json';
+import { retryAsync } from './helpers';
+import { COREPACK_HOME, PROJECT_ROOT, TEST_TMP_DIR } from './helpers/const';
 import * as corepackPackageManager from './helpers/corepack-package-managers';
 import { initGit } from './helpers/git';
+import { tmpDir } from './helpers/tmp';
 
-const PROJECT_ROOT = path.resolve(__dirname, '..');
-const TEST_TMP_DIR = path.resolve(__dirname, '.temp');
 const CLI_DIR = path.resolve(TEST_TMP_DIR, '.cli');
 const CLI_PATH = path.resolve(CLI_DIR, 'node_modules', '.bin', PKG_DATA.name);
-/**
- * @see https://github.com/nodejs/corepack/tree/v0.14.0#environment-variables
- */
-const COREPACK_HOME = path.resolve(TEST_TMP_DIR, '.corepack');
-
-const createdTmpDirSet = new Set<string>();
-function tmpDir(...uniqueNameList: (string | undefined)[]): string {
-    const uniqueName = slugify(
-        uniqueNameList.map((name) => name ?? '').join(' ') || 'test',
-    );
-    let dirname: string = uniqueName;
-    for (let i = 2; createdTmpDirSet.has(dirname); i++) {
-        dirname = `${uniqueName}_${i}`;
-    }
-    createdTmpDirSet.add(dirname);
-    return path.resolve(TEST_TMP_DIR, dirname);
-}
-
-async function retryExec(
-    fn: () => execa.ExecaChildProcess,
-    isSkip: (error: execa.ExecaError) => boolean,
-): Promise<Awaited<execa.ExecaChildProcess>> {
-    const ignoredError = Symbol('ignoredExecError');
-    let retries = 10;
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-    while (true) {
-        // Note: The `try...catch` statement is not used here,
-        //       because the type of the `error` variable will only be `execa.ExecaError` if the `.catch()` method is used.
-        const result = await fn().catch<typeof ignoredError>((error) => {
-            if (retries-- && isSkip(error)) return ignoredError;
-            throw error;
-        });
-        if (result !== ignoredError) return result;
-    }
-}
 
 beforeAll(async () => {
     // Corepack throws an error if it cannot fetch the package manager.
     // This error also occurs on GitHub Actions in rare cases.
     // To avoid this, pre-fetch all package managers used in the tests.
-    await retryExec(
+    await retryAsync(
         () =>
             execa('corepack', ['prepare', ...corepackPackageManager.allList], {
                 env: { COREPACK_HOME },
@@ -642,7 +607,7 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
                     /^pnpm@(\d+)/.exec(packageManager)?.[1] ?? '0',
                 );
                 return [
-                    packageManager.replace(/\+.+$/, ''),
+                    corepackPackageManager.omitPmHash(packageManager),
                     {
                         pkgJson: {
                             packageManager,
@@ -679,19 +644,21 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
             execCliCommand: readonly string[],
             pkgJson: Record<string, unknown> | undefined,
         ): string => {
-            const npmScriptNameSet = new Set(
-                Object.keys(pkgJson?.['scripts'] ?? {}),
+            const replaceArgMap = new Map(
+                Object.keys(pkgJson?.['scripts'] ?? {})
+                    .map<[string, string]>((npmScriptName) => [
+                        npmScriptName,
+                        '{npm-script}',
+                    ])
+                    .concat([
+                        [PKG_DATA.name, '{command}'],
+                        [CLI_PATH, './node_modules/.bin/{command}'],
+                    ]),
             );
             return (
                 execCliCommand
                     .filter((arg) => !/^-{1,2}[^-]/.test(arg))
-                    .map((arg) =>
-                        npmScriptNameSet.has(arg)
-                            ? '{npm-script}'
-                            : arg === PKG_DATA.name
-                            ? '{command}'
-                            : arg,
-                    )
+                    .map((arg) => replaceArgMap.get(arg) ?? arg)
                     .join(' ') +
                 (testName !== execCliCommand[0] ? ` (${testName})` : '')
             );
@@ -713,6 +680,13 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
                 commad: {
                     ...caseItem.commad,
                     execCli: [caseItem.commad.version[0], 'run', 'xxx-run-cli'],
+                },
+            },
+            {
+                ...caseItem,
+                commad: {
+                    ...caseItem.commad,
+                    execCli: [CLI_PATH],
                 },
             },
         ];
@@ -809,10 +783,11 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
                           },
                       };
 
-            // Always use "pnpm add <folder>", even if the package manager is not pnpm.
-            // This is because the "yarn add /path/to/local/folder" command may fail on GitHub Actions.
-            await exec(['pnpm', 'add', PROJECT_ROOT], { env: pnpmEnv });
-
+            if (commad.execCli[0] !== CLI_PATH) {
+                // Always use "pnpm add <folder>", even if the package manager is not pnpm.
+                // This is because the "yarn add /path/to/local/folder" command may fail on GitHub Actions.
+                await exec(['pnpm', 'add', PROJECT_ROOT], { env: pnpmEnv });
+            }
             await Promise.all([
                 fs.writeFile(
                     path.join(gitDirpath, '.gitignore'),

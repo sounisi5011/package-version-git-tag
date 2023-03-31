@@ -10,11 +10,11 @@ export interface Options {
     dryRun?: boolean | undefined;
 }
 
-async function getVersionTagData(): Promise<{
+async function getVersionTagData(cwd: string): Promise<{
     tagName: string;
     message: string;
 }> {
-    const projectPkgPath = path.join(process.cwd(), 'package.json');
+    const projectPkgPath = path.join(cwd, 'package.json');
     const projectPkgData = await readJSONFile(projectPkgPath);
 
     if (isPkgData(projectPkgData)) {
@@ -25,7 +25,7 @@ async function getVersionTagData(): Promise<{
          * @see https://github.com/npm/cli/blob/v6.13.0/lib/version.js#L311
          * @see https://github.com/yarnpkg/yarn/blob/v1.19.1/src/cli/commands/version.js#L194
          */
-        const prefix = await getConfig({
+        const prefix = await getConfig(cwd, {
             npm: 'tag-version-prefix',
             yarn: 'version-tag-prefix',
         });
@@ -41,7 +41,10 @@ async function getVersionTagData(): Promise<{
          * @see https://github.com/yarnpkg/yarn/blob/v1.19.1/src/cli/commands/version.js#L191
          */
         const message = (
-            await getConfig({ npm: 'message', yarn: 'version-git-message' })
+            await getConfig(cwd, {
+                npm: 'message',
+                yarn: 'version-git-message',
+            })
         ).replace(/%s/g, version);
 
         return { tagName, message };
@@ -75,7 +78,8 @@ async function main(opts: Options): Promise<void> {
         opts.verbose = true;
     }
 
-    const { tagName: versionTagName, message } = await getVersionTagData();
+    const cwd = process.cwd();
+    const { tagName: versionTagName, message } = await getVersionTagData(cwd);
 
     if (await tagExists(versionTagName)) {
         await gitTagAlreadyExists(versionTagName, message, opts);
