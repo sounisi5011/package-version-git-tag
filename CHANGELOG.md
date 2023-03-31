@@ -134,6 +134,7 @@ Because it is the minimum version available for Vitest.
 #### devDependencies
 
 * [#200] - `ava`
+* [#216] - `check-peer-deps`
 * [#186] - `del`
 * [#214] - `escape-string-regexp`
 * [#185] - `eslint-plugin-node`
@@ -141,6 +142,7 @@ Because it is the minimum version available for Vitest.
 * [#185] - `husky`
 * [#185] - `lint-staged`
 * [#186] - `make-dir`
+* [#216] - `patch-package`
 
 ### Tests
 
@@ -171,6 +173,7 @@ Because it is the minimum version available for Vitest.
 * [#218] - Using Corepack with all Node.js
 * [#219] - Fix Corepack updating process
 * [#222] - Strictly check if the package manager has been disabled by Corepack
+* [#216] - Migrate from npm to pnpm
 
 [#182]: https://github.com/sounisi5011/package-version-git-tag/pull/182
 [#183]: https://github.com/sounisi5011/package-version-git-tag/pull/183
@@ -200,6 +203,7 @@ Because it is the minimum version available for Vitest.
 [#217]: https://github.com/sounisi5011/package-version-git-tag/pull/217
 [#222]: https://github.com/sounisi5011/package-version-git-tag/pull/222
 [#221]: https://github.com/sounisi5011/package-version-git-tag/pull/221
+[#216]: https://github.com/sounisi5011/package-version-git-tag/pull/216
 
 ## [3.0.0] (2020-06-02 UTC)
 

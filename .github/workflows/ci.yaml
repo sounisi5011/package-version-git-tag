@@ -83,24 +83,30 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 14.x
-          cache: npm
 
       - name: Enable Corepack (Automatically setup a package manager for Node.js)
         run: |
           corepack enable
           corepack enable npm
 
-      - name: Show node and npm version
+      - name: Show node and package manager version
         shell: bash
         run: |
           echo node "$(node --version)"
-          echo npm "$(npm --version)"
+          echo pnpm "$(pnpm --version)"
+          echo "pnpm-store-path=$(pnpm store path --silent)" >> "${GITHUB_ENV}"
+
+      - name: Cache pnpm
+        uses: actions/cache@v3
+        with:
+          key: node-cache-${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          path: ${{ env.pnpm-store-path }}
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install
 
       - name: Run linter
-        run: npm run test:other-than-unit-test
+        run: pnpm run test:other-than-unit-test
 
   unit-test:
     needs: detect-supported-node
@@ -126,7 +132,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-          cache: npm
 
       - name: Enable Corepack (Automatically setup a package manager for Node.js)
         shell: bash
@@ -311,17 +316,24 @@ jobs:
             echo '::endgroup::'
           fi
 
-      - name: Show node and npm version
+      - name: Show node and package manager version
         shell: bash
         run: |
           echo node "$(node --version)"
-          echo npm "$(npm --version)"
+          echo pnpm "$(pnpm --version)"
+          echo "pnpm-store-path=$(pnpm store path --silent)" >> "${GITHUB_ENV}"
+
+      - name: Cache pnpm
+        uses: actions/cache@v3
+        with:
+          key: node-cache-${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          path: ${{ env.pnpm-store-path }}
 
       - name: Install dependencies
-        run: npm ci || npm install
+        run: pnpm install
 
       - name: Run unit test
-        run: npm run test:unit-test
+        run: pnpm run test:unit-test
 
   # Successfully complete this job when all jobs have been completed.
   # Only by checking this job, it is possible to determine if CI is complete or not.

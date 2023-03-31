@@ -41,7 +41,7 @@ beforeAll(async () => {
     );
 
     await Promise.all([
-        execa('npm', ['run', 'build'], { cwd: PROJECT_ROOT }),
+        execa('pnpm', ['run', 'build'], { cwd: PROJECT_ROOT }),
         fs
             .rm(CLI_DIR, { recursive: true, force: true })
             .then(() => fs.mkdir(CLI_DIR, { recursive: true }))
@@ -49,7 +49,7 @@ beforeAll(async () => {
                 fs.writeFile(path.resolve(CLI_DIR, 'package.json'), '{}'),
             ),
     ]);
-    await execa('npm', ['install', '--no-save', PROJECT_ROOT], {
+    await execa('pnpm', ['add', PROJECT_ROOT], {
         cwd: CLI_DIR,
     });
 });
@@ -572,6 +572,9 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
 
     const simpleTestCases = Object.entries<Case>({
         npm: {
+            pkgJson: {
+                packageManager: corepackPackageManager.latestNpm,
+            },
             commad: {
                 version: ['npm', '--version'],
                 getPrefix: ['npm', 'config', 'get', 'tag-version-prefix'],
@@ -726,14 +729,17 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
                     semver: new semver.SemVer(packageManagerSemVer),
                 };
             })();
-            const env: NodeJS.ProcessEnv = {
-                COREPACK_HOME,
-            };
             // On Windows, the pnpm command will fail if the "APPDATA" environment variable does not exist.
             // This is caused by pnpm's dependency "@pnpm/npm-conf".
             // see https://github.com/pnpm/npm-conf/blob/ff043813516e16597de96a787c710de0b15e9aa9/lib/defaults.js#L29-L30
-            if (process.platform === 'win32' && packageManager?.type === 'pnpm')
-                env['APPDATA'] = process.env['APPDATA'];
+            const pnpmEnv: NodeJS.ProcessEnv =
+                process.platform === 'win32'
+                    ? { APPDATA: process.env['APPDATA'] }
+                    : {};
+            const env: NodeJS.ProcessEnv = {
+                ...(packageManager?.type === 'pnpm' ? pnpmEnv : {}),
+                COREPACK_HOME,
+            };
             const pnpmConfig =
                 packageManager?.type !== 'pnpm'
                     ? undefined
@@ -778,9 +784,9 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
                       };
 
             if (commad.execCli[0] !== CLI_PATH) {
-                // Always use "npm install <folder>", even if the package manager is not npm.
+                // Always use "pnpm add <folder>", even if the package manager is not pnpm.
                 // This is because the "yarn add /path/to/local/folder" command may fail on GitHub Actions.
-                await exec(['npm', 'install', '--no-save', PROJECT_ROOT]);
+                await exec(['pnpm', 'add', PROJECT_ROOT], { env: pnpmEnv });
             }
             await Promise.all([
                 fs.writeFile(

@@ -49,18 +49,16 @@
     {
       packageNames: [
         "can-npm-publish",
-        "check-peer-deps",
         "del-cli",
         "git-branch-is",
         "is-git-status-clean",
         "npm-run-all",
-        "patch-package",
       ],
       groupName: "dependencies: npm-scripts packages",
       groupSlug: "npm-scripts-packages",
     },
     {
-      matchPackageNames: ["npm"],
+      matchPackageNames: ["pnpm"],
       matchUpdateTypes: ["major"],
       enabled: false,
     },
