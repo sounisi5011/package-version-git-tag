@@ -152,7 +152,7 @@ jobs:
                   process.exitCode = exitCode;
                   return;
                 }
-                const result = await exec.getExecOutput('git diff --name-only', [latestSha1], {
+                const result = await exec.getExecOutput('gitttt diff --name-only', [latestSha1], {
                   listeners: {
                     stderr(data) {
                       process.stderr.write(data);
