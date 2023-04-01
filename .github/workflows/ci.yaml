@@ -173,62 +173,6 @@ jobs:
           LATEST_SHA1="$(echo "${ACTIONS_SUCCEEDED_SHA1}" | head --lines=1)"
           git fetch --no-tags --prune --no-recurse-submodules --depth=1 origin "${LATEST_SHA1}"
           git diff --name-only "${LATEST_SHA1}"
-      - name: "[Debug] Show actions succeeded sha1"
-        uses: actions/github-script@v6
-        env:
-          WORKFLOW_NAME: ${{ github.workflow }}
-        with:
-          # see https://stackoverflow.com/a/74868904
-          script: |
-            const query = `query($owner: String!, $repo: String!, $pullRequest: Int!) {
-              repository(owner: $owner, name: $repo) {
-                pullRequest(number: $pullRequest) {
-                  commits(last: 250) {
-                    nodes {
-                      url
-                      commit {
-                        oid
-                        authoredDate
-                        committedDate
-                        checkSuites(first: 100) {
-                          nodes {
-                            conclusion
-                            workflowRun {
-                              workflow { name }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }`;
-            const variables = {
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pullRequest: context.issue.number,
-            };
-            console.log('::group::variables\n', variables, '\n::endgroup::');
-            const result = await github.graphql(query, variables);
-            console.log('::group::result.repository.pullRequest.commits.nodes\n', JSON.stringify(result.repository.pullRequest.commits.nodes, null, 2), '\n::endgroup::');
-            const sha1List = result.repository.pullRequest.commits.nodes
-              .filter(pullRequestCommit =>
-                pullRequestCommit.commit.checkSuites.nodes.some(checkSuite =>
-                  checkSuite.workflowRun?.workflow.name === process.env.WORKFLOW_NAME
-                  && checkSuite.conclusion === 'SUCCESS'
-                )
-              )
-              .map(pullRequestCommit => ({
-                sha1: pullRequestCommit.commit.oid,
-                date: Math.max(
-                  new Date(pullRequestCommit.commit.authoredDate).getTime(),
-                  new Date(pullRequestCommit.commit.committedDate).getTime(),
-                ),
-              }))
-              .sort((a, b) => b.date - a.date)
-              .map(({ sha1 }) => sha1);
-            console.log({ sha1List });
 
   lint:
     needs: if-run-ci
