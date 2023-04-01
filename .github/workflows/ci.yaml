@@ -71,6 +71,8 @@ jobs:
           result-encoding: string
           # see https://stackoverflow.com/a/74868904
           script: |
+            const { inspect } = require('util');
+
             async function fetchActionsSucceededSha1List({ workflowName, ...variables }) {
               // Use the GraphQL API instead of the REST API.
               // This allows us to save the rate limits of the REST API.
@@ -122,34 +124,40 @@ jobs:
               );
             }
 
-            const baseSha1 = context.payload.pull_request?.base.sha;
-            console.log('::group::baseSha1\n', baseSha1, '\n::endgroup::');
-            if (!baseSha1) return '/';
-
-            // see https://docs.github.com/en/actions/learn-github-actions/variables#default-environment-variables
-            const workflowNameOrFilepath = process.env.GITHUB_WORKFLOW ?? context.workflow;
-            const variables = {
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pullRequest: context.issue.number ?? Number(/^refs\/pull\/(\d+)(?:\/|$)/.exec(context.ref)?.[1]),
-              workflowName: workflowNameOrFilepath,
-            };
-            console.log('::group::variables\n', variables, '\n::endgroup::');
-
-            const isFirstCommit = !context.payload.before;
-            const actionsSucceededSha1List = isFirstCommit || !Number.isInteger(variables.pullRequest)
-              ? null
-              : await fetchActionsSucceededSha1List(variables);
-            console.log('::group::actionsSucceededSha1List\n', actionsSucceededSha1List, '\n::endgroup::');
-
             try {
-              console.log('::group::Get file differences');
-              const latestSha1 = actionsSucceededSha1List?.[0] ?? baseSha1;
-              await exec.exec('git fetch --no-tags --prune --no-recurse-submodules --depth=1 origin', [latestSha1]);
-              const { stdout: diffResult } = await exec.getExecOutput('git diff --name-only', [latestSha1]);
-              return diffResult;
-            } finally {
-              console.log('::endgroup::');
+              const baseSha1 = context.payload.pull_request?.base.sha;
+              console.log('::group::baseSha1\n', baseSha1, '\n::endgroup::');
+              if (!baseSha1) return '/';
+
+              // see https://docs.github.com/en/actions/learn-github-actions/variables#default-environment-variables
+              const workflowNameOrFilepath = process.env.GITHUB_WORKFLOW ?? context.workflow;
+              const variables = {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pullRequest: context.issue.number ?? Number(/^refs\/pull\/(\d+)(?:\/|$)/.exec(context.ref)?.[1]),
+                workflowName: workflowNameOrFilepath,
+              };
+              console.log('::group::variables\n', variables, '\n::endgroup::');
+
+              const isFirstCommit = !context.payload.before;
+              const actionsSucceededSha1List = isFirstCommit || !Number.isInteger(variables.pullRequest)
+                ? null
+                : await fetchActionsSucceededSha1List(variables);
+              console.log('::group::actionsSucceededSha1List\n', actionsSucceededSha1List, '\n::endgroup::');
+
+              try {
+                console.log('::group::Get file differences');
+                const latestSha1 = actionsSucceededSha1List?.[0] ?? baseSha1;
+                await exec.exec('git fetch --no-tags --prune --no-recurse-submodules --depth=1 origin', [latestSha1]);
+                const { stdout: diffResult } = await exec.getExecOutput('git diff --name-only', [latestSha1]);
+                return diffResult;
+              } finally {
+                console.log('::endgroup::');
+              }
+            } catch (error) {
+              core.error(inspect(error));
+              console.log(`::group::context\n${JSON.stringify({ ...context, issue: context.issue, repo: context.repo }, null, 2)}\n::endgroup::`);
+              return '/';
             }
 
   lint:
