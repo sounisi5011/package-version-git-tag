@@ -150,29 +150,6 @@ jobs:
             await exec.exec('git fetch --no-tags --prune --no-recurse-submodules --depth=1 origin', [latestSha1]);
             const { stdout: diffResult } = await exec.getExecOutput('git diff --name-only', [latestSha1]);
             return diffResult;
-      - name: "[Debug] Show commit diff"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          workflow_path='${{ github.workflow_ref }}'
-          workflow_path="${workflow_path%@refs/*}"
-          workflow_path="${workflow_path#${{ github.repository }}/}"
-          ACTIONS_SUCCEEDED_SHA1="$(
-            gh api --method GET 'repos/${{ github.repository }}/actions/runs' --field status=success \
-            | jq -r '.workflow_runs[]
-              | select(
-                  .pull_requests[].number == ${{ github.event.pull_request.number }}
-                  and .path == "'"${workflow_path}"'"
-                )
-              | .head_sha'
-          )"
-          # shellcheck disable=SC2016
-          echo '::group::$ACTIONS_SUCCEEDED_SHA1'
-          echo "${ACTIONS_SUCCEEDED_SHA1}"
-          echo '::endgroup::'
-          LATEST_SHA1="$(echo "${ACTIONS_SUCCEEDED_SHA1}" | head --lines=1)"
-          git fetch --no-tags --prune --no-recurse-submodules --depth=1 origin "${LATEST_SHA1}"
-          git diff --name-only "${LATEST_SHA1}"
 
   lint:
     needs: if-run-ci
