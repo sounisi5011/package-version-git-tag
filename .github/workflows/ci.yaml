@@ -80,7 +80,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          SUCCESS_ACTIONS_JSON="$(gh api --method GET 'repos/${{ github.repository }}/actions/runs' --field status=success --field branch='${{ github.ref }}')"
+          SUCCESS_ACTIONS_JSON="$(gh api --method GET 'repos/${{ github.repository }}/actions/runs' --field status=success)"
           echo '::group::SUCCESS_ACTIONS_JSON'
           echo "${SUCCESS_ACTIONS_JSON}" | jq
           echo '::endgroup::'
