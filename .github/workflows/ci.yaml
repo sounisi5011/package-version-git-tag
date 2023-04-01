@@ -71,11 +71,101 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       versions-json: ${{ steps.detector.outputs.versions-json }}
+      latest-commit-diff: ${{ steps.latest-commit-diff.outputs.diff-result }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
       - id: detector
         uses: sounisi5011/npm-packages@actions/get-nodejs-versions-array-v0
+      - name: Get the diff from the latest commit where the GitHub Actions succeeded
+        id: latest-commit-diff
+        uses: actions/github-script@v6
+        env:
+          WORKFLOW_NAME: ${{ github.workflow }}
+          BEFORE_PUSH_COMMIT: ${{ github.event.before }}
+        with:
+          # see https://stackoverflow.com/a/74868904
+          script: |
+            const baseSha1 = context.payload.event.pull_request.base.sha;
+            console.log('::group::baseSha1\n', baseSha1, '\n::endgroup::');
+
+            // Use the GraphQL API instead of the REST API.
+            // This allows us to save the rate limits of the REST API.
+            // Instead, this step consumes the GraphQL API rate limit, but since few jobs use the GraphQL API, this is probably not a problem.
+            const query = `query($owner: String!, $repo: String!, $pullRequest: Int!) {
+              repository(owner: $owner, name: $repo) {
+                pullRequest(number: $pullRequest) {
+                  commits(last: 250) {
+                    nodes {
+                      url
+                      commit {
+                        oid
+                        authoredDate
+                        committedDate
+                        checkSuites(first: 100) {
+                          nodes {
+                            conclusion
+                            workflowRun {
+                              workflow { name }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }`;
+            const variables = {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pullRequest: context.issue.number,
+            };
+            console.log('::group::variables\n', variables, '\n::endgroup::');
+
+            // If BEFORE_PUSH_COMMIT is not present, the request to the API will not be sent because the commit does not exist.
+            const result = process.env.BEFORE_PUSH_COMMIT ? await github.graphql(query, variables) : null;
+            console.log(`::group::result\n${JSON.stringify(result, null, 2)}\n::endgroup::`);
+
+            const actionsSucceededSha1List = result?.repository.pullRequest.commits.nodes
+              .filter(pullRequestCommit =>
+                pullRequestCommit.commit.checkSuites.nodes.some(checkSuite =>
+                  checkSuite.workflowRun?.workflow.name === process.env.WORKFLOW_NAME
+                  && checkSuite.conclusion === 'SUCCESS'
+                )
+              )
+              .map(pullRequestCommit => ({
+                sha1: pullRequestCommit.commit.oid,
+                date: Math.max(
+                  new Date(pullRequestCommit.commit.authoredDate).getTime(),
+                  new Date(pullRequestCommit.commit.committedDate).getTime(),
+                ),
+              }))
+              .sort((a, b) => b.date - a.date)
+              .map(({ sha1 }) => sha1);
+            console.log('::group::actionsSucceededSha1List\n', actionsSucceededSha1List, '\n::endgroup::');
+
+            const latestSha1 = actionsSucceededSha1List?.[0] ?? baseSha1;
+            await exec.exec('git fetch --no-tags --prune --no-recurse-submodules --depth=1 origin', [latestSha1])
+              .then(async exitCode => {
+                if (exitCode !== 0) {
+                  process.exitCode = exitCode;
+                  return;
+                }
+                const result = await exec.getExecOutput('git diff --name-only', [latestSha1], {
+                  listeners: {
+                    stderr(data) {
+                      process.stderr.write(data);
+                    },
+                  },
+                });
+                if (result.exitCode !== 0) {
+                  process.exitCode = result.exitCode;
+                  return;
+                }
+                console.log('::group::diff result\n', result.stdout, '\n::endgroup::');
+                core.setOutput('diff-result', result.stdout);
+              });
       - name: "[Debug] Show commit diff"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
