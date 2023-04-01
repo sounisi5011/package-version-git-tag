@@ -147,7 +147,7 @@ jobs:
 
             const latestSha1 = actionsSucceededSha1List?.[0] ?? baseSha1;
             await exec.exec('git fetch --no-tags --prune --no-recurse-submodules --depth=1 origin', [latestSha1]);
-            const { stdout: diffResult } = await exec.getExecOutput('git diff --name-only', ['0' + latestSha1]);
+            const { stdout: diffResult } = await exec.getExecOutput('git diff --name-only', [latestSha1]);
             core.setOutput('diff-result', diffResult);
       - name: "[Debug] Show commit diff"
         env:
