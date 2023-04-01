@@ -283,6 +283,9 @@ jobs:
         node-version: ${{ fromJson(needs.detect-supported-node.outputs.versions-json) }}
     runs-on: ${{ matrix.os }}
     steps:
+      - run: |
+          echo 'latest-commit-diff: "${{ needs.detect-supported-node.outputs.latest-commit-diff }}"'
+
       - uses: actions/checkout@v3
 
       - name: Reconfigure git to use HTTP authentication
