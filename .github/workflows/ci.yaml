@@ -71,30 +71,26 @@ jobs:
           result-encoding: string
           # see https://stackoverflow.com/a/74868904
           script: |
-            // see https://docs.github.com/en/actions/learn-github-actions/variables#default-environment-variables
-            const workflowNameOrFilepath = process.env.GITHUB_WORKFLOW ?? context.workflow;
-            const baseSha1 = context.payload.pull_request?.base.sha;
-            console.log('::group::baseSha1\n', baseSha1, '\n::endgroup::');
-            if (!baseSha1) return '/';
-
-            // Use the GraphQL API instead of the REST API.
-            // This allows us to save the rate limits of the REST API.
-            // Instead, this step consumes the GraphQL API rate limit, but since few jobs use the GraphQL API, this is probably not a problem.
-            const query = `query($owner: String!, $repo: String!, $pullRequest: Int!) {
-              repository(owner: $owner, name: $repo) {
-                pullRequest(number: $pullRequest) {
-                  commits(last: 250) {
-                    nodes {
-                      url
-                      commit {
-                        oid
-                        authoredDate
-                        committedDate
-                        checkSuites(first: 100) {
-                          nodes {
-                            conclusion
-                            workflowRun {
-                              workflow { name }
+            async function fetchActionsSucceededSha1List(variables) {
+              // Use the GraphQL API instead of the REST API.
+              // This allows us to save the rate limits of the REST API.
+              // Instead, this step consumes the GraphQL API rate limit, but since few jobs use the GraphQL API, this is probably not a problem.
+              const query = `query($owner: String!, $repo: String!, $pullRequest: Int!) {
+                repository(owner: $owner, name: $repo) {
+                  pullRequest(number: $pullRequest) {
+                    commits(last: 250) {
+                      nodes {
+                        url
+                        commit {
+                          oid
+                          authoredDate
+                          committedDate
+                          checkSuites(first: 100) {
+                            nodes {
+                              conclusion
+                              workflowRun {
+                                workflow { name }
+                              }
                             }
                           }
                         }
@@ -102,8 +98,36 @@ jobs:
                     }
                   }
                 }
-              }
-            }`;
+              }`;
+              const result = await github.graphql(query, variables);
+              console.log(`::group::fetch result\n${JSON.stringify(result, null, 2)}\n::endgroup::`);
+
+              return (
+                result.repository.pullRequest.commits.nodes
+                  .filter(pullRequestCommit =>
+                    pullRequestCommit.commit.checkSuites.nodes.some(checkSuite =>
+                      checkSuite.workflowRun?.workflow.name === workflowNameOrFilepath
+                      && checkSuite.conclusion === 'SUCCESS'
+                    )
+                  )
+                  .map(pullRequestCommit => ({
+                    sha1: pullRequestCommit.commit.oid,
+                    date: Math.max(
+                      new Date(pullRequestCommit.commit.authoredDate).getTime(),
+                      new Date(pullRequestCommit.commit.committedDate).getTime(),
+                    ),
+                  }))
+                  .sort((a, b) => b.date - a.date)
+                  .map(({ sha1 }) => sha1)
+              );
+            }
+
+            // see https://docs.github.com/en/actions/learn-github-actions/variables#default-environment-variables
+            const workflowNameOrFilepath = process.env.GITHUB_WORKFLOW ?? context.workflow;
+            const baseSha1 = context.payload.pull_request?.base.sha;
+            console.log('::group::baseSha1\n', baseSha1, '\n::endgroup::');
+            if (!baseSha1) return '/';
+
             const variables = {
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -112,27 +136,9 @@ jobs:
             console.log('::group::variables\n', variables, '\n::endgroup::');
 
             const isFirstCommit = !context.payload.before;
-            const result = isFirstCommit || !Number.isInteger(variables.pullRequest)
+            const actionsSucceededSha1List = isFirstCommit || !Number.isInteger(variables.pullRequest)
               ? null
-              : await github.graphql(query, variables);
-            console.log(`::group::result\n${JSON.stringify(result, null, 2)}\n::endgroup::`);
-
-            const actionsSucceededSha1List = result?.repository.pullRequest.commits.nodes
-              .filter(pullRequestCommit =>
-                pullRequestCommit.commit.checkSuites.nodes.some(checkSuite =>
-                  checkSuite.workflowRun?.workflow.name === workflowNameOrFilepath
-                  && checkSuite.conclusion === 'SUCCESS'
-                )
-              )
-              .map(pullRequestCommit => ({
-                sha1: pullRequestCommit.commit.oid,
-                date: Math.max(
-                  new Date(pullRequestCommit.commit.authoredDate).getTime(),
-                  new Date(pullRequestCommit.commit.committedDate).getTime(),
-                ),
-              }))
-              .sort((a, b) => b.date - a.date)
-              .map(({ sha1 }) => sha1);
+              : await fetchActionsSucceededSha1List(query, variables);
             console.log('::group::actionsSucceededSha1List\n', actionsSucceededSha1List, '\n::endgroup::');
 
             try {
