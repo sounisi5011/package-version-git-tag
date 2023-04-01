@@ -80,13 +80,12 @@ jobs:
       - name: Get the diff from the latest commit where the GitHub Actions succeeded
         id: latest-commit-diff
         uses: actions/github-script@v6
-        env:
-          WORKFLOW_NAME: ${{ github.workflow }}
-          BEFORE_PUSH_COMMIT: ${{ github.event.before }}
         with:
           result-encoding: string
           # see https://stackoverflow.com/a/74868904
           script: |
+            // see https://docs.github.com/en/actions/learn-github-actions/variables#default-environment-variables
+            const workflowNameOrFilepath = process.env.GITHUB_WORKFLOW ?? context.workflow;
             console.log(`::group::context\n${JSON.stringify(context, null, 2)}\n::endgroup::`);
             const baseSha1 = context.payload.pull_request.base.sha;
             console.log('::group::baseSha1\n', baseSha1, '\n::endgroup::');
@@ -125,14 +124,14 @@ jobs:
             };
             console.log('::group::variables\n', variables, '\n::endgroup::');
 
-            // If BEFORE_PUSH_COMMIT is not present, the request to the API will not be sent because the commit does not exist.
-            const result = process.env.BEFORE_PUSH_COMMIT ? await github.graphql(query, variables) : null;
+            const isFirstCommit = !context.payload.before;
+            const result = isFirstCommit ? null : await github.graphql(query, variables);
             console.log(`::group::result\n${JSON.stringify(result, null, 2)}\n::endgroup::`);
 
             const actionsSucceededSha1List = result?.repository.pullRequest.commits.nodes
               .filter(pullRequestCommit =>
                 pullRequestCommit.commit.checkSuites.nodes.some(checkSuite =>
-                  checkSuite.workflowRun?.workflow.name === process.env.WORKFLOW_NAME
+                  checkSuite.workflowRun?.workflow.name === workflowNameOrFilepath
                   && checkSuite.conclusion === 'SUCCESS'
                 )
               )
