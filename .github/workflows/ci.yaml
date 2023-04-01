@@ -197,9 +197,6 @@ jobs:
         node-version: ${{ fromJson(needs.detect-supported-node.outputs.versions-json) }}
     runs-on: ${{ matrix.os }}
     steps:
-      - run: |
-          echo 'latest-commit-diff: "${{ needs.detect-supported-node.outputs.latest-commit-diff }}"'
-
       - name: Determine whether to skip the test
         shell: python
         env:
