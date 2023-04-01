@@ -52,6 +52,13 @@ jobs:
           elif [ "${core_remaining}" -lt 10 ]; then
             echo "::warning::The rate limit is approaching: core.remaining=${core_remaining}"
           fi
+      - run: |
+          echo '::group::github.event.before'
+          echo '${{ toJSON(github.event.before) }}'
+          echo '::endgroup::'
+          echo '::group::github.event'
+          echo '${{ toJSON(github.event) }}'
+          echo '::endgroup::'
 
   detect-supported-node:
     needs: if-run-ci
