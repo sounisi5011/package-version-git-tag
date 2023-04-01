@@ -120,12 +120,14 @@ jobs:
             const variables = {
               owner: context.repo.owner,
               repo: context.repo.repo,
-              pullRequest: context.issue.number,
+              pullRequest: context.issue.number ?? Number(/^refs\/pull\/(\d+)(?:\/|$)/.exec(context.ref)?.[1]),
             };
             console.log('::group::variables\n', variables, '\n::endgroup::');
 
             const isFirstCommit = !context.payload.before;
-            const result = isFirstCommit ? null : await github.graphql(query, variables);
+            const result = isFirstCommit || !Number.isInteger(variables.pullRequest)
+              ? null
+              : await github.graphql(query, variables);
             console.log(`::group::result\n${JSON.stringify(result, null, 2)}\n::endgroup::`);
 
             const actionsSucceededSha1List = result?.repository.pullRequest.commits.nodes
