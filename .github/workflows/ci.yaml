@@ -200,9 +200,46 @@ jobs:
       - run: |
           echo 'latest-commit-diff: "${{ needs.detect-supported-node.outputs.latest-commit-diff }}"'
 
+      - name: Determine whether to skip the test
+        shell: python
+        env:
+          LATEST_COMMIT_DIFF: ${{ needs.detect-supported-node.outputs.latest-commit-diff }}
+          IGNORE_FILES: |
+            .github/workflows/check-if-changelog-is-updated.yaml
+            .github/workflows/pr-auto-approve.yaml
+            .github/workflows/update-license-year.yaml
+            .template/readme.njk
+            .vscode/settings.json
+            .codeclimate.yml
+            .renovaterc.json5
+            CHANGELOG.md
+            CONTRIBUTING.md
+            lefthook.yml
+            LICENSE
+            README.md
+        run: |
+          import os
+          import random
+          def str_to_set(lines: str):
+            return set(lines.strip('\n').split('\n'))
+          def export_var(name: str, value: str):
+            with open(os.environ.get('GITHUB_ENV'), 'a') as f:
+              # see https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#multiline-strings
+              delimiter = ""
+              while (delimiter in name) or (delimiter in value):
+                delimiter = f"ghadelimiter_{hex(random.getrandbits(255))}"
+              f.write(f"{name}<<{delimiter}\n{value}\n{delimiter}\n")
+
+          diff_files = os.environ.get('LATEST_COMMIT_DIFF')
+          ignore_files = os.environ.get('IGNORE_FILES')
+          if 0 < len(str_to_set(diff_files) - str_to_set(ignore_files) - {''}):
+            export_var('run-test', '1')
+
       - uses: actions/checkout@v3
+        if: ${{ env.run-test }}
 
       - name: Reconfigure git to use HTTP authentication
+        if: ${{ env.run-test }}
         # see https://stackoverflow.com/a/69634516
         # see https://github.com/actions/setup-node/issues/214#issuecomment-810829250
         shell: bash
@@ -212,11 +249,13 @@ jobs:
             'ssh://git@github.com/'
 
       - name: Install Node.js
+        if: ${{ env.run-test }}
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
 
       - name: Enable Corepack (Automatically setup a package manager for Node.js)
+        if: ${{ env.run-test }}
         shell: bash
         run: |
           # Corepack v0.14 is the earliest version that can use the environment variable COREPACK_ENABLE_STRICT.
@@ -400,6 +439,7 @@ jobs:
           fi
 
       - name: Show node and package manager version
+        if: ${{ env.run-test }}
         shell: bash
         run: |
           echo node "$(node --version)"
@@ -407,15 +447,18 @@ jobs:
           echo "pnpm-store-path=$(pnpm store path --silent)" >> "${GITHUB_ENV}"
 
       - name: Cache pnpm
+        if: ${{ env.run-test }}
         uses: actions/cache@v3
         with:
           key: node-cache-${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
           path: ${{ env.pnpm-store-path }}
 
       - name: Install dependencies
+        if: ${{ env.run-test }}
         run: pnpm install
 
       - name: Run unit test
+        if: ${{ env.run-test }}
         run: pnpm run test:unit-test
 
   # Successfully complete this job when all jobs have been completed.
