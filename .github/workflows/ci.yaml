@@ -86,7 +86,7 @@ jobs:
         with:
           # see https://stackoverflow.com/a/74868904
           script: |
-            const baseSha1 = context.payload.event.pull_request.base.sha;
+            const baseSha1 = context.payload.pull_request.base.sha;
             console.log('::group::baseSha1\n', baseSha1, '\n::endgroup::');
 
             // Use the GraphQL API instead of the REST API.
