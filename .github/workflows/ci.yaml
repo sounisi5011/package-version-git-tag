@@ -77,7 +77,9 @@ jobs:
       - id: detector
         uses: sounisi5011/npm-packages@actions/get-nodejs-versions-array-v0
       - name: "[Debug] Show commit diff"
-        run: git diff --name-only ${{ github.event.pull_request.base.sha }}
+        run: |
+          git fetch --no-tags --prune --no-recurse-submodules --depth=1 origin ${{ github.event.pull_request.base.sha }}
+          git diff --name-only ${{ github.event.pull_request.base.sha }}
 
   lint:
     needs: if-run-ci
