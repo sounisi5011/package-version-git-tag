@@ -179,6 +179,7 @@ Because it is the minimum version available for Vitest.
 * [#219] - Fix Corepack updating process
 * [#222] - Strictly check if the package manager has been disabled by Corepack
 * [#216] - Migrate from npm to pnpm
+* [#225] - Run CI only if differences exist
 
 [#182]: https://github.com/sounisi5011/package-version-git-tag/pull/182
 [#183]: https://github.com/sounisi5011/package-version-git-tag/pull/183
@@ -210,6 +211,7 @@ Because it is the minimum version available for Vitest.
 [#221]: https://github.com/sounisi5011/package-version-git-tag/pull/221
 [#216]: https://github.com/sounisi5011/package-version-git-tag/pull/216
 [#224]: https://github.com/sounisi5011/package-version-git-tag/pull/224
+[#225]: https://github.com/sounisi5011/package-version-git-tag/pull/225
 
 ## [3.0.0] (2020-06-02 UTC)
 
