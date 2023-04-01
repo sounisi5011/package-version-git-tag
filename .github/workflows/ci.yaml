@@ -137,11 +137,11 @@ jobs:
             };
             console.log('::group::variables\n', variables, '\n::endgroup::');
             const result = await github.graphql(query, variables);
-            console.log('::group::result.repository.pullRequest.commits.nodes\n', result.repository.pullRequest.commits.nodes, '\n::endgroup::');
+            console.log('::group::result.repository.pullRequest.commits.nodes\n', JSON.stringify(result.repository.pullRequest.commits.nodes, null, 2), '\n::endgroup::');
             const sha1List = result.repository.pullRequest.commits.nodes
               .filter(pullRequestCommit =>
                 pullRequestCommit.commit.checkSuites.nodes.some(checkSuite =>
-                  checkSuite.workflowRun.workflow.name === process.env.WORKFLOW_NAME
+                  checkSuite.workflowRun?.workflow.name === process.env.WORKFLOW_NAME
                   && checkSuite.conclusion === 'SUCCESS'
                 )
               )
