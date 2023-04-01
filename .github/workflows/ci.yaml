@@ -71,7 +71,7 @@ jobs:
           result-encoding: string
           # see https://stackoverflow.com/a/74868904
           script: |
-            async function fetchActionsSucceededSha1List(variables) {
+            async function fetchActionsSucceededSha1List({ workflowName, ...variables }) {
               // Use the GraphQL API instead of the REST API.
               // This allows us to save the rate limits of the REST API.
               // Instead, this step consumes the GraphQL API rate limit, but since few jobs use the GraphQL API, this is probably not a problem.
@@ -106,7 +106,7 @@ jobs:
                 result.repository.pullRequest.commits.nodes
                   .filter(pullRequestCommit =>
                     pullRequestCommit.commit.checkSuites.nodes.some(checkSuite =>
-                      checkSuite.workflowRun?.workflow.name === workflowNameOrFilepath
+                      checkSuite.workflowRun?.workflow.name === workflowName
                       && checkSuite.conclusion === 'SUCCESS'
                     )
                   )
@@ -122,23 +122,24 @@ jobs:
               );
             }
 
-            // see https://docs.github.com/en/actions/learn-github-actions/variables#default-environment-variables
-            const workflowNameOrFilepath = process.env.GITHUB_WORKFLOW ?? context.workflow;
             const baseSha1 = context.payload.pull_request?.base.sha;
             console.log('::group::baseSha1\n', baseSha1, '\n::endgroup::');
             if (!baseSha1) return '/';
 
+            // see https://docs.github.com/en/actions/learn-github-actions/variables#default-environment-variables
+            const workflowNameOrFilepath = process.env.GITHUB_WORKFLOW ?? context.workflow;
             const variables = {
               owner: context.repo.owner,
               repo: context.repo.repo,
               pullRequest: context.issue.number ?? Number(/^refs\/pull\/(\d+)(?:\/|$)/.exec(context.ref)?.[1]),
+              workflowName: workflowNameOrFilepath,
             };
             console.log('::group::variables\n', variables, '\n::endgroup::');
 
             const isFirstCommit = !context.payload.before;
             const actionsSucceededSha1List = isFirstCommit || !Number.isInteger(variables.pullRequest)
               ? null
-              : await fetchActionsSucceededSha1List(query, variables);
+              : await fetchActionsSucceededSha1List(variables);
             console.log('::group::actionsSucceededSha1List\n', actionsSucceededSha1List, '\n::endgroup::');
 
             try {
