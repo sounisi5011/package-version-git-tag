@@ -86,10 +86,10 @@ jobs:
           echo '::endgroup::'
           echo '::group::This actions'
           workflow_path='${{ github.workflow_ref }}'
-          workflow_path="${workflow_path%@refs/heads/*}"
+          workflow_path="${workflow_path%@refs/*}"
           workflow_path="${workflow_path#${{ github.repository }}/}"
           echo "workflow_path: '${workflow_path}'"
-          echo "${SUCCESS_ACTIONS_JSON}" | jq ".workflow_runs[] | select(.path == '${workflow_path}')"
+          echo "${SUCCESS_ACTIONS_JSON}" | jq '.workflow_runs[] | select(.name == "${{ github.workflow }}" or .path == "'"${workflow_path}"'")'
           echo '::endgroup::'
           git fetch --no-tags --prune --no-recurse-submodules --depth=1 origin ${{ github.event.pull_request.base.sha }}
           git diff --name-only ${{ github.event.pull_request.base.sha }}
