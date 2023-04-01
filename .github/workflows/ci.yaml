@@ -134,10 +134,15 @@ jobs:
               .map(({ sha1 }) => sha1);
             console.log('::group::actionsSucceededSha1List\n', actionsSucceededSha1List, '\n::endgroup::');
 
-            const latestSha1 = actionsSucceededSha1List?.[0] ?? baseSha1;
-            await exec.exec('git fetch --no-tags --prune --no-recurse-submodules --depth=1 origin', [latestSha1]);
-            const { stdout: diffResult } = await exec.getExecOutput('git diff --name-only', [latestSha1]);
-            return diffResult;
+            try {
+              console.log('::group::Get file differences');
+              const latestSha1 = actionsSucceededSha1List?.[0] ?? baseSha1;
+              await exec.exec('git fetch --no-tags --prune --no-recurse-submodules --depth=1 origin', [latestSha1]);
+              const { stdout: diffResult } = await exec.getExecOutput('git diff --name-only', [latestSha1]);
+              return diffResult;
+            } finally {
+              console.log('::endgroup::');
+            }
 
   lint:
     needs: if-run-ci
