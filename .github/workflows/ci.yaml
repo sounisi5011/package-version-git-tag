@@ -73,8 +73,9 @@ jobs:
           script: |
             // see https://docs.github.com/en/actions/learn-github-actions/variables#default-environment-variables
             const workflowNameOrFilepath = process.env.GITHUB_WORKFLOW ?? context.workflow;
-            const baseSha1 = context.payload.pull_request.base.sha;
+            const baseSha1 = context.payload.pull_request?.base.sha;
             console.log('::group::baseSha1\n', baseSha1, '\n::endgroup::');
+            if (!baseSha1) return '/';
 
             // Use the GraphQL API instead of the REST API.
             // This allows us to save the rate limits of the REST API.
@@ -227,9 +228,9 @@ jobs:
                 delimiter = f"ghadelimiter_{hex(random.getrandbits(255))}"
               f.write(f"{name}<<{delimiter}\n{value}\n{delimiter}\n")
 
-          diff_files = os.environ.get('LATEST_COMMIT_DIFF')
-          ignore_files = os.environ.get('IGNORE_FILES')
-          if 0 < len(str_to_set(diff_files) - str_to_set(ignore_files) - {''}):
+          diff_files = str_to_set(os.environ.get('LATEST_COMMIT_DIFF'))
+          ignore_files = str_to_set(os.environ.get('IGNORE_FILES'))
+          if ('/' in diff_files) or (0 < len(diff_files - ignore_files - {''})):
             export_var('run-test', '1')
 
       - uses: actions/checkout@v3
