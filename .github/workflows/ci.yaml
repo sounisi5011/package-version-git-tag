@@ -77,7 +77,13 @@ jobs:
       - id: detector
         uses: sounisi5011/npm-packages@actions/get-nodejs-versions-array-v0
       - name: "[Debug] Show commit diff"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          SUCCESS_ACTIONS_JSON="$(gh api --method GET 'repos/${{ github.repository }}/actions/runs' --field status=success --field branch='${{ github.ref }}')"
+          echo '::group::SUCCESS_ACTIONS_JSON'
+          echo "${SUCCESS_ACTIONS_JSON}" | jq
+          echo '::endgroup::'
           git fetch --no-tags --prune --no-recurse-submodules --depth=1 origin ${{ github.event.pull_request.base.sha }}
           git diff --name-only ${{ github.event.pull_request.base.sha }}
 
