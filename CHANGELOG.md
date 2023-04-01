@@ -95,6 +95,11 @@ Because it is the minimum version available for Vitest.
 * `typescript`
     * [#185] - `3.9.3` -> `4.9.5`
 
+#### Others
+
+* `pnpm`
+    * [#224] - `7.30.0` -> `7.30.5`
+
 ### Added Dependencies
 
 #### dependencies
@@ -204,6 +209,7 @@ Because it is the minimum version available for Vitest.
 [#222]: https://github.com/sounisi5011/package-version-git-tag/pull/222
 [#221]: https://github.com/sounisi5011/package-version-git-tag/pull/221
 [#216]: https://github.com/sounisi5011/package-version-git-tag/pull/216
+[#224]: https://github.com/sounisi5011/package-version-git-tag/pull/224
 
 ## [3.0.0] (2020-06-02 UTC)
 
