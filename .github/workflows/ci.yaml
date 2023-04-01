@@ -73,7 +73,6 @@ jobs:
           script: |
             // see https://docs.github.com/en/actions/learn-github-actions/variables#default-environment-variables
             const workflowNameOrFilepath = process.env.GITHUB_WORKFLOW ?? context.workflow;
-            console.log(`::group::context\n${JSON.stringify(context, null, 2)}\n::endgroup::`);
             const baseSha1 = context.payload.pull_request.base.sha;
             console.log('::group::baseSha1\n', baseSha1, '\n::endgroup::');
 
