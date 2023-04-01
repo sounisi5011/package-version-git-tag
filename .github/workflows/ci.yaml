@@ -81,15 +81,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           SUCCESS_ACTIONS_JSON="$(gh api --method GET 'repos/${{ github.repository }}/actions/runs' --field status=success)"
-          echo '::group::SUCCESS_ACTIONS_JSON'
-          echo "${SUCCESS_ACTIONS_JSON}" | jq
-          echo '::endgroup::'
-          echo '::group::This actions'
+          echo '::group::This actions sha1'
           workflow_path='${{ github.workflow_ref }}'
           workflow_path="${workflow_path%@refs/*}"
           workflow_path="${workflow_path#${{ github.repository }}/}"
-          echo "workflow_path: '${workflow_path}'"
-          echo "${SUCCESS_ACTIONS_JSON}" | jq '.workflow_runs[] | select(.pull_requests[].number == ${{ github.event.pull_request.number }} and .path == "'"${workflow_path}"'")'
+          echo "${SUCCESS_ACTIONS_JSON}" | jq '.workflow_runs[] | select(.pull_requests[].number == ${{ github.event.pull_request.number }} and .path == "'"${workflow_path}"'") | .head_sha'
           echo '::endgroup::'
           git fetch --no-tags --prune --no-recurse-submodules --depth=1 origin ${{ github.event.pull_request.base.sha }}
           git diff --name-only ${{ github.event.pull_request.base.sha }}
