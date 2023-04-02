@@ -29,31 +29,15 @@
     "dist/"
   ],
   "scripts": {
-    "build": "tsc",
-    "build:readme": "readme-generator --template ./.template/readme.njk",
-    "clean": "del-cli ./dist/ ./test/.temp/",
-    "fmt-js": "eslint --ext .js,.cjs,.mjs --fix ./",
-    "fmt-pkg": "run-s fmt-pkg:prettier fmt-pkg:sort",
-    "fmt-pkg:prettier": "prettier-package-json --write ./package.json",
-    "fmt-pkg:sort": "sort-package-json ./package.json",
-    "fmt-ts": "eslint --ext .ts --fix ./",
-    "lint": "run-p lint:*",
-    "lint:eslint": "eslint ./",
-    "lint:tsc-src": "tsc --noEmit",
-    "lint:tsc-test": "tsc -p ./test/ --noEmit",
-    "release": "run-s release:validation release:build release:publish",
-    "release:build": "run-s clean build",
-    "release:publish": "run-s release:publish:git release:publish:npm",
-    "release:publish:git": "node ./dist/bin.js --push --verbose",
-    "release:publish:npm": "pnpm publish --access=public",
-    "release:validation": "npm-run-all release:validation:publishable -p 'release:validation:!(publishable)' test",
-    "release:validation:git-branch": "git-branch-is master",
-    "release:validation:git-work-dir": "is-git-status-clean",
-    "release:validation:publishable": "can-npm-publish --verbose",
-    "test": "run-s test:other-than-unit-test test:unit-test",
-    "test:other-than-unit-test": "run-s test:readme lint",
-    "test:readme": "run-s 'build:readme -- --test'",
-    "test:unit-test": "vitest"
+    "build": "task build",
+    "clean": "task clean",
+    "fmt-js": "task fmt-js",
+    "fmt-pkg": "task fmt-pkg",
+    "fmt-ts": "task fmt-ts",
+    "lint": "task lint",
+    "release": "task release",
+    "test": "task test-all",
+    "test-only": "task test-only"
   },
   "dependencies": {
     "command-join": "^3.0.0",
@@ -63,6 +47,7 @@
     "which-pm-runs": "^1.1.0"
   },
   "devDependencies": {
+    "@go-task/cli": "3.23.0",
     "@sindresorhus/slugify": "2.2.0",
     "@sounisi5011/readme-generator": "github:sounisi5011/readme-generator#semver:0.0.2",
     "@tsconfig/node14": "1.0.3",

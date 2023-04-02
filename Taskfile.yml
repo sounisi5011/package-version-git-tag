@@ -1,0 +1,98 @@
+# https://taskfile.dev
+
+version: "3"
+
+vars:
+  GREETING: Hello, World!
+
+tasks:
+  build:
+    cmds:
+      - tsc
+  build-readme:
+    cmds:
+      - readme-generator --template ./.template/readme.njk {{.CLI_ARGS}}
+
+  clean:
+    cmds:
+      - del-cli ./dist/ ./test/.temp/
+
+  fmt-pkg:
+    cmds:
+      - prettier-package-json --write ./package.json
+      - sort-package-json ./package.json
+  fmt-js:
+    cmds:
+      - eslint --ext .js,.cjs,.mjs --fix ./
+  fmt-ts:
+    cmds:
+      - eslint --ext .ts --fix ./
+
+  lint:
+    deps: [eslint, tsc-src, tsc-test]
+  eslint:
+    cmds:
+      - eslint ./
+  tsc-src:
+    cmds:
+      - tsc --noEmit
+  tsc-test:
+    cmds:
+      - tsc -p ./test/ --noEmit
+
+  test-all:
+    cmds:
+      - task: test-other
+      - task: test-only
+        vars:
+          DISABLE_WATCH_MODE: "{{.DISABLE_WATCH_MODE}}"
+  test-only:
+    cmds:
+      - "{{if .DISABLE_WATCH_MODE}}vitest run{{else}}vitest{{end}}"
+    interactive: true
+  test-other:
+    cmds:
+      - task: test-readme
+      - task: lint
+  test-readme:
+    cmds:
+      - task: build-readme
+        vars:
+          CLI_ARGS: --test
+
+  release:
+    cmds:
+      - task: release-validation
+      - task: clean
+      - task: build
+      - node ./dist/bin.js --push --verbose
+      - pnpm publish --access=public
+  release-validation:
+    deps:
+      - _release-validation-git-branch
+      - _release-validation-git-work-dir
+      - _release-validation-test
+  _release-validation-publishable:
+    internal: true
+    run: once
+    cmds:
+      - can-npm-publish --verbose
+    env:
+      COREPACK_ENABLE_STRICT: 0
+  _release-validation-git-branch:
+    internal: true
+    cmds:
+      - task: _release-validation-publishable
+      - git-branch-is master
+  _release-validation-git-work-dir:
+    internal: true
+    cmds:
+      - task: _release-validation-publishable
+      - is-git-status-clean
+  _release-validation-test:
+    internal: true
+    cmds:
+      - task: _release-validation-publishable
+      - task: test-all
+        vars:
+          DISABLE_WATCH_MODE: true

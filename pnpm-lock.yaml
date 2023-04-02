@@ -6,6 +6,7 @@ patchedDependencies:
     path: patches/is-promise@4.0.0.patch
 
 specifiers:
+  '@go-task/cli': 3.23.0
   '@sindresorhus/slugify': 2.2.0
   '@sounisi5011/readme-generator': github:sounisi5011/readme-generator#semver:0.0.2
   '@tsconfig/node14': 1.0.3
@@ -58,6 +59,7 @@ dependencies:
   which-pm-runs: 1.1.0
 
 devDependencies:
+  '@go-task/cli': 3.23.0
   '@sindresorhus/slugify': 2.2.0
   '@sounisi5011/readme-generator': github.com/sounisi5011/readme-generator/536eacc3d4762f6de171aecbf3f06efbeb87fd3a
   '@tsconfig/node14': 1.0.3
@@ -360,6 +362,18 @@ packages:
   /@eslint/js/8.36.0:
     resolution: {integrity: sha512-lxJ9R5ygVm8ZWgYdUweoq5ownDlJ4upvoWmO4eLxBYHdMo+vZ/Rx0EN6MbKWDJOSUGrqJy2Gt+Dyv/VKml0fjg==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+    dev: true
+
+  /@go-task/cli/3.23.0:
+    resolution: {integrity: sha512-KnszqWu2KLKjluT/Run/UeQFC38yplNa/3JkdYpVMwtixYAiwO3kDa7cDt9skNlNaa+PuOXvNlaK3zBYx7thoA==}
+    requiresBuild: true
+    dependencies:
+      '@go-task/go-npm': 0.1.17
+    dev: true
+
+  /@go-task/go-npm/0.1.17:
+    resolution: {integrity: sha512-j+xydQWrAxsqLYjweok1fWzDmBAA1g/gmFbPyG8kRI/d/+rzXGGLlro8zdS6mJ3Is+8BrIy2ZBmQkoONhowh7A==}
+    hasBin: true
     dev: true
 
   /@humanwhocodes/config-array/0.11.8:

@@ -202,7 +202,7 @@ jobs:
         run: pnpm install
 
       - name: Run linter
-        run: pnpm run test:other-than-unit-test
+        run: pnpm exec task test-other
 
   unit-test:
     needs: detect-supported-node
@@ -472,7 +472,7 @@ jobs:
 
       - name: Run unit test
         if: ${{ env.run-test }}
-        run: pnpm run test:unit-test
+        run: pnpm exec task test-only
 
   # Successfully complete this job when all jobs have been completed.
   # Only by checking this job, it is possible to determine if CI is complete or not.
