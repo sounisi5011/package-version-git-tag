@@ -10,7 +10,7 @@ pre-commit:
       # If "{REPO_ROOT}/README.md" is staged, test it
       # Note: README.md files in subdirectories are not included
       files: git diff --name-only --cached | grep -Fx README.md || true
-      run: pnpm run test:readme
+      run: pnpm exec task test-readme
     1_format:
       # Call the "lefthook run ..." command within lefthook to perform parallel execution in the middle of a serial execution
       # see https://github.com/evilmartians/lefthook/issues/66#issuecomment-1313279972
@@ -22,7 +22,7 @@ pre-commit:
       # Note: README.md files in subdirectories are included
       files: git diff --name-only --cached | grep -Fvx README.md || true
       run: >-
-        pnpm run build:readme
+        pnpm exec task build-readme
         && git add ./README.md
     3_git-add:
       run: git add {staged_files}

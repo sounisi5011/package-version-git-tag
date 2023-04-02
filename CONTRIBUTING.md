@@ -55,3 +55,53 @@ Inspired of [Atom Contributing] and [Gitmoji].
 * `📄` - adding or updating license
 * `🚚` - moving or renaming files
 * `⏪` - reverting changes
+
+### Running linting/tests
+
+#### All Test
+
+```console
+$ pnpm run test
+```
+
+#### Only Main Test
+
+```console
+$ pnpm run test --test-only
+```
+
+#### Lint & README Test
+
+```console
+$ pnpm run test --pre-test-only
+```
+
+#### Lint
+
+```console
+$ pnpm run lint
+```
+
+#### Format
+
+```console
+$ pnpm run fmt
+```
+
+##### Format only `package.json`
+
+```console
+$ pnpm run fmt pkg
+```
+
+##### Format only `*.ts`
+
+```console
+$ pnpm run fmt ts
+```
+
+##### Format only `*.js` and `*.ts`
+
+```console
+$ pnpm run fmt ts js
+```
