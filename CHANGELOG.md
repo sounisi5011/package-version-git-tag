@@ -182,6 +182,7 @@ Because it is the minimum version available for Vitest.
 * [#225] - Run CI only if differences exist
 * [#226] - Ensure that scripts in the "Get the diff from the latest commit where the GitHub Actions succeeded" step finish successfully even if the `context.payload.pull_request` is undefined
 * [#227] - Migrate from CommonJS to ESM
+* [#228] - Reduce package size
 
 [#182]: https://github.com/sounisi5011/package-version-git-tag/pull/182
 [#183]: https://github.com/sounisi5011/package-version-git-tag/pull/183
