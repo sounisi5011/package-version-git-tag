@@ -7,6 +7,7 @@
 * Drop support for Node.js 10 and 12
 * Support [pnpm](https://pnpm.io/)
 * Support for direct CLI execution
+* Migrate from CommonJS to ESM
 * Migrate from [`cac`](https://www.npmjs.com/package/cac/v/6.6.1) to [`mri`](https://www.npmjs.com/package/mri/v/1.2.0)
 * Fix edge cases in CLI argument parsing process
 * Update dev dependencies
@@ -49,8 +50,6 @@ Because it is the minimum version available for Vitest.
 
 #### devDependencies
 
-* `@sindresorhus/slugify`
-    * [#227] - `1.1.2` -> `2.2.0`
 * `@types/node`
     * [#186] - `12.x` -> `14.x`
     * [#195] - `14.x` -> `14.18.37`
@@ -80,8 +79,6 @@ Because it is the minimum version available for Vitest.
     * [#185] - `4.2.1` -> `6.1.1`
 * `eslint-plugin-simple-import-sort`
     * [#185] - `5.0.3` -> `10.0.0`
-* `execa`
-    * [#227] - `5.1.1` -> `7.1.1`
 * `git-branch-is`
     * [#185] - `3.1.0` -> `4.0.0`
 * `node-git-server`
@@ -114,16 +111,14 @@ Because it is the minimum version available for Vitest.
 
 #### devDependencies
 
-* [#214] - `@sindresorhus/slugify@1.1.2`
+* [#214], [#227] - `@sindresorhus/slugify@2.2.0`
 * [#186] - `@tsconfig/node14@1.0.3`
 * [#221] - `@types/mock-fs@4.13.1`
 * [#217] - `@types/semver@7.3.13`
 * [#217] - `@types/which-pm-runs@1.0.0`
 * [#185] - `eslint-plugin-n@15.6.1`
 * [#200] - `eslint-plugin-vitest@0.0.54`
-* [#185] - `execa@5.1.1`
-
-    We will not use v6 or later because the ESM cannot yet be used for unit testing in this project.
+* [#185], [#227] - `execa@7.1.1`
 * [#221] - `is-promise@4.0.0`
 * [#185] - `lefthook@1.3.3`
 * [#221] - `mock-fs@5.2.0`
@@ -185,6 +180,7 @@ Because it is the minimum version available for Vitest.
 * [#216] - Migrate from npm to pnpm
 * [#225] - Run CI only if differences exist
 * [#226] - Ensure that scripts in the "Get the diff from the latest commit where the GitHub Actions succeeded" step finish successfully even if the `context.payload.pull_request` is undefined
+* [#227] - Migrate from CommonJS to ESM
 
 [#182]: https://github.com/sounisi5011/package-version-git-tag/pull/182
 [#183]: https://github.com/sounisi5011/package-version-git-tag/pull/183
