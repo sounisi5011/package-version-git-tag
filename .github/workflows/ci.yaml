@@ -71,29 +71,28 @@ jobs:
           result-encoding: string
           # see https://stackoverflow.com/a/74868904
           script: |
-            // see https://docs.github.com/en/actions/learn-github-actions/variables#default-environment-variables
-            const workflowNameOrFilepath = process.env.GITHUB_WORKFLOW ?? context.workflow;
-            const baseSha1 = context.payload.pull_request.base.sha;
-            console.log('::group::baseSha1\n', baseSha1, '\n::endgroup::');
+            const { inspect } = require('util');
 
-            // Use the GraphQL API instead of the REST API.
-            // This allows us to save the rate limits of the REST API.
-            // Instead, this step consumes the GraphQL API rate limit, but since few jobs use the GraphQL API, this is probably not a problem.
-            const query = `query($owner: String!, $repo: String!, $pullRequest: Int!) {
-              repository(owner: $owner, name: $repo) {
-                pullRequest(number: $pullRequest) {
-                  commits(last: 250) {
-                    nodes {
-                      url
-                      commit {
-                        oid
-                        authoredDate
-                        committedDate
-                        checkSuites(first: 100) {
-                          nodes {
-                            conclusion
-                            workflowRun {
-                              workflow { name }
+            async function fetchActionsSucceededSha1List({ workflowName, ...variables }) {
+              // Use the GraphQL API instead of the REST API.
+              // This allows us to save the rate limits of the REST API.
+              // Instead, this step consumes the GraphQL API rate limit, but since few jobs use the GraphQL API, this is probably not a problem.
+              const query = `query($owner: String!, $repo: String!, $pullRequest: Int!) {
+                repository(owner: $owner, name: $repo) {
+                  pullRequest(number: $pullRequest) {
+                    commits(last: 250) {
+                      nodes {
+                        url
+                        commit {
+                          oid
+                          authoredDate
+                          committedDate
+                          checkSuites(first: 100) {
+                            nodes {
+                              conclusion
+                              workflowRun {
+                                workflow { name }
+                              }
                             }
                           }
                         }
@@ -101,47 +100,64 @@ jobs:
                     }
                   }
                 }
-              }
-            }`;
-            const variables = {
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pullRequest: context.issue.number ?? Number(/^refs\/pull\/(\d+)(?:\/|$)/.exec(context.ref)?.[1]),
-            };
-            console.log('::group::variables\n', variables, '\n::endgroup::');
+              }`;
+              const result = await github.graphql(query, variables);
+              console.log(`::group::fetch result\n${JSON.stringify(result, null, 2)}\n::endgroup::`);
 
-            const isFirstCommit = !context.payload.before;
-            const result = isFirstCommit || !Number.isInteger(variables.pullRequest)
-              ? null
-              : await github.graphql(query, variables);
-            console.log(`::group::result\n${JSON.stringify(result, null, 2)}\n::endgroup::`);
-
-            const actionsSucceededSha1List = result?.repository.pullRequest.commits.nodes
-              .filter(pullRequestCommit =>
-                pullRequestCommit.commit.checkSuites.nodes.some(checkSuite =>
-                  checkSuite.workflowRun?.workflow.name === workflowNameOrFilepath
-                  && checkSuite.conclusion === 'SUCCESS'
-                )
-              )
-              .map(pullRequestCommit => ({
-                sha1: pullRequestCommit.commit.oid,
-                date: Math.max(
-                  new Date(pullRequestCommit.commit.authoredDate).getTime(),
-                  new Date(pullRequestCommit.commit.committedDate).getTime(),
-                ),
-              }))
-              .sort((a, b) => b.date - a.date)
-              .map(({ sha1 }) => sha1);
-            console.log('::group::actionsSucceededSha1List\n', actionsSucceededSha1List, '\n::endgroup::');
+              return (
+                result.repository.pullRequest.commits.nodes
+                  .filter(pullRequestCommit =>
+                    pullRequestCommit.commit.checkSuites.nodes.some(checkSuite =>
+                      checkSuite.workflowRun?.workflow.name === workflowName
+                      && checkSuite.conclusion === 'SUCCESS'
+                    )
+                  )
+                  .map(pullRequestCommit => ({
+                    sha1: pullRequestCommit.commit.oid,
+                    date: Math.max(
+                      new Date(pullRequestCommit.commit.authoredDate).getTime(),
+                      new Date(pullRequestCommit.commit.committedDate).getTime(),
+                    ),
+                  }))
+                  .sort((a, b) => b.date - a.date)
+                  .map(({ sha1 }) => sha1)
+              );
+            }
 
             try {
-              console.log('::group::Get file differences');
-              const latestSha1 = actionsSucceededSha1List?.[0] ?? baseSha1;
-              await exec.exec('git fetch --no-tags --prune --no-recurse-submodules --depth=1 origin', [latestSha1]);
-              const { stdout: diffResult } = await exec.getExecOutput('git diff --name-only', [latestSha1]);
-              return diffResult;
-            } finally {
-              console.log('::endgroup::');
+              const baseSha1 = context.payload.pull_request?.base.sha;
+              console.log('::group::baseSha1\n', baseSha1, '\n::endgroup::');
+              if (!baseSha1) return '/';
+
+              // see https://docs.github.com/en/actions/learn-github-actions/variables#default-environment-variables
+              const workflowNameOrFilepath = process.env.GITHUB_WORKFLOW ?? context.workflow;
+              const variables = {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pullRequest: context.issue.number ?? Number(/^refs\/pull\/(\d+)(?:\/|$)/.exec(context.ref)?.[1]),
+                workflowName: workflowNameOrFilepath,
+              };
+              console.log('::group::variables\n', variables, '\n::endgroup::');
+
+              const isFirstCommit = !context.payload.before;
+              const actionsSucceededSha1List = isFirstCommit || !Number.isInteger(variables.pullRequest)
+                ? null
+                : await fetchActionsSucceededSha1List(variables);
+              console.log('::group::actionsSucceededSha1List\n', actionsSucceededSha1List, '\n::endgroup::');
+
+              try {
+                console.log('::group::Get file differences');
+                const latestSha1 = actionsSucceededSha1List?.[0] ?? baseSha1;
+                await exec.exec('git fetch --no-tags --prune --no-recurse-submodules --depth=1 origin', [latestSha1]);
+                const { stdout: diffResult } = await exec.getExecOutput('git diff --name-only', [latestSha1]);
+                return diffResult;
+              } finally {
+                console.log('::endgroup::');
+              }
+            } catch (error) {
+              core.error(inspect(error));
+              console.log(`::group::context\n${JSON.stringify({ ...context, issue: context.issue, repo: context.repo }, null, 2)}\n::endgroup::`);
+              return '/';
             }
 
   lint:
@@ -227,9 +243,9 @@ jobs:
                 delimiter = f"ghadelimiter_{hex(random.getrandbits(255))}"
               f.write(f"{name}<<{delimiter}\n{value}\n{delimiter}\n")
 
-          diff_files = os.environ.get('LATEST_COMMIT_DIFF')
-          ignore_files = os.environ.get('IGNORE_FILES')
-          if 0 < len(str_to_set(diff_files) - str_to_set(ignore_files) - {''}):
+          diff_files = str_to_set(os.environ.get('LATEST_COMMIT_DIFF'))
+          ignore_files = str_to_set(os.environ.get('IGNORE_FILES'))
+          if ('/' in diff_files) or (0 < len(diff_files - ignore_files - {''})):
             export_var('run-test', '1')
 
       - uses: actions/checkout@v3
