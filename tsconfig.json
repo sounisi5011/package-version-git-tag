@@ -12,12 +12,12 @@
     "types": ["node"],
 
     /* Emit */
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
+    // To reduce package size, we do not generate type declarations and source maps.
+    // This package is a CLI, so this probably should not be a problem.
+    "declaration": false,
+    "sourceMap": false,
     "outDir": "./dist",
     "importsNotUsedAsValues": "error",
-    "inlineSources": true,
     "newLine": "LF",
 
     /* Interop Constraints */
