@@ -31,9 +31,7 @@
   "scripts": {
     "build": "task build",
     "clean": "task clean",
-    "fmt-js": "task fmt-js",
-    "fmt-pkg": "task fmt-pkg",
-    "fmt-ts": "task fmt-ts",
+    "fmt": "task fmt --",
     "lint": "task lint",
     "release": "task release",
     "test": "task test --",

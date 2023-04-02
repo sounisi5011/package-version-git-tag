@@ -17,14 +17,54 @@ tasks:
     cmds:
       - del-cli ./dist/ ./test/.temp/
 
-  fmt-pkg:
+  fmt:
+    deps:
+      - |
+        {{- if or
+          (empty (splitArgs .CLI_ARGS))
+          (has "pkg" (splitArgs .CLI_ARGS))
+        -}}
+          _fmt-pkg
+        {{- end -}}
+      - |
+        {{- if or
+          (empty (splitArgs .CLI_ARGS))
+          (and
+            (has "ts" (splitArgs .CLI_ARGS))
+            (has "js" (splitArgs .CLI_ARGS))
+          )
+        -}}
+          _fmt-xs
+        {{- end -}}
+      - |
+        {{- if and
+          (has "js" (splitArgs .CLI_ARGS))
+          (not (has "ts" (splitArgs .CLI_ARGS)))
+        -}}
+          _fmt-js
+        {{- end -}}
+      - |
+        {{- if and
+          (has "ts" (splitArgs .CLI_ARGS))
+          (not (has "js" (splitArgs .CLI_ARGS)))
+        -}}
+          _fmt-ts
+        {{- end -}}
+  _fmt-pkg:
+    internal: true
     cmds:
       - prettier-package-json --write ./package.json
       - sort-package-json ./package.json
-  fmt-js:
+  _fmt-xs:
+    internal: true
+    cmds:
+      - eslint --fix ./
+  _fmt-js:
+    internal: true
     cmds:
       - eslint --ext .js,.cjs,.mjs --fix ./
-  fmt-ts:
+  _fmt-ts:
+    internal: true
     cmds:
       - eslint --ext .ts --fix ./
 
@@ -99,3 +139,7 @@ tasks:
       - task: test
         vars:
           DISABLE_WATCH_MODE: true
+
+  # do nothing
+  "":
+    internal: true
