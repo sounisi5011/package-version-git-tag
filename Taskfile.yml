@@ -40,17 +40,20 @@ tasks:
     cmds:
       - tsc -p ./test/ --noEmit
 
-  test-all:
+  test:
     cmds:
-      - task: test-other
-      - task: test-only
-        vars:
-          DISABLE_WATCH_MODE: "{{.DISABLE_WATCH_MODE}}"
-  test-only:
-    cmds:
-      - "{{if .DISABLE_WATCH_MODE}}vitest run{{else}}vitest{{end}}"
+      - task: |
+          {{- if not (has "--test-only" (splitArgs .CLI_ARGS)) -}}
+            _test-other
+          {{- end -}}
+        # see https://github.com/go-task/task/issues/608#issue-1052678862
+      - cmd: |
+          {{- if not (has "--pre-test-only" (splitArgs .CLI_ARGS)) -}}
+            vitest {{- if .DISABLE_WATCH_MODE }} run {{- end -}}
+          {{- end -}}
     interactive: true
-  test-other:
+  _test-other:
+    internal: true
     cmds:
       - task: test-readme
       - task: lint
@@ -93,6 +96,6 @@ tasks:
     internal: true
     cmds:
       - task: _release-validation-publishable
-      - task: test-all
+      - task: test
         vars:
           DISABLE_WATCH_MODE: true
