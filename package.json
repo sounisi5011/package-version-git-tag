@@ -34,8 +34,7 @@
     "fmt": "task fmt --",
     "lint": "task lint",
     "release": "task release",
-    "test": "task test --",
-    "test-only": "task test -- --test-only"
+    "test": "task test --"
   },
   "dependencies": {
     "command-join": "^3.0.0",
