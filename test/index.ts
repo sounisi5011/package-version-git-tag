@@ -1,7 +1,8 @@
 /* eslint vitest/max-expects: [warn, { max: 10 }] */
 
 import { commandJoin } from 'command-join';
-import execa from 'execa';
+import type { ExecaChildProcess } from 'execa';
+import { execa } from 'execa';
 import fs from 'fs/promises';
 import path from 'path';
 import semver from 'semver';
@@ -57,9 +58,7 @@ beforeAll(async () => {
 describe.concurrent('CLI should add Git tag', () => {
     interface Case {
         cliArgs: readonly string[];
-        expected: (
-            version: string,
-        ) => Partial<Awaited<execa.ExecaChildProcess>>;
+        expected: (version: string) => Partial<Awaited<ExecaChildProcess>>;
     }
 
     test.each(
@@ -154,9 +153,7 @@ describe.concurrent(
     () => {
         interface Case {
             cliArgs: readonly string[];
-            expected: (
-                version: string,
-            ) => Partial<Awaited<execa.ExecaChildProcess>>;
+            expected: (version: string) => Partial<Awaited<ExecaChildProcess>>;
         }
 
         test.each(
@@ -311,9 +308,7 @@ test.concurrent(
 describe.concurrent('CLI should add and push Git tag', () => {
     interface Case {
         cliArgs: readonly string[];
-        expected: (
-            version: string,
-        ) => Partial<Awaited<execa.ExecaChildProcess>>;
+        expected: (version: string) => Partial<Awaited<ExecaChildProcess>>;
     }
 
     test.each(

@@ -78,6 +78,8 @@ Because it is the minimum version available for Vitest.
     * [#185] - `4.2.1` -> `6.1.1`
 * `eslint-plugin-simple-import-sort`
     * [#185] - `5.0.3` -> `10.0.0`
+* `execa`
+    * [#227] - `5.1.1` -> `7.1.1`
 * `git-branch-is`
     * [#185] - `3.1.0` -> `4.0.0`
 * `node-git-server`
@@ -214,6 +216,7 @@ Because it is the minimum version available for Vitest.
 [#224]: https://github.com/sounisi5011/package-version-git-tag/pull/224
 [#225]: https://github.com/sounisi5011/package-version-git-tag/pull/225
 [#226]: https://github.com/sounisi5011/package-version-git-tag/pull/226
+[#227]: https://github.com/sounisi5011/package-version-git-tag/pull/227
 
 ## [3.0.0] (2020-06-02 UTC)
 

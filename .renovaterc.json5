@@ -71,13 +71,5 @@
       matchCurrentVersion: "<2.0.0",
       enabled: false,
     },
-    // `execa@>=6.0.0` doesn't work with old Node.js.
-    // Because it uses pure ESM and `node:` imports.
-    // We should only update if the Node.js support range: `>=14.13.1`
-    {
-      matchPackageNames: ["execa"],
-      matchCurrentVersion: "<6.0.0",
-      enabled: false,
-    },
   ],
 }

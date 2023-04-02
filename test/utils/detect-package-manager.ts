@@ -1,5 +1,5 @@
 import slugify from '@sindresorhus/slugify';
-import execa from 'execa';
+import { execa } from 'execa';
 import fs from 'fs/promises';
 import mockFs from 'mock-fs';
 import os from 'os';

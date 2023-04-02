@@ -1,4 +1,5 @@
-import execa from 'execa';
+import type { ExecaChildProcess, Options as ExecaOptions } from 'execa';
+import { execa } from 'execa';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -8,8 +9,8 @@ import type { PromiseValue, WithUndefinedProp } from './types.js';
 
 export type ExecFunc = (
     cmd: readonly [string, ...string[]],
-    options?: WithUndefinedProp<execa.Options, 'env'>,
-) => execa.ExecaChildProcess;
+    options?: WithUndefinedProp<ExecaOptions, 'env'>,
+) => ExecaChildProcess;
 export type GitRemote = PromiseValue<ReturnType<typeof initGitServer>>;
 
 /* eslint-disable import/export */
