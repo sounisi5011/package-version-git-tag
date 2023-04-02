@@ -79,11 +79,12 @@ tasks:
 
   test:
     cmds:
+      # Use conditional expressions to decide whether or not to run tasks
+      # see https://github.com/go-task/task/issues/608#issue-1052678862
       - task: |
           {{- if not (has "--test-only" (splitArgs .CLI_ARGS)) -}}
             _test-other
           {{- end -}}
-        # see https://github.com/go-task/task/issues/608#issue-1052678862
       - cmd: |
           {{- if not (has "--pre-test-only" (splitArgs .CLI_ARGS)) -}}
             vitest {{- if .DISABLE_WATCH_MODE }} run {{- end -}}
@@ -138,5 +139,16 @@ tasks:
           DISABLE_WATCH_MODE: true
 
   # do nothing
+  # It is required to execute the following tasks:
+  # ```yaml
+  # tasks:
+  #   example:
+  #     deps:
+  #       # This task name may be an empty string.
+  #       # If the task with the empty name does not exist, Task will fail to run this task.
+  #       - |
+  #         {{- if ... -}} some-task {{- end -}}
+  # ```
+  # see https://github.com/go-task/task/issues/608#issue-1052678862
   "":
     internal: true
