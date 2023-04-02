@@ -180,6 +180,7 @@ Because it is the minimum version available for Vitest.
 * [#222] - Strictly check if the package manager has been disabled by Corepack
 * [#216] - Migrate from npm to pnpm
 * [#225] - Run CI only if differences exist
+* [#226] - Ensure that scripts in the "Get the diff from the latest commit where the GitHub Actions succeeded" step finish successfully even if the `context.payload.pull_request` is undefined
 
 [#182]: https://github.com/sounisi5011/package-version-git-tag/pull/182
 [#183]: https://github.com/sounisi5011/package-version-git-tag/pull/183
@@ -212,6 +213,7 @@ Because it is the minimum version available for Vitest.
 [#216]: https://github.com/sounisi5011/package-version-git-tag/pull/216
 [#224]: https://github.com/sounisi5011/package-version-git-tag/pull/224
 [#225]: https://github.com/sounisi5011/package-version-git-tag/pull/225
+[#226]: https://github.com/sounisi5011/package-version-git-tag/pull/226
 
 ## [3.0.0] (2020-06-02 UTC)
 
