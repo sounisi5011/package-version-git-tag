@@ -41,5 +41,8 @@ await (async () => {
         return;
     }
 
-    await main(options);
+    await main(options).catch((error) => {
+        process.exitCode = 1;
+        console.error(error instanceof Error ? error.message : error);
+    });
 })();
