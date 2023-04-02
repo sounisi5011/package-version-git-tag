@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 
 import { detectPackageManagerUsingCorepackConfig } from './detect-package-manager/corepack.js';
 import { detectPackageManagerUsingEnv } from './detect-package-manager/env.js';

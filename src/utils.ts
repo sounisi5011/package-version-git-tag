@@ -1,10 +1,11 @@
-import type childProcess from 'child_process';
+import type childProcess from 'node:child_process';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import url from 'node:url';
+import v8 from 'node:v8';
+
 import { commandJoin } from 'command-join';
 import crossSpawn from 'cross-spawn';
-import fs from 'fs/promises';
-import path from 'path';
-import url from 'url';
-import v8 from 'v8';
 
 export interface PkgDataInterface {
     version: string;

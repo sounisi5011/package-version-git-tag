@@ -1,4 +1,5 @@
-import path from 'path';
+import path from 'node:path';
+
 import whichPMRuns from 'which-pm-runs';
 
 import type { PackageManagerType } from './types.js';

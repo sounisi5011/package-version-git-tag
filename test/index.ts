@@ -1,10 +1,11 @@
 /* eslint vitest/max-expects: [warn, { max: 10 }] */
 
+import fs from 'node:fs/promises';
+import path from 'node:path';
+
 import { commandJoin } from 'command-join';
 import type { ExecaChildProcess } from 'execa';
 import { execa } from 'execa';
-import fs from 'fs/promises';
-import path from 'path';
 import semver from 'semver';
 import { beforeAll, describe, expect, test } from 'vitest';
 

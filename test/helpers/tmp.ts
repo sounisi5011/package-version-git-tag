@@ -1,5 +1,6 @@
+import path from 'node:path';
+
 import slugify from '@sindresorhus/slugify';
-import path from 'path';
 
 import { TEST_TMP_DIR } from './const.js';
 

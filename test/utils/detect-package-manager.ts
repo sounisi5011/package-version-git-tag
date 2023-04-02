@@ -1,9 +1,10 @@
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+
 import slugify from '@sindresorhus/slugify';
 import { execa } from 'execa';
-import fs from 'fs/promises';
 import mockFs from 'mock-fs';
-import os from 'os';
-import path from 'path';
 import { beforeAll, describe, expect, it } from 'vitest';
 
 import { name as packageName } from '../../package.json';

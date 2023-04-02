@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 
 import { isHeadTag, push, setTag, tagExists } from './git.js';
 import { endPrintVerbose, isPkgData, readJSONFile } from './utils.js';

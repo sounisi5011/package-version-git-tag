@@ -1,7 +1,8 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+
 import type { ExecaChildProcess, Options as ExecaOptions } from 'execa';
 import { execa } from 'execa';
-import fs from 'fs/promises';
-import path from 'path';
 
 import initGitServer from './git-server.js';
 import { getRandomInt } from './index.js';

@@ -1,4 +1,5 @@
-import fs from 'fs/promises';
+import fs from 'node:fs/promises';
+
 import { Git, GitEvents } from 'node-git-server';
 
 import { isObject } from '../../src/utils.js';

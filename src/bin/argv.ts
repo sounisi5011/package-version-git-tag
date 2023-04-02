@@ -1,5 +1,6 @@
+import path from 'node:path';
+
 import mri from 'mri';
-import path from 'path';
 
 import { deepCopy } from '../utils.js';
 import { boolOptions, genOptionTextList, getAliasRecord } from './options.js';

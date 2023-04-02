@@ -1,5 +1,5 @@
-import path from 'path';
-import url from 'url';
+import path from 'node:path';
+import url from 'node:url';
 
 // Note: Path resolution using the "new URL()" constructor is incomplete (for example, trailing slashes in paths are not removed).
 //       So here we will use both the "new URL()" constructor and the "path.resolve()" function.
