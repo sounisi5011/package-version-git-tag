@@ -1,8 +1,9 @@
-import path from 'path';
+import path from 'node:path';
+
 import whichPMRuns from 'which-pm-runs';
 
-import type { PackageManagerType } from './types';
-import { isPackageManagerType, packageManagerTypeList } from './types';
+import type { PackageManagerType } from './types.js';
+import { isPackageManagerType, packageManagerTypeList } from './types.js';
 
 /**
  * @see https://github.com/mysticatea/npm-run-all/blob/v4.1.5/lib/run-task.js#L157-L160

@@ -1,13 +1,13 @@
-import path from 'path';
+import path from 'node:path';
 
 import {
     isObject,
     readJSONFile,
     relativePath,
     walkParentDir,
-} from '../../utils';
-import type { PackageManagerInfo } from './types';
-import { isPackageManagerType } from './types';
+} from '../../utils.js';
+import type { PackageManagerInfo } from './types.js';
+import { isPackageManagerType } from './types.js';
 
 const nodeModulesRegExp =
     /[\\/]node_modules[\\/](?:@[^\\/]*[\\/])?(?:[^@\\/][^\\/]*)$/;

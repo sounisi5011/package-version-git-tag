@@ -1,8 +1,9 @@
-import mri from 'mri';
-import path from 'path';
+import path from 'node:path';
 
-import { deepCopy } from '../utils';
-import { boolOptions, genOptionTextList, getAliasRecord } from './options';
+import mri from 'mri';
+
+import { deepCopy } from '../utils.js';
+import { boolOptions, genOptionTextList, getAliasRecord } from './options.js';
 
 export interface ParseArgvOptions {
     /**

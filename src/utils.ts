@@ -1,9 +1,11 @@
-import type childProcess from 'child_process';
+import type childProcess from 'node:child_process';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import url from 'node:url';
+import v8 from 'node:v8';
+
 import { commandJoin } from 'command-join';
 import crossSpawn from 'cross-spawn';
-import fs from 'fs/promises';
-import path from 'path';
-import v8 from 'v8';
 
 export interface PkgDataInterface {
     version: string;
@@ -19,8 +21,11 @@ export function isObject(value: unknown): value is Record<string, unknown> {
     return typeof value === 'object' && value !== null;
 }
 
-export function relativePath(pathStr: string): string {
-    const relativePathStr = path.relative(process.cwd(), pathStr);
+export function relativePath(filepath: string | URL): string {
+    const relativePathStr = path.relative(
+        process.cwd(),
+        filepath instanceof URL ? url.fileURLToPath(filepath) : filepath,
+    );
     return path.isAbsolute(relativePathStr) || relativePathStr.startsWith('.')
         ? relativePathStr
         : `.${path.sep}${relativePathStr}`;
@@ -66,7 +71,7 @@ export function isPkgData(value: unknown): value is PkgDataInterface {
 }
 
 export async function readJSONFile(
-    filepath: string,
+    filepath: string | URL,
     options?: { allowNotExist?: boolean },
 ): Promise<unknown> {
     try {

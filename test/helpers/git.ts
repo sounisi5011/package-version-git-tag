@@ -1,15 +1,17 @@
-import execa from 'execa';
-import fs from 'fs/promises';
-import path from 'path';
+import fs from 'node:fs/promises';
+import path from 'node:path';
 
-import { getRandomInt } from '.';
-import initGitServer from './git-server';
-import type { PromiseValue, WithUndefinedProp } from './types';
+import type { ExecaChildProcess, Options as ExecaOptions } from 'execa';
+import { execa } from 'execa';
+
+import initGitServer from './git-server.js';
+import { getRandomInt } from './index.js';
+import type { PromiseValue, WithUndefinedProp } from './types.js';
 
 export type ExecFunc = (
     cmd: readonly [string, ...string[]],
-    options?: WithUndefinedProp<execa.Options, 'env'>,
-) => execa.ExecaChildProcess;
+    options?: WithUndefinedProp<ExecaOptions, 'env'>,
+) => ExecaChildProcess;
 export type GitRemote = PromiseValue<ReturnType<typeof initGitServer>>;
 
 /* eslint-disable import/export */

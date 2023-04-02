@@ -4,7 +4,7 @@ import type {
     OptionDefinition,
     OptionDefRecord,
     ValidOptionName,
-} from './options.types';
+} from './options.types.js';
 
 // ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- //
 // If you want to add more options, edit under this.

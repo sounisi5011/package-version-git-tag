@@ -1,18 +1,20 @@
 /* eslint vitest/max-expects: [warn, { max: 10 }] */
 
+import fs from 'node:fs/promises';
+import path from 'node:path';
+
 import { commandJoin } from 'command-join';
-import execa from 'execa';
-import fs from 'fs/promises';
-import path from 'path';
+import type { ExecaChildProcess } from 'execa';
+import { execa } from 'execa';
 import semver from 'semver';
 import { beforeAll, describe, expect, test } from 'vitest';
 
 import PKG_DATA from '../package.json';
-import { retryAsync } from './helpers';
-import { COREPACK_HOME, PROJECT_ROOT, TEST_TMP_DIR } from './helpers/const';
-import * as corepackPackageManager from './helpers/corepack-package-managers';
-import { initGit } from './helpers/git';
-import { tmpDir } from './helpers/tmp';
+import { COREPACK_HOME, PROJECT_ROOT, TEST_TMP_DIR } from './helpers/const.js';
+import * as corepackPackageManager from './helpers/corepack-package-managers.js';
+import { initGit } from './helpers/git.js';
+import { retryAsync } from './helpers/index.js';
+import { tmpDir } from './helpers/tmp.js';
 
 const CLI_DIR = path.resolve(TEST_TMP_DIR, '.cli');
 const CLI_PATH = path.resolve(CLI_DIR, 'node_modules', '.bin', PKG_DATA.name);
@@ -57,9 +59,7 @@ beforeAll(async () => {
 describe.concurrent('CLI should add Git tag', () => {
     interface Case {
         cliArgs: readonly string[];
-        expected: (
-            version: string,
-        ) => Partial<Awaited<execa.ExecaChildProcess>>;
+        expected: (version: string) => Partial<Awaited<ExecaChildProcess>>;
     }
 
     test.each(
@@ -154,9 +154,7 @@ describe.concurrent(
     () => {
         interface Case {
             cliArgs: readonly string[];
-            expected: (
-                version: string,
-            ) => Partial<Awaited<execa.ExecaChildProcess>>;
+            expected: (version: string) => Partial<Awaited<ExecaChildProcess>>;
         }
 
         test.each(
@@ -311,9 +309,7 @@ test.concurrent(
 describe.concurrent('CLI should add and push Git tag', () => {
     interface Case {
         cliArgs: readonly string[];
-        expected: (
-            version: string,
-        ) => Partial<Awaited<execa.ExecaChildProcess>>;
+        expected: (version: string) => Partial<Awaited<ExecaChildProcess>>;
     }
 
     test.each(
