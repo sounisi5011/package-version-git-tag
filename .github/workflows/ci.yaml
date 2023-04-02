@@ -160,57 +160,59 @@ jobs:
               return '/';
             }
 
-  lint:
-    needs: if-run-ci
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
+  # lint:
+  #   needs: if-run-ci
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
 
-      - name: Reconfigure git to use HTTP authentication
-        # see https://stackoverflow.com/a/69634516
-        # see https://github.com/actions/setup-node/issues/214#issuecomment-810829250
-        shell: bash
-        run: |
-          git config --global \
-            'url.https://${{ secrets.GITHUB_TOKEN }}@github.com/.insteadOf' \
-            'ssh://git@github.com/'
+  #     - name: Reconfigure git to use HTTP authentication
+  #       # see https://stackoverflow.com/a/69634516
+  #       # see https://github.com/actions/setup-node/issues/214#issuecomment-810829250
+  #       shell: bash
+  #       run: |
+  #         git config --global \
+  #           'url.https://${{ secrets.GITHUB_TOKEN }}@github.com/.insteadOf' \
+  #           'ssh://git@github.com/'
 
-      - name: Install Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 14.x
+  #     - name: Install Node.js
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version: 14.x
 
-      - name: Enable Corepack (Automatically setup a package manager for Node.js)
-        run: |
-          corepack enable
-          corepack enable npm
+  #     - name: Enable Corepack (Automatically setup a package manager for Node.js)
+  #       run: |
+  #         corepack enable
+  #         corepack enable npm
 
-      - name: Show node and package manager version
-        shell: bash
-        run: |
-          echo node "$(node --version)"
-          echo pnpm "$(pnpm --version)"
-          echo "pnpm-store-path=$(pnpm store path --silent)" >> "${GITHUB_ENV}"
+  #     - name: Show node and package manager version
+  #       shell: bash
+  #       run: |
+  #         echo node "$(node --version)"
+  #         echo pnpm "$(pnpm --version)"
+  #         echo "pnpm-store-path=$(pnpm store path --silent)" >> "${GITHUB_ENV}"
 
-      - name: Cache pnpm
-        uses: actions/cache@v3
-        with:
-          key: node-cache-${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
-          path: ${{ env.pnpm-store-path }}
+  #     - name: Cache pnpm
+  #       uses: actions/cache@v3
+  #       with:
+  #         key: node-cache-${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+  #         path: ${{ env.pnpm-store-path }}
 
-      - name: Install dependencies
-        run: pnpm install
+  #     - name: Install dependencies
+  #       run: pnpm install
 
-      - name: Run linter
-        run: pnpm exec task test-other
+  #     - name: Run linter
+  #       run: pnpm exec task test-other
 
   unit-test:
     needs: detect-supported-node
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
-        node-version: ${{ fromJson(needs.detect-supported-node.outputs.versions-json) }}
+        # os: [ubuntu-latest, windows-latest]
+        # node-version: ${{ fromJson(needs.detect-supported-node.outputs.versions-json) }}
+        os: [windows-latest]
+        node-version: [18.x]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Determine whether to skip the test
@@ -470,6 +472,15 @@ jobs:
         if: ${{ env.run-test }}
         run: pnpm install
 
+      - name: "[Debug] show node_modules/.bin/"
+        run: Get-ChildItem -Path ./node_modules/.bin/ -Force
+
+      - name: '[Debug] show C:\npm\prefix\bin\'
+        run: Get-ChildItem -Path C:\npm\prefix\bin\ -Force
+
+      - name: '[Debug] show C:\npm\prefix\'
+        run: Get-ChildItem -Path C:\npm\prefix\ -Force
+
       - name: Run unit test
         if: ${{ env.run-test }}
         run: pnpm exec task test-only
@@ -481,7 +492,8 @@ jobs:
   # see https://github.com/sounisi5011/npm-packages/blob/2a5ca2de696eeb8b40a38de90580441c4c6c96e0/.github/workflows/ci.yaml#L482-L498
   complete:
     name: Complete CI
-    needs: [lint, unit-test]
+    # needs: [lint, unit-test]
+    needs: [unit-test]
     if:
       ${{ always() && github.event.pull_request }}
       # This job is required only for Pull Requests.
