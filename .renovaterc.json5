@@ -62,14 +62,5 @@
       matchUpdateTypes: ["major"],
       enabled: false,
     },
-    // `@sindresorhus/slugify@>=2.0.0` doesn't work with old Node.js.
-    // Because it uses pure ESM.
-    // We should only update it after we move to pure ESM.
-    {
-      matchPackageNames: ["@sindresorhus/slugify"],
-      matchUpdateTypes: ["major"],
-      matchCurrentVersion: "<2.0.0",
-      enabled: false,
-    },
   ],
 }

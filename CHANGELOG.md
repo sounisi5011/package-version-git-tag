@@ -49,6 +49,8 @@ Because it is the minimum version available for Vitest.
 
 #### devDependencies
 
+* `@sindresorhus/slugify`
+    * [#227] - `1.1.2` -> `2.2.0`
 * `@types/node`
     * [#186] - `12.x` -> `14.x`
     * [#195] - `14.x` -> `14.18.37`

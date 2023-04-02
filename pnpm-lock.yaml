@@ -6,7 +6,7 @@ patchedDependencies:
     path: patches/is-promise@4.0.0.patch
 
 specifiers:
-  '@sindresorhus/slugify': 1.1.2
+  '@sindresorhus/slugify': 2.2.0
   '@sounisi5011/readme-generator': github:sounisi5011/readme-generator#semver:0.0.2
   '@tsconfig/node14': 1.0.3
   '@types/cross-spawn': 6.0.2
@@ -58,7 +58,7 @@ dependencies:
   which-pm-runs: 1.1.0
 
 devDependencies:
-  '@sindresorhus/slugify': 1.1.2
+  '@sindresorhus/slugify': 2.2.0
   '@sounisi5011/readme-generator': github.com/sounisi5011/readme-generator/536eacc3d4762f6de171aecbf3f06efbeb87fd3a
   '@tsconfig/node14': 1.0.3
   '@types/cross-spawn': 6.0.2
@@ -423,20 +423,19 @@ packages:
       fastq: 1.15.0
     dev: true
 
-  /@sindresorhus/slugify/1.1.2:
-    resolution: {integrity: sha512-V9nR/W0Xd9TSGXpZ4iFUcFGhuOJtZX82Fzxj1YISlbSgKvIiNa7eLEZrT0vAraPOt++KHauIVNYgGRgjc13dXA==}
-    engines: {node: '>=10'}
+  /@sindresorhus/slugify/2.2.0:
+    resolution: {integrity: sha512-9Vybc/qX8Kj6pxJaapjkFbiUJPk7MAkCh/GFCxIBnnsuYCFPIXKvnLidG8xlepht3i24L5XemUmGtrJ3UWrl6w==}
+    engines: {node: '>=12'}
     dependencies:
-      '@sindresorhus/transliterate': 0.1.2
-      escape-string-regexp: 4.0.0
+      '@sindresorhus/transliterate': 1.6.0
+      escape-string-regexp: 5.0.0
     dev: true
 
-  /@sindresorhus/transliterate/0.1.2:
-    resolution: {integrity: sha512-5/kmIOY9FF32nicXH+5yLNTX4NJ4atl7jRgqAJuIn/iyDFXBktOKDxCvyGE/EzmF4ngSUvjXxQUQlQiZ5lfw+w==}
-    engines: {node: '>=10'}
+  /@sindresorhus/transliterate/1.6.0:
+    resolution: {integrity: sha512-doH1gimEu3A46VX6aVxpHTeHrytJAG6HgdxntYnCFiIFHEM/ZGpG8KiZGBChchjQmG0XFIBL552kBTjVcMZXwQ==}
+    engines: {node: '>=12'}
     dependencies:
-      escape-string-regexp: 2.0.0
-      lodash.deburr: 4.1.0
+      escape-string-regexp: 5.0.0
     dev: true
 
   /@tsconfig/node10/1.0.9:
@@ -1379,11 +1378,6 @@ packages:
   /escape-string-regexp/1.0.5:
     resolution: {integrity: sha512-vbRorB5FUQWvla16U8R/qgaFIya2qGzwDrNmCZuYKrbdSUMG6I1ZCGQRefkRVhuOkIGVne7BQ35DSfo1qvJqFg==}
     engines: {node: '>=0.8.0'}
-    dev: true
-
-  /escape-string-regexp/2.0.0:
-    resolution: {integrity: sha512-UpzcLCXolUWcNu5HtVMHYdXJjArjsF9C0aNnquZYY4uW/Vu0miy5YoWvbV345HauVvcAUnpRuhMMcqTcGOY2+w==}
-    engines: {node: '>=8'}
     dev: true
 
   /escape-string-regexp/4.0.0:
@@ -2519,10 +2513,6 @@ packages:
     engines: {node: '>=10'}
     dependencies:
       p-locate: 5.0.0
-    dev: true
-
-  /lodash.deburr/4.1.0:
-    resolution: {integrity: sha512-m/M1U1f3ddMCs6Hq2tAsYThTBDaAKFDX3dwDo97GEYzamXi9SqUpjWi/Rrj/gf3X2n8ktwgZrlP1z6E3v/IExQ==}
     dev: true
 
   /lodash.merge/4.6.2:
