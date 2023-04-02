@@ -2,7 +2,7 @@ lockfileVersion: 5.4
 
 patchedDependencies:
   '@go-task/go-npm@0.1.17':
-    hash: fw53hpzy6344kpsu7kbsbvctgm
+    hash: n2iornaxf4sc7q253zuavqcqqq
     path: patches/@go-task__go-npm@0.1.17.patch
   is-promise@4.0.0:
     hash: sxlhlcqit3nz4kqhqlpun7y3cm
@@ -371,10 +371,10 @@ packages:
     resolution: {integrity: sha512-KnszqWu2KLKjluT/Run/UeQFC38yplNa/3JkdYpVMwtixYAiwO3kDa7cDt9skNlNaa+PuOXvNlaK3zBYx7thoA==}
     requiresBuild: true
     dependencies:
-      '@go-task/go-npm': 0.1.17_fw53hpzy6344kpsu7kbsbvctgm
+      '@go-task/go-npm': 0.1.17_n2iornaxf4sc7q253zuavqcqqq
     dev: true
 
-  /@go-task/go-npm/0.1.17_fw53hpzy6344kpsu7kbsbvctgm:
+  /@go-task/go-npm/0.1.17_n2iornaxf4sc7q253zuavqcqqq:
     resolution: {integrity: sha512-j+xydQWrAxsqLYjweok1fWzDmBAA1g/gmFbPyG8kRI/d/+rzXGGLlro8zdS6mJ3Is+8BrIy2ZBmQkoONhowh7A==}
     hasBin: true
     dev: true

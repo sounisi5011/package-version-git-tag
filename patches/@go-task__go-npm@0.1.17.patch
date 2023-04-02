@@ -1,13 +1,15 @@
 diff --git a/bin/index.js b/bin/index.js
-index a5a16235324d5343b31850e2d3533842cf3826ef..a9efdbff068a392afa80ba96af5feaadc794a94f 100755
+index a5a16235324d5343b31850e2d3533842cf3826ef..f24383fb4cfc8a0bffe6c14a1e0d3d12766279bb 100755
 --- a/bin/index.js
 +++ b/bin/index.js
-@@ -87,3 +87,8 @@ var __defProp=Object.defineProperty;var __getOwnPropSymbols=Object.getOwnPropert
+@@ -87,3 +87,10 @@ var __defProp=Object.defineProperty;var __getOwnPropSymbols=Object.getOwnPropert
   * MIT Licensed
   */
  /** @license URI.js v4.4.1 (c) 2011 Gary Court. License: http://github.com/garycourt/uri-js */
 +console.log({
++  npm_config_global: process.env.npm_config_global,
 +  npm_config_prefix: process.env.npm_config_prefix,
 +  npm_config_local_prefix: process.env.npm_config_local_prefix,
++  ...Object.fromEntries(Object.entries(process.env).filter(([f]) => /^npm_(?!package_)/i.test(f))),
 +  cwd: process.cwd(),
 +});
