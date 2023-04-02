@@ -93,8 +93,7 @@
   },
   "pnpm": {
     "patchedDependencies": {
-      "is-promise@4.0.0": "patches/is-promise@4.0.0.patch",
-      "@go-task/go-npm@0.1.17": "patches/@go-task__go-npm@0.1.17.patch"
+      "is-promise@4.0.0": "patches/is-promise@4.0.0.patch"
     }
   }
 }
