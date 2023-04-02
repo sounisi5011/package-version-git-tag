@@ -21,8 +21,6 @@
   "license": "MIT",
   "author": "sounisi5011",
   "type": "module",
-  "main": "dist/index",
-  "types": "dist/index.d.ts",
   "bin": "dist/bin.js",
   "directories": {
     "test": "test"
