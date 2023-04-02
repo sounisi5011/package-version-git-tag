@@ -1,7 +1,7 @@
 import { commandJoin } from 'command-join';
 import { inspect } from 'util';
 
-import { execFileAsync, printVerbose } from './utils';
+import { execFileAsync, printVerbose } from './utils.js';
 
 export async function tagExists(tagName: string): Promise<boolean> {
     try {

@@ -3,6 +3,7 @@ import { commandJoin } from 'command-join';
 import crossSpawn from 'cross-spawn';
 import fs from 'fs/promises';
 import path from 'path';
+import url from 'url';
 import v8 from 'v8';
 
 export interface PkgDataInterface {
@@ -19,8 +20,11 @@ export function isObject(value: unknown): value is Record<string, unknown> {
     return typeof value === 'object' && value !== null;
 }
 
-export function relativePath(pathStr: string): string {
-    const relativePathStr = path.relative(process.cwd(), pathStr);
+export function relativePath(filepath: string | URL): string {
+    const relativePathStr = path.relative(
+        process.cwd(),
+        filepath instanceof URL ? url.fileURLToPath(filepath) : filepath,
+    );
     return path.isAbsolute(relativePathStr) || relativePathStr.startsWith('.')
         ? relativePathStr
         : `.${path.sep}${relativePathStr}`;
@@ -66,7 +70,7 @@ export function isPkgData(value: unknown): value is PkgDataInterface {
 }
 
 export async function readJSONFile(
-    filepath: string,
+    filepath: string | URL,
     options?: { allowNotExist?: boolean },
 ): Promise<unknown> {
     try {

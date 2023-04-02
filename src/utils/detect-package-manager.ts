@@ -1,9 +1,9 @@
 import path from 'path';
 
-import { detectPackageManagerUsingCorepackConfig } from './detect-package-manager/corepack';
-import { detectPackageManagerUsingEnv } from './detect-package-manager/env';
-import { detectPackageManagerUsingNodeModulesDirOrLockfile } from './detect-package-manager/node_modules-or-lockfiles';
-import type { PackageManagerData } from './detect-package-manager/types';
+import { detectPackageManagerUsingCorepackConfig } from './detect-package-manager/corepack.js';
+import { detectPackageManagerUsingEnv } from './detect-package-manager/env.js';
+import { detectPackageManagerUsingNodeModulesDirOrLockfile } from './detect-package-manager/node_modules-or-lockfiles.js';
+import type { PackageManagerData } from './detect-package-manager/types.js';
 
 const jsFileExtentions = ['.cjs', '.mjs', '.js'] as const;
 function isJsPath(

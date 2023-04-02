@@ -1,12 +1,10 @@
 #!/usr/bin/env node
 
-import main from './';
-import { parseArgv } from './bin/argv';
-import { isObject } from './utils';
+import { parseArgv } from './bin/argv.js';
+import main from './index.js';
+import { isObject, readJSONFile } from './utils.js';
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const PKG: unknown = require('../package.json');
-
+const PKG = await readJSONFile(new URL('../package.json', import.meta.url));
 let pkgName: string | undefined;
 let pkgVersion: string | undefined;
 let pkgDescription = '';
@@ -17,7 +15,7 @@ if (isObject(PKG)) {
         pkgDescription = PKG['description'];
 }
 
-(() => {
+await (async () => {
     const {
         isHelpMode,
         name: cliName,
@@ -43,8 +41,5 @@ if (isObject(PKG)) {
         return;
     }
 
-    main(options).catch((error) => {
-        process.exitCode = 1;
-        console.error(error instanceof Error ? error.message : error);
-    });
+    await main(options);
 })();

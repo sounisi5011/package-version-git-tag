@@ -1,5 +1,5 @@
-import { execFileAsync, isObject } from '../utils';
-import { getPackageManagerData } from './detect-package-manager';
+import { execFileAsync, isObject } from '../utils.js';
+import { getPackageManagerData } from './detect-package-manager.js';
 
 const corepackErrorRegExp = /\bThis project is configured to use \w+\b/i;
 const isDifferentPackageManagerError = (error: unknown): boolean =>
