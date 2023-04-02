@@ -23,30 +23,26 @@ tasks:
         -}}
           _fmt-pkg
         {{- end -}}
-      - |
-        {{- if or
-          (empty (splitArgs .CLI_ARGS))
-          (and
+      - task: |
+          {{- if or
+            (empty (splitArgs .CLI_ARGS))
             (has "ts" (splitArgs .CLI_ARGS))
             (has "js" (splitArgs .CLI_ARGS))
-          )
-        -}}
-          _fmt-xs
-        {{- end -}}
-      - |
-        {{- if and
-          (has "js" (splitArgs .CLI_ARGS))
-          (not (has "ts" (splitArgs .CLI_ARGS)))
-        -}}
-          _fmt-js
-        {{- end -}}
-      - |
-        {{- if and
-          (has "ts" (splitArgs .CLI_ARGS))
-          (not (has "js" (splitArgs .CLI_ARGS)))
-        -}}
-          _fmt-ts
-        {{- end -}}
+          -}}
+            _fmt-xs
+          {{- end -}}
+        vars:
+          ESLINT_EXT: |
+            {{- concat
+                  ( and
+                      (has "js" (splitArgs .CLI_ARGS))
+                      (not (has "ts" (splitArgs .CLI_ARGS)))
+                    | ternary (list ".js" ".cjs" ".mjs") (list) )
+                  ( and
+                      (has "ts" (splitArgs .CLI_ARGS))
+                      (not (has "js" (splitArgs .CLI_ARGS)))
+                    | ternary (list ".ts") (list) )
+                | join ", " -}}
   _fmt-pkg:
     internal: true
     cmds:
@@ -55,15 +51,7 @@ tasks:
   _fmt-xs:
     internal: true
     cmds:
-      - eslint --fix ./
-  _fmt-js:
-    internal: true
-    cmds:
-      - eslint --ext .js,.cjs,.mjs --fix ./
-  _fmt-ts:
-    internal: true
-    cmds:
-      - eslint --ext .ts --fix ./
+      - eslint {{- if .ESLINT_EXT }} --ext '{{ .ESLINT_EXT }}' {{- end }} --fix ./
 
   lint:
     deps: [eslint, tsc-src, tsc-test]
