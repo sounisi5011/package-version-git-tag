@@ -1,7 +1,7 @@
 import slugify from '@sindresorhus/slugify';
 import path from 'path';
 
-import { TEST_TMP_DIR } from './const';
+import { TEST_TMP_DIR } from './const.js';
 
 const createdTmpDirSet = new Set<string>();
 export function tmpDir(...uniqueNameList: (string | undefined)[]): string {

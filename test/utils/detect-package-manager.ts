@@ -7,13 +7,13 @@ import path from 'path';
 import { beforeAll, describe, expect, it } from 'vitest';
 
 import { name as packageName } from '../../package.json';
-import { walkParentDir } from '../../src/utils';
-import { getPackageManagerData } from '../../src/utils/detect-package-manager';
-import type { PackageManagerData } from '../../src/utils/detect-package-manager/types';
-import { getTestNameList, retryAsync, valueFinally } from '../helpers';
-import { COREPACK_HOME, TINY_NPM_PACKAGE } from '../helpers/const';
-import * as corepackPackageManager from '../helpers/corepack-package-managers';
-import { tmpDir } from '../helpers/tmp';
+import { walkParentDir } from '../../src/utils.js';
+import { getPackageManagerData } from '../../src/utils/detect-package-manager.js';
+import type { PackageManagerData } from '../../src/utils/detect-package-manager/types.js';
+import { COREPACK_HOME, TINY_NPM_PACKAGE } from '../helpers/const.js';
+import * as corepackPackageManager from '../helpers/corepack-package-managers.js';
+import { getTestNameList, retryAsync, valueFinally } from '../helpers/index.js';
+import { tmpDir } from '../helpers/tmp.js';
 
 // Remove all environment variables set by npm
 process.env = Object.fromEntries(

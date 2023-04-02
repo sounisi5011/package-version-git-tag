@@ -8,11 +8,11 @@ import semver from 'semver';
 import { beforeAll, describe, expect, test } from 'vitest';
 
 import PKG_DATA from '../package.json';
-import { retryAsync } from './helpers';
-import { COREPACK_HOME, PROJECT_ROOT, TEST_TMP_DIR } from './helpers/const';
-import * as corepackPackageManager from './helpers/corepack-package-managers';
-import { initGit } from './helpers/git';
-import { tmpDir } from './helpers/tmp';
+import { COREPACK_HOME, PROJECT_ROOT, TEST_TMP_DIR } from './helpers/const.js';
+import * as corepackPackageManager from './helpers/corepack-package-managers.js';
+import { initGit } from './helpers/git.js';
+import { retryAsync } from './helpers/index.js';
+import { tmpDir } from './helpers/tmp.js';
 
 const CLI_DIR = path.resolve(TEST_TMP_DIR, '.cli');
 const CLI_PATH = path.resolve(CLI_DIR, 'node_modules', '.bin', PKG_DATA.name);

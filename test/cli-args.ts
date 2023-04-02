@@ -6,7 +6,7 @@ import {
     mockProcessStdout,
 } from 'vitest-mock-process';
 
-import { parseArgv, type ParseArgvOptions } from '../src/bin/argv';
+import { parseArgv, type ParseArgvOptions } from '../src/bin/argv.js';
 
 function truthyOptions(optionName: string): string[][] {
     return [

@@ -2,9 +2,9 @@ import execa from 'execa';
 import fs from 'fs/promises';
 import path from 'path';
 
-import { getRandomInt } from '.';
-import initGitServer from './git-server';
-import type { PromiseValue, WithUndefinedProp } from './types';
+import initGitServer from './git-server.js';
+import { getRandomInt } from './index.js';
+import type { PromiseValue, WithUndefinedProp } from './types.js';
 
 export type ExecFunc = (
     cmd: readonly [string, ...string[]],

@@ -1,0 +1,8 @@
+diff --git a/index.d.ts b/index.d.ts
+index 2107b42898a36df3cab91e25609623ba56380d83..8d04ae107f85ca086b520ce3d4b1f5cac729b577 100644
+--- a/index.d.ts
++++ b/index.d.ts
+@@ -1,2 +1,3 @@
+ declare function isPromise<T, S>(obj: PromiseLike<T> | S): obj is PromiseLike<T>;
+ export default isPromise;
++export = isPromise;
