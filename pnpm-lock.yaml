@@ -1,6 +1,9 @@
 lockfileVersion: 5.4
 
 patchedDependencies:
+  '@go-task/go-npm@0.1.17':
+    hash: fw53hpzy6344kpsu7kbsbvctgm
+    path: patches/@go-task__go-npm@0.1.17.patch
   is-promise@4.0.0:
     hash: sxlhlcqit3nz4kqhqlpun7y3cm
     path: patches/is-promise@4.0.0.patch
@@ -368,13 +371,14 @@ packages:
     resolution: {integrity: sha512-KnszqWu2KLKjluT/Run/UeQFC38yplNa/3JkdYpVMwtixYAiwO3kDa7cDt9skNlNaa+PuOXvNlaK3zBYx7thoA==}
     requiresBuild: true
     dependencies:
-      '@go-task/go-npm': 0.1.17
+      '@go-task/go-npm': 0.1.17_fw53hpzy6344kpsu7kbsbvctgm
     dev: true
 
-  /@go-task/go-npm/0.1.17:
+  /@go-task/go-npm/0.1.17_fw53hpzy6344kpsu7kbsbvctgm:
     resolution: {integrity: sha512-j+xydQWrAxsqLYjweok1fWzDmBAA1g/gmFbPyG8kRI/d/+rzXGGLlro8zdS6mJ3Is+8BrIy2ZBmQkoONhowh7A==}
     hasBin: true
     dev: true
+    patched: true
 
   /@humanwhocodes/config-array/0.11.8:
     resolution: {integrity: sha512-UybHIJzJnR5Qc/MsD9Kr+RpO2h+/P1GhOwdiLPXK5TWk5sgTdu88bTD9UP+CKbPPh5Rni1u0GjAdYQLemG8g+g==}
