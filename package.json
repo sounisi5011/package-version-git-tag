@@ -44,7 +44,7 @@
     "which-pm-runs": "^1.1.0"
   },
   "devDependencies": {
-    "@go-task/cli": "3.23.0",
+    "@go-task/cli": "3.27.1",
     "@sindresorhus/slugify": "2.2.0",
     "@sounisi5011/readme-generator": "github:sounisi5011/readme-generator#semver:0.0.2",
     "@tsconfig/node14": "1.0.3",
