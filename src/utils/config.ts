@@ -8,20 +8,6 @@ const isDifferentPackageManagerError = (error: unknown): boolean =>
     typeof error['stderr'] === 'string' &&
     (corepackErrorRegExp.test(error['stdout']) ||
         corepackErrorRegExp.test(error['stderr']));
-/**
- * @returns Returns `false` if the specified `error` is definitely not a segmentation fault error.
- * If `true` is returned, it may not be a segmentation fault error.
- * @note
- * Windows uses the exit code `STATUS_ACCESS_VIOLATION` instead of the signal `SIGSEGV`.
- * This value is typically `0xC0000005`, but the actual value is unknown because it is defined in `NtStatus.h`.
- * Therefore, we assume that all errors are segmentation fault errors on Windows.
- * See https://learn.microsoft.com/en-us/shows/Inside/C0000005,
- *     https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/specific-exceptions
- */
-const maybySegfaultError: (error: unknown) => boolean =
-    process.platform === 'win32'
-        ? () => true
-        : (error) => isObject(error) && error['signal'] === 'SIGSEGV';
 
 /**
  * Run the "pnpm config get ..." command to try to get the config.
@@ -29,57 +15,28 @@ const maybySegfaultError: (error: unknown) => boolean =
  * @throws If the "pnpm config get ..." command fails, an error is thrown.
  */
 async function tryNpmConfigGet(key: string): Promise<string | null> {
-    async function execNpmConfig(): Promise<string | null> {
-        return await execFileAsync('npm', ['config', 'get', key], {
-            env: {
-                ...process.env,
-                // In Corepack v0.14 and later, the environment variable "COREPACK_ENABLE_STRICT" can be used.
-                // This allows npm commands to be used even in projects with non-npm package managers defined.
-                // see https://github.com/nodejs/corepack/tree/v0.14.0#environment-variables
-                COREPACK_ENABLE_STRICT: '0',
-            },
-        })
-            .then(({ stdout }) => stdout.replace(/\n$/, ''))
-            .catch((error: unknown) => {
-                // If an error occurs that is caused by Corepack, ignore the error.
-                // Note: This conditional expression is required to support older Corepacks where the environment variable "COREPACK_ENABLE_STRICT" is not available.
-                if (isDifferentPackageManagerError(error)) {
-                    return null;
-                }
-                // ///// ↓DEBUG↓ /////
-                if (error !== null && error !== undefined)
-                    Object.assign(error, { __at: 'tryNpmConfigGet()' });
-                // ///// ↑DEBUG↑ /////
-                throw error;
-            });
-    }
-
-    try {
-        return await execNpmConfig();
-    } catch (firstError) {
-        // If the error is a segmentation fault, retry the "npm config get ..." command.
-        if (maybySegfaultError(firstError)) {
-            const SEGFAULT_RETRY = 5;
-            // ///// ↓DEBUG↓ /////
-            const errors = [];
-            // ///// ↑DEBUG↑ /////
-            for (let i = 0; i < SEGFAULT_RETRY; i++) {
-                try {
-                    return await execNpmConfig();
-                } catch (error) {
-                    if (!maybySegfaultError(error)) throw error;
-                    // ///// ↓DEBUG↓ /////
-                    errors.push(error);
-                    // ///// ↑DEBUG↑ /////
-                }
+    return await execFileAsync('npm', ['config', 'get', key], {
+        env: {
+            ...process.env,
+            // In Corepack v0.14 and later, the environment variable "COREPACK_ENABLE_STRICT" can be used.
+            // This allows npm commands to be used even in projects with non-npm package managers defined.
+            // see https://github.com/nodejs/corepack/tree/v0.14.0#environment-variables
+            COREPACK_ENABLE_STRICT: '0',
+        },
+    })
+        .then(({ stdout }) => stdout.replace(/\n$/, ''))
+        .catch((error: unknown) => {
+            // If an error occurs that is caused by Corepack, ignore the error.
+            // Note: This conditional expression is required to support older Corepacks where the environment variable "COREPACK_ENABLE_STRICT" is not available.
+            if (isDifferentPackageManagerError(error)) {
+                return null;
             }
             // ///// ↓DEBUG↓ /////
-            if (firstError !== null && firstError !== undefined)
-                Object.assign(firstError, { otherErrors: errors });
+            if (error !== null && error !== undefined)
+                Object.assign(error, { __at: 'tryNpmConfigGet()' });
             // ///// ↑DEBUG↑ /////
-        }
-        throw firstError;
-    }
+            throw error;
+        });
 }
 
 const configListCache = new Map<string, string>();
