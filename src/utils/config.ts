@@ -60,13 +60,23 @@ async function tryNpmConfigGet(key: string): Promise<string | null> {
         // If the error is a segmentation fault, retry the "npm config get ..." command.
         if (maybySegfaultError(firstError)) {
             const SEGFAULT_RETRY = 5;
+            // ///// ↓DEBUG↓ /////
+            const errors = [];
+            // ///// ↑DEBUG↑ /////
             for (let i = 0; i < SEGFAULT_RETRY; i++) {
                 try {
                     return await execNpmConfig();
                 } catch (error) {
                     if (!maybySegfaultError(error)) throw error;
+                    // ///// ↓DEBUG↓ /////
+                    errors.push(error);
+                    // ///// ↑DEBUG↑ /////
                 }
             }
+            // ///// ↓DEBUG↓ /////
+            if (firstError !== null && firstError !== undefined)
+                Object.assign(firstError, { otherErrors: errors });
+            // ///// ↑DEBUG↑ /////
         }
         throw firstError;
     }
