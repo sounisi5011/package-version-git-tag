@@ -20,6 +20,13 @@ const CLI_DIR = path.resolve(TEST_TMP_DIR, '.cli');
 const CLI_PATH = path.resolve(CLI_DIR, 'node_modules', '.bin', PKG_DATA.name);
 
 beforeAll(async () => {
+    // Remove all environment variables prefixed with "npm_"
+    process.env = Object.fromEntries(
+        Object.entries(process.env).filter(
+            ([name]) => !name.startsWith('npm_'),
+        ),
+    );
+
     // Corepack throws an error if it cannot fetch the package manager.
     // This error also occurs on GitHub Actions in rare cases.
     // To avoid this, pre-fetch all package managers used in the tests.
