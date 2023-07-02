@@ -15,6 +15,13 @@ const isDifferentPackageManagerError = (error: unknown): boolean =>
  * @throws If the "pnpm config get ..." command fails, an error is thrown.
  */
 async function tryNpmConfigGet(key: string): Promise<string | null> {
+    // ///// ↓DEBUG↓ /////
+    console.log(
+        await execFileAsync('npm', ['--version'], {
+            env: { ...process.env, COREPACK_ENABLE_STRICT: '0' },
+        }),
+    );
+    // ///// ↑DEBUG↑ /////
     return await execFileAsync('npm', ['config', 'get', key], {
         env: {
             ...process.env,
