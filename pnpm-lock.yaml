@@ -1,15 +1,12 @@
 lockfileVersion: 5.4
 
 patchedDependencies:
-  '@go-task/go-npm@0.1.17':
-    hash: wwmd3vrqctoygjkijta2pwqd2a
-    path: patches/@go-task__go-npm@0.1.17.patch
   is-promise@4.0.0:
     hash: sxlhlcqit3nz4kqhqlpun7y3cm
     path: patches/is-promise@4.0.0.patch
 
 specifiers:
-  '@go-task/cli': 3.23.0
+  '@go-task/cli': 3.27.1
   '@sindresorhus/slugify': 2.2.0
   '@sounisi5011/readme-generator': github:sounisi5011/readme-generator#semver:0.0.2
   '@tsconfig/node14': 1.0.3
@@ -62,7 +59,7 @@ dependencies:
   which-pm-runs: 1.1.0
 
 devDependencies:
-  '@go-task/cli': 3.23.0
+  '@go-task/cli': 3.27.1
   '@sindresorhus/slugify': 2.2.0
   '@sounisi5011/readme-generator': github.com/sounisi5011/readme-generator/536eacc3d4762f6de171aecbf3f06efbeb87fd3a
   '@tsconfig/node14': 1.0.3
@@ -367,18 +364,17 @@ packages:
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     dev: true
 
-  /@go-task/cli/3.23.0:
-    resolution: {integrity: sha512-KnszqWu2KLKjluT/Run/UeQFC38yplNa/3JkdYpVMwtixYAiwO3kDa7cDt9skNlNaa+PuOXvNlaK3zBYx7thoA==}
+  /@go-task/cli/3.27.1:
+    resolution: {integrity: sha512-2FYA3PyIkp6gJDbVWmCT+R6OoEbv867hqrFRMsgjd7pFlwU7euesIUVXyogSRNMhg/1+H/05YB9OpT0CK+Y6gQ==}
     requiresBuild: true
     dependencies:
-      '@go-task/go-npm': 0.1.17_wwmd3vrqctoygjkijta2pwqd2a
+      '@go-task/go-npm': 0.2.0
     dev: true
 
-  /@go-task/go-npm/0.1.17_wwmd3vrqctoygjkijta2pwqd2a:
-    resolution: {integrity: sha512-j+xydQWrAxsqLYjweok1fWzDmBAA1g/gmFbPyG8kRI/d/+rzXGGLlro8zdS6mJ3Is+8BrIy2ZBmQkoONhowh7A==}
+  /@go-task/go-npm/0.2.0:
+    resolution: {integrity: sha512-vQbdtBvesHm8EUFHX8QKg4rbBodmu9VsAXH1ozpbiN5jdTMOYHTCMM31EurAYmY+rNNtxJQ4JGy6t383RPlqbw==}
     hasBin: true
     dev: true
-    patched: true
 
   /@humanwhocodes/config-array/0.11.8:
     resolution: {integrity: sha512-UybHIJzJnR5Qc/MsD9Kr+RpO2h+/P1GhOwdiLPXK5TWk5sgTdu88bTD9UP+CKbPPh5Rni1u0GjAdYQLemG8g+g==}
