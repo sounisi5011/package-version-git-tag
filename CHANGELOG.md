@@ -111,7 +111,7 @@ Because it is the minimum version available for Vitest.
 
 #### devDependencies
 
-* [#228] - `@go-task/cli@3.23.0`
+* [#228], [#230] - `@go-task/cli@3.27.1`
 * [#214], [#227] - `@sindresorhus/slugify@2.2.0`
 * [#186] - `@tsconfig/node14@1.0.3`
 * [#221] - `@types/mock-fs@4.13.1`
@@ -218,6 +218,7 @@ Because it is the minimum version available for Vitest.
 [#226]: https://github.com/sounisi5011/package-version-git-tag/pull/226
 [#227]: https://github.com/sounisi5011/package-version-git-tag/pull/227
 [#228]: https://github.com/sounisi5011/package-version-git-tag/pull/228
+[#230]: https://github.com/sounisi5011/package-version-git-tag/pull/230
 
 ## [3.0.0] (2020-06-02 UTC)
 
