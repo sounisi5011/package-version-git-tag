@@ -794,14 +794,7 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
             if (commad.execCli[0] !== CLI_PATH) {
                 // Always use "pnpm add <folder>", even if the package manager is not pnpm.
                 // This is because the "yarn add /path/to/local/folder" command may fail on GitHub Actions.
-                await exec(['pnpm', 'add', PROJECT_ROOT], {
-                    // When running this test on Windows, it fails when using the pnpm installed for testing.
-                    // To avoid this, the "COREPACK_HOME" environment variable is intentionally removed.
-                    env:
-                        process.platform === 'win32'
-                            ? { COREPACK_HOME: undefined }
-                            : undefined,
-                });
+                await exec(['pnpm', 'add', PROJECT_ROOT]);
             }
             await Promise.all([
                 fs.writeFile(
