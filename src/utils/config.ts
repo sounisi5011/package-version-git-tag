@@ -1,20 +1,12 @@
-import { execFileAsync, isObject } from '../utils.js';
+import { execFileAsync } from '../utils.js';
 import { getPackageManagerData } from './detect-package-manager.js';
-
-const corepackErrorRegExp = /\bThis project is configured to use \w+\b/i;
-const isDifferentPackageManagerError = (error: unknown): boolean =>
-    isObject(error) &&
-    typeof error['stdout'] === 'string' &&
-    typeof error['stderr'] === 'string' &&
-    (corepackErrorRegExp.test(error['stdout']) ||
-        corepackErrorRegExp.test(error['stderr']));
 
 /**
  * Run the "pnpm config get ..." command to try to get the config.
  * @returns Return `null` if npm execution is refused by Corepack. Otherwise, return the value of the config.
  * @throws If the "pnpm config get ..." command fails, an error is thrown.
  */
-async function tryNpmConfigGet(key: string): Promise<string | null> {
+async function tryNpmConfigGet(key: string): Promise<string> {
     return await execFileAsync('npm', ['config', 'get', key], {
         env: {
             ...process.env,
@@ -26,11 +18,6 @@ async function tryNpmConfigGet(key: string): Promise<string | null> {
     })
         .then(({ stdout }) => stdout.replace(/\n$/, ''))
         .catch((error: unknown) => {
-            // If an error occurs that is caused by Corepack, ignore the error.
-            // Note: This conditional expression is required to support older Corepacks where the environment variable "COREPACK_ENABLE_STRICT" is not available.
-            if (isDifferentPackageManagerError(error)) {
-                return null;
-            }
             // ///// ↓DEBUG↓ /////
             if (error !== null && error !== undefined)
                 Object.assign(error, { __at: 'tryNpmConfigGet()' });
@@ -108,7 +95,7 @@ export async function getConfig(
     // see https://github.com/pnpm/pnpm/blob/v7.30.0/pnpm/src/pnpm.ts#L27-L61
     // If possible, the "npm config get ..." command should be executed instead.
     if (packageManager.name === 'pnpm') {
-        const result = await tryNpmConfigGet(keyMap.npm);
+        const result = await tryNpmConfigGet(keyMap.npm).catch(() => null);
         if (result !== null) return result;
     }
 
