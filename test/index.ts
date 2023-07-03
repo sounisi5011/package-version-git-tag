@@ -730,6 +730,13 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
                     semver: new semver.SemVer(packageManagerSemVer),
                 };
             })();
+            // On Windows, the pnpm command will fail if the "APPDATA" environment variable does not exist.
+            // This is caused by pnpm's dependency "@pnpm/npm-conf".
+            // see https://github.com/pnpm/npm-conf/blob/ff043813516e16597de96a787c710de0b15e9aa9/lib/defaults.js#L29-L30
+            const pnpmEnv: NodeJS.ProcessEnv =
+                process.platform === 'win32'
+                    ? { APPDATA: process.env['APPDATA'] }
+                    : {};
             const { exec, gitDirpath, version } = await initGit(
                 tmpDir(
                     'CLI should add Git tag with customized tag prefix',
@@ -738,14 +745,8 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
                 ),
                 {
                     execDefaultEnv: {
+                        ...(packageManager?.type === 'pnpm' ? pnpmEnv : {}),
                         COREPACK_HOME,
-                        // On Windows, the pnpm command will fail if the "APPDATA" environment variable does not exist.
-                        // This is caused by pnpm's dependency "@pnpm/npm-conf".
-                        // see https://github.com/pnpm/npm-conf/blob/ff043813516e16597de96a787c710de0b15e9aa9/lib/defaults.js#L29-L30
-                        ...(packageManager?.type === 'pnpm' &&
-                        process.platform === 'win32'
-                            ? { APPDATA: process.env['APPDATA'] }
-                            : {}),
                     },
                 },
             );
@@ -794,7 +795,12 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
             if (commad.execCli[0] !== CLI_PATH) {
                 // Always use "pnpm add <folder>", even if the package manager is not pnpm.
                 // This is because the "yarn add /path/to/local/folder" command may fail on GitHub Actions.
-                await exec(['pnpm', 'add', PROJECT_ROOT]);
+                // Note: This pnpm command is always executed independent of the value of "packageManager.type".
+                //       Do not omit to specify "pnpmEnv"!
+                //       The "APPDATA" environment variable is required,
+                //       but the default "env" option specified in "execDefaultEnv" has the "APPDATA" environment variable
+                //       only if "packageManager.type === 'pnpm'".
+                await exec(['pnpm', 'add', PROJECT_ROOT], { env: pnpmEnv });
             }
             await Promise.all([
                 fs.writeFile(
