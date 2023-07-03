@@ -472,7 +472,11 @@ jobs:
 
       - name: Run unit test
         if: ${{ env.run-test }}
-        run: pnpm run test --test-only
+        # run: pnpm run test --test-only
+        run: pnpm exec vitest
+        # Note: When we run Vitest on GitHub Actions using the "task" command, the test fails
+        #       because the "npm config get ..." command that the CLI executes internally is killed by the SIGSEGV signal.
+        #       We avoid this by running the "vitest" command directly.
 
   # Successfully complete this job when all jobs have been completed.
   # Only by checking this job, it is possible to determine if CI is complete or not.
