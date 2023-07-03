@@ -93,7 +93,7 @@ describe.concurrent('CLI should add Git tag', () => {
         ).resolves.toMatchObject({ stdout: '', stderr: '' });
 
         await expect(
-            exec([CLI_PATH, ...cliArgs]),
+            exec([CLI_PATH, ...cliArgs], { env: { COREPACK_HOME } }),
             'CLI should exits successfully',
         ).resolves.toMatchObject({
             stdout: '',
@@ -130,7 +130,7 @@ describe.concurrent('CLI should not add Git tag with dry-run', () => {
         ).resolves.toStrictEqual({ stdout: '', stderr: '' });
 
         await expect(
-            exec([CLI_PATH, option]),
+            exec([CLI_PATH, option], { env: { COREPACK_HOME } }),
             'CLI should exits successfully',
         ).resolves.toMatchObject({
             stdout: '',
@@ -219,7 +219,7 @@ describe.concurrent(
             });
 
             await expect(
-                exec([CLI_PATH, ...cliArgs]),
+                exec([CLI_PATH, ...cliArgs], { env: { COREPACK_HOME } }),
                 'CLI should exits successfully',
             ).resolves.toMatchObject({
                 stdout: '',
@@ -253,13 +253,14 @@ test.concurrent(
             stderr: expect.stringContaining(`tag 'v${version}' already exists`),
         });
 
-        await expect(exec([CLI_PATH]), 'CLI should fail').rejects.toMatchObject(
-            {
-                exitCode: 1,
-                stdout: '',
-                stderr: `Git tag 'v${version}' already exists`,
-            },
-        );
+        await expect(
+            exec([CLI_PATH], { env: { COREPACK_HOME } }),
+            'CLI should fail',
+        ).rejects.toMatchObject({
+            exitCode: 1,
+            stdout: '',
+            stderr: `Git tag 'v${version}' already exists`,
+        });
     },
 );
 
@@ -283,7 +284,7 @@ test.concurrent(
         });
 
         await expect(
-            exec([CLI_PATH, '--push']),
+            exec([CLI_PATH, '--push'], { env: { COREPACK_HOME } }),
             'CLI should try git push and should fail',
         ).rejects.toMatchObject({
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -345,7 +346,7 @@ describe.concurrent('CLI should add and push Git tag', () => {
         ).resolves.toSatisfy(() => true);
 
         await expect(
-            exec([CLI_PATH, '--push', ...cliArgs]),
+            exec([CLI_PATH, '--push', ...cliArgs], { env: { COREPACK_HOME } }),
             'CLI should exits successfully',
         ).resolves.toMatchObject({
             stdout: '',
@@ -398,7 +399,7 @@ test.concurrent(
         ).resolves.toSatisfy(() => true);
 
         await expect(
-            exec([CLI_PATH, '--push', '--dry-run']),
+            exec([CLI_PATH, '--push', '--dry-run'], { env: { COREPACK_HOME } }),
             'CLI should exits successfully',
         ).resolves.toMatchObject({
             stdout: '',
@@ -438,7 +439,7 @@ test.concurrent('CLI should add and push single Git tag', async () => {
     ).resolves.toSatisfy(() => true);
 
     await expect(
-        exec([CLI_PATH, '--push']),
+        exec([CLI_PATH, '--push'], { env: { COREPACK_HOME } }),
         'CLI should not output anything',
     ).resolves.toMatchObject({ stdout: '', stderr: '' });
 
@@ -506,7 +507,7 @@ describe.concurrent.each(
         ).resolves.toStrictEqual({ stdout: '', stderr: '' });
 
         await expect(
-            exec([CLI_PATH, option]),
+            exec([CLI_PATH, option], { env: { COREPACK_HOME } }),
             'CLI should exits successfully',
         ).resolves.toMatchObject({
             stdout: expected,
@@ -535,7 +536,7 @@ test.concurrent('CLI should not work with unknown options', async () => {
 
     const unknownOption = '--lololololololololololololololol';
     await expect(
-        exec([CLI_PATH, unknownOption]),
+        exec([CLI_PATH, unknownOption], { env: { COREPACK_HOME } }),
         'CLI should fail',
     ).rejects.toMatchObject({
         exitCode: 1,
