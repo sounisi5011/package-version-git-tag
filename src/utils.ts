@@ -144,18 +144,7 @@ function execExithandler({
         }
 
         const error = new Error(`Command failed: ${cmd}\n${stderr}`);
-        // ///// ↓DEBUG↓ /////
-        reject(
-            Object.assign(error, {
-                code,
-                signal,
-                command,
-                args,
-                stdout,
-                stderr,
-            }),
-        );
-        // ///// ↑DEBUG↑ /////
+        reject(Object.assign(error, { code, stdout, stderr }));
     };
 }
 

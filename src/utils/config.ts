@@ -44,10 +44,6 @@ async function tryNpmConfigGet(key: string): Promise<string | null> {
             if (isDifferentPackageManagerError(error)) {
                 return null;
             }
-            // ///// ↓DEBUG↓ /////
-            if (error !== null && error !== undefined)
-                Object.assign(error, { __at: 'tryNpmConfigGet()' });
-            // ///// ↑DEBUG↑ /////
             throw error;
         });
 }
@@ -128,15 +124,7 @@ export async function getConfig(
     const result = await execFileAsync(
         packageManager.spawnArgs[0],
         packageManager.spawnArgs[1].concat('config', 'get', key),
-    )
-        .then(({ stdout }) => stdout.replace(/\n$/, ''))
-        // ///// ↓DEBUG↓ /////
-        .catch((error) => {
-            if (error !== null && error !== undefined)
-                Object.assign(error, { __at: 'getConfig()' });
-            throw error;
-        });
-    // ///// ↑DEBUG↑ /////
+    ).then(({ stdout }) => stdout.replace(/\n$/, ''));
 
     // The "pnpm config get ..." command does not detect npm builtin config.
     // And if the config is not defined, the "pnpm config get ..." command returns an empty string.
