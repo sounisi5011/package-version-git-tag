@@ -1,7 +1,3 @@
-// ///// ↓DEBUG↓ /////
-import url from 'node:url';
-
-// ///// ↑DEBUG↑ /////
 import { execFileAsync, isObject } from '../utils.js';
 import { getPackageManagerData } from './detect-package-manager.js';
 
@@ -26,15 +22,6 @@ async function tryNpmConfigGet(key: string): Promise<string | null> {
             // This allows npm commands to be used even in projects with non-npm package managers defined.
             // see https://github.com/nodejs/corepack/tree/v0.14.0#environment-variables
             COREPACK_ENABLE_STRICT: '0',
-            // ///// ↓DEBUG↓ /////
-            NODE_OPTIONS:
-                `${process.env['NODE_OPTIONS'] ?? ''} ` +
-                `--require "${url
-                    .fileURLToPath(
-                        new URL('./segfault-handler.cjs', import.meta.url),
-                    )
-                    .replace(/[\\"]/g, '\\$&')}"`,
-            // ///// ↑DEBUG↑ /////
         },
     })
         .then(({ stdout }) => stdout.replace(/\n$/, ''))
