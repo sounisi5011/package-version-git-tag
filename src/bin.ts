@@ -43,8 +43,6 @@ await (async () => {
 
     await main(options).catch((error) => {
         process.exitCode = 1;
-        // ///// ↓DEBUG↓ /////
-        console.error(error);
-        // ///// ↑DEBUG↑ /////
+        console.error(error instanceof Error ? error.message : error);
     });
 })();
