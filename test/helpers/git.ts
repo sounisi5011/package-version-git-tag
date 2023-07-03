@@ -14,10 +14,14 @@ export type ExecFunc = (
 ) => ExecaChildProcess;
 export type GitRemote = PromiseValue<ReturnType<typeof initGitServer>>;
 
+interface InitGitOptions {
+    execDefaultEnv?: NodeJS.ProcessEnv | undefined;
+}
+
 /* eslint-disable import/export */
 export async function initGit(
     dirpath: string,
-    options: {
+    options: InitGitOptions & {
         useRemoteRepo: true;
     },
 ): Promise<{
@@ -28,7 +32,7 @@ export async function initGit(
 }>;
 export async function initGit(
     dirpath: string,
-    options?: {
+    options?: InitGitOptions & {
         useRemoteRepo?: false | undefined;
     },
 ): Promise<{
@@ -39,7 +43,7 @@ export async function initGit(
 }>;
 export async function initGit(
     dirpath: string,
-    options?: {
+    options?: InitGitOptions & {
         useRemoteRepo?: boolean | undefined;
     },
 ): Promise<{
@@ -49,14 +53,19 @@ export async function initGit(
     remote: null | GitRemote;
 }> {
     const gitDirpath = path.resolve(dirpath);
+    const execDefaultEnv = options?.execDefaultEnv;
     const exec: ExecFunc = ([command, ...args], options) =>
         execa(command, args, {
             cwd: gitDirpath,
             extendEnv: false,
             ...options,
-            // By default, only the PATH environment variable is inherited.
+            // By default, only the PATH environment variable and execDefaultEnv are inherited.
             // This is because some tests are broken by inheriting environment variables.
-            env: { PATH: process.env['PATH'], ...options?.env },
+            env: {
+                PATH: process.env['PATH'],
+                ...execDefaultEnv,
+                ...options?.env,
+            },
         });
     const version = [
         getRandomInt(0, 99),

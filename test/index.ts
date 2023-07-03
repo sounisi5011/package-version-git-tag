@@ -85,6 +85,7 @@ describe.concurrent('CLI should add Git tag', () => {
     )('%s', async (testName, { cliArgs, expected }) => {
         const { exec, version } = await initGit(
             tmpDir('CLI should add Git tag', testName),
+            { execDefaultEnv: { COREPACK_HOME } },
         );
 
         await expect(
@@ -119,6 +120,7 @@ describe.concurrent('CLI should not add Git tag with dry-run', () => {
     test.each(['-n', '--dry-run'])('%s', async (option) => {
         const { exec, version } = await initGit(
             tmpDir('CLI should not add Git tag with dry-run', option),
+            { execDefaultEnv: { COREPACK_HOME } },
         );
 
         const gitTagResult = exec(['git', 'tag', '-l']).then(
@@ -195,6 +197,7 @@ describe.concurrent(
                     'CLI should complete successfully if Git tag has been added',
                     testName,
                 ),
+                { execDefaultEnv: { COREPACK_HOME } },
             );
             await exec(['git', 'tag', `v${version}`]);
 
@@ -240,6 +243,7 @@ test.concurrent(
     async () => {
         const { exec, version } = await initGit(
             tmpDir('CLI should fail if Git tag exists on different commits'),
+            { execDefaultEnv: { COREPACK_HOME } },
         );
 
         await exec(['git', 'tag', `v${version}`]);
@@ -270,6 +274,7 @@ test.concurrent(
             tmpDir(
                 'CLI push flag should fail if there is no remote repository',
             ),
+            { execDefaultEnv: { COREPACK_HOME } },
         );
 
         await expect(
@@ -336,6 +341,7 @@ describe.concurrent('CLI should add and push Git tag', () => {
             version,
             remote: { tagList },
         } = await initGit(tmpDir('CLI should add and push Git tag', testName), {
+            execDefaultEnv: { COREPACK_HOME },
             useRemoteRepo: true,
         });
 
@@ -381,7 +387,10 @@ test.concurrent(
             remote: { tagList },
         } = await initGit(
             tmpDir('CLI should not add and not push Git tag with dry-run'),
-            { useRemoteRepo: true },
+            {
+                execDefaultEnv: { COREPACK_HOME },
+                useRemoteRepo: true,
+            },
         );
 
         const gitTagResult = exec(['git', 'tag', '-l']).then(
@@ -425,6 +434,7 @@ test.concurrent('CLI should add and push single Git tag', async () => {
         version,
         remote: { tagList },
     } = await initGit(tmpDir('CLI should add and push single Git tag'), {
+        execDefaultEnv: { COREPACK_HOME },
         useRemoteRepo: true,
     });
 
@@ -495,6 +505,7 @@ describe.concurrent.each(
     test.each(optionList)('%s', async (option) => {
         const { exec } = await initGit(
             tmpDir(`CLI should to display`, testName, option),
+            { execDefaultEnv: { COREPACK_HOME } },
         );
 
         const gitTagResult = exec(['git', 'tag', '-l']).then(
@@ -523,6 +534,7 @@ describe.concurrent.each(
 test.concurrent('CLI should not work with unknown options', async () => {
     const { exec } = await initGit(
         tmpDir('CLI should not work with unknown options'),
+        { execDefaultEnv: { COREPACK_HOME } },
     );
 
     const gitTagResult = exec(['git', 'tag', '-l']).then(
@@ -699,13 +711,6 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
             testName: string,
             { pkgJson, configFile, commad }: Case,
         ): Promise<void> => {
-            const { exec, gitDirpath, version } = await initGit(
-                tmpDir(
-                    'CLI should add Git tag with customized tag prefix',
-                    ...uniqueNameList,
-                    testName,
-                ),
-            );
             const configValue: Record<typeof configFile, string> | undefined =
                 typeof customPrefix === 'string'
                     ? {
@@ -732,10 +737,19 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
                 process.platform === 'win32'
                     ? { APPDATA: process.env['APPDATA'] }
                     : {};
-            const env: NodeJS.ProcessEnv = {
-                ...(packageManager?.type === 'pnpm' ? pnpmEnv : {}),
-                COREPACK_HOME,
-            };
+            const { exec, gitDirpath, version } = await initGit(
+                tmpDir(
+                    'CLI should add Git tag with customized tag prefix',
+                    ...uniqueNameList,
+                    testName,
+                ),
+                {
+                    execDefaultEnv: {
+                        ...(packageManager?.type === 'pnpm' ? pnpmEnv : {}),
+                        COREPACK_HOME,
+                    },
+                },
+            );
             const pnpmConfig =
                 packageManager?.type !== 'pnpm'
                     ? undefined
@@ -769,7 +783,6 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
                                   ['pnpm', 'config', 'get', 'node-version'],
                                   {
                                       env: {
-                                          ...env,
                                           COREPACK_ENABLE_STRICT: '0',
                                       },
                                   },
@@ -782,6 +795,11 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
             if (commad.execCli[0] !== CLI_PATH) {
                 // Always use "pnpm add <folder>", even if the package manager is not pnpm.
                 // This is because the "yarn add /path/to/local/folder" command may fail on GitHub Actions.
+                // Note: This pnpm command is always executed independent of the value of "packageManager.type".
+                //       Do not omit to specify "pnpmEnv"!
+                //       The "APPDATA" environment variable is required,
+                //       but the default "env" option specified in "execDefaultEnv" has the "APPDATA" environment variable
+                //       only if "packageManager.type === 'pnpm'".
                 await exec(['pnpm', 'add', PROJECT_ROOT], { env: pnpmEnv });
             }
             await Promise.all([
@@ -811,9 +829,7 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
             ]);
 
             if (packageManager) {
-                await expect(
-                    exec(commad.version, { env }),
-                ).resolves.toMatchObject({
+                await expect(exec(commad.version)).resolves.toMatchObject({
                     stdout: packageManager.semver.version,
                     stderr: '',
                 });
@@ -822,9 +838,8 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
                 await expect(
                     exec(commad.getPrefix, {
                         env: pnpmConfig?.isNewPnpmConfig
-                            ? env
+                            ? {}
                             : {
-                                  ...env,
                                   // The old pnpm "pnpm config" command executes the "npm config" command internally.
                                   // see https://github.com/pnpm/pnpm/blob/v7.19.0/pnpm/src/pnpm.ts#L27-L64
                                   // Thus, we will set this environment variable so that npm can be used.
@@ -840,9 +855,8 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
                 await expect(
                     exec(commad.getPrefix, {
                         env: pnpmConfig?.isNewPnpmConfig
-                            ? env
+                            ? {}
                             : {
-                                  ...env,
                                   // The old pnpm "pnpm config" command executes the "npm config" command internally.
                                   // see https://github.com/pnpm/pnpm/blob/v7.19.0/pnpm/src/pnpm.ts#L27-L64
                                   // Thus, we will set this environment variable so that npm can be used.
@@ -866,7 +880,7 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
             ).resolves.toMatchObject({ stdout: '', stderr: '' });
 
             await expect(
-                exec(commad.execCli, { env }),
+                exec(commad.execCli),
                 'CLI should exits successfully',
             ).resolves.toSatisfy(() => true);
 
@@ -889,7 +903,6 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
             await exec(['git', 'commit', '-m', 'Second commit']);
             await exec(commad.setNewVersion(newVersion), {
                 env: {
-                    ...env,
                     // The "pnpm version" command executes the "npm version" command internally.
                     // see https://github.com/pnpm/pnpm/blob/v7.30.0/pnpm/src/pnpm.ts#L27-L61
                     // Thus, we will set this environment variable so that npm can be used.
