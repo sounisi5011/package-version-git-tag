@@ -7,6 +7,7 @@ import { commandJoin } from 'command-join';
 import type { ExecaChildProcess } from 'execa';
 import { execa } from 'execa';
 import semver from 'semver';
+import type * as vitest from 'vitest';
 import { beforeAll, describe, expect, test } from 'vitest';
 
 import PKG_DATA from '../package.json';
@@ -62,164 +63,36 @@ describe.concurrent('CLI should add Git tag', () => {
         expected: (version: string) => Partial<Awaited<ExecaChildProcess>>;
     }
 
-    test.each(
-        Object.entries<Case>({
-            normal: {
-                cliArgs: [],
-                expected: () => ({
-                    stderr: '',
-                }),
-            },
-            'with verbose output': {
-                cliArgs: ['--verbose'],
-                expected: (version) => ({
-                    stderr: [
-                        '',
-                        `> git tag v${version} -m ${version}`,
-                        '',
-                        //
-                    ].join('\n'),
-                }),
-            },
-        }),
-    )('%s', async (testName, { cliArgs, expected }) => {
-        const { exec, version } = await initGit(
-            tmpDir('CLI should add Git tag', testName),
-            { execDefaultEnv: { COREPACK_HOME } },
-        );
-
-        await expect(
-            exec(['git', 'tag', '-l']),
-            'Git tag should not exist yet',
-        ).resolves.toMatchObject({ stdout: '', stderr: '' });
-
-        await expect(
-            exec([CLI_PATH, ...cliArgs]),
-            'CLI should exits successfully',
-        ).resolves.toMatchObject({
-            stdout: '',
-            stderr: '',
-            ...expected(version),
-        });
-
-        await expect(
-            exec([
-                'git',
-                'for-each-ref',
-                '--format=%(objecttype) %(refname)',
-                'refs/tags',
-            ]),
-            `Git annotated tag 'v${version}' should be added`,
-        ).resolves.toMatchObject({
-            stdout: `tag refs/tags/v${version}`,
-        });
-    });
-});
-
-describe.concurrent('CLI should not add Git tag with dry-run', () => {
-    test.each(['-n', '--dry-run'])('%s', async (option) => {
-        const { exec, version } = await initGit(
-            tmpDir('CLI should not add Git tag with dry-run', option),
-            { execDefaultEnv: { COREPACK_HOME } },
-        );
-
-        const gitTagResult = exec(['git', 'tag', '-l']).then(
-            ({ stdout, stderr }) => ({ stdout, stderr }),
-        );
-        await expect(
-            gitTagResult,
-            'Git tag should not exist yet',
-        ).resolves.toStrictEqual({ stdout: '', stderr: '' });
-
-        await expect(
-            exec([CLI_PATH, option]),
-            'CLI should exits successfully',
-        ).resolves.toMatchObject({
-            stdout: '',
-            stderr: [
-                'Dry Run enabled',
-                '',
-                `> git tag v${version} -m ${version}`,
-                '',
-            ].join('\n'),
-        });
-
-        await expect(
-            exec(['git', 'tag', '-l']),
-            'Git tag should not change',
-        ).resolves.toMatchObject(await gitTagResult);
-    });
-});
-
-describe.concurrent(
-    'CLI should complete successfully if Git tag has been added',
-    () => {
-        interface Case {
-            cliArgs: readonly string[];
-            expected: (version: string) => Partial<Awaited<ExecaChildProcess>>;
-        }
-
-        test.each(
-            Object.entries<Case>({
-                normal: {
-                    cliArgs: [],
-                    expected: () => ({
-                        stderr: '',
-                    }),
-                },
-                'with verbose output': {
-                    cliArgs: ['--verbose'],
-                    expected: (version) => ({
-                        stderr: [
-                            '',
-                            `> #git tag v${version} -m ${version}`,
-                            `  # tag 'v${version}' already exists`,
-                            '',
-                        ].join('\n'),
-                    }),
-                },
-                'with dry-run': {
-                    cliArgs: ['--dry-run'],
-                    expected: (version) => ({
-                        stderr: [
-                            'Dry Run enabled',
-                            '',
-                            `> #git tag v${version} -m ${version}`,
-                            `  # tag 'v${version}' already exists`,
-                            '',
-                        ].join('\n'),
-                    }),
-                },
-            }),
-        )('%s', async (testName, { cliArgs, expected }) => {
-            const { exec, version } = await initGit(
-                tmpDir(
-                    'CLI should complete successfully if Git tag has been added',
-                    testName,
-                ),
-                { execDefaultEnv: { COREPACK_HOME } },
-            );
-            await exec(['git', 'tag', `v${version}`]);
-
-            const gitTagResult = exec(['git', 'tag', '-l']).then(
-                ({ stdout, stderr }) => ({ stdout, stderr }),
-            );
-            await expect(
-                gitTagResult,
-                `Git tag 'v${version}' should exist`,
-            ).resolves.toStrictEqual({
-                stdout: `v${version}`,
+    const cases: Record<string, Case> = {
+        normal: {
+            cliArgs: [],
+            expected: () => ({
                 stderr: '',
+            }),
+        },
+        'with verbose output': {
+            cliArgs: ['--verbose'],
+            expected: (version) => ({
+                stderr: [
+                    '',
+                    `> git tag v${version} -m ${version}`,
+                    '',
+                    //
+                ].join('\n'),
+            }),
+        },
+    };
+    for (const [testName, { cliArgs, expected }] of Object.entries(cases)) {
+        // eslint-disable-next-line vitest/no-done-callback
+        test(testName, async (ctx) => {
+            const { exec, version } = await initGit(tmpDir(ctx), {
+                execDefaultEnv: { COREPACK_HOME },
             });
+
             await expect(
-                exec(['git', 'tag', `v${version}`]),
-                'Overwriting tags with git cli should fail',
-            ).rejects.toMatchObject({
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                stderr: expect.stringContaining(
-                    `tag 'v${version}' already exists`,
-                ),
-            });
+                exec(['git', 'tag', '-l']),
+                'Git tag should not exist yet',
+            ).resolves.toMatchObject({ stdout: '', stderr: '' });
 
             await expect(
                 exec([CLI_PATH, ...cliArgs]),
@@ -231,20 +104,149 @@ describe.concurrent(
             });
 
             await expect(
+                exec([
+                    'git',
+                    'for-each-ref',
+                    '--format=%(objecttype) %(refname)',
+                    'refs/tags',
+                ]),
+                `Git annotated tag 'v${version}' should be added`,
+            ).resolves.toMatchObject({
+                stdout: `tag refs/tags/v${version}`,
+            });
+        });
+    }
+});
+
+describe.concurrent('CLI should not add Git tag with dry-run', () => {
+    for (const option of ['-n', '--dry-run']) {
+        // eslint-disable-next-line vitest/no-done-callback
+        test(option, async (ctx) => {
+            const { exec, version } = await initGit(tmpDir(ctx), {
+                execDefaultEnv: { COREPACK_HOME },
+            });
+
+            const gitTagResult = exec(['git', 'tag', '-l']).then(
+                ({ stdout, stderr }) => ({ stdout, stderr }),
+            );
+            await expect(
+                gitTagResult,
+                'Git tag should not exist yet',
+            ).resolves.toStrictEqual({ stdout: '', stderr: '' });
+
+            await expect(
+                exec([CLI_PATH, option]),
+                'CLI should exits successfully',
+            ).resolves.toMatchObject({
+                stdout: '',
+                stderr: [
+                    'Dry Run enabled',
+                    '',
+                    `> git tag v${version} -m ${version}`,
+                    '',
+                ].join('\n'),
+            });
+
+            await expect(
                 exec(['git', 'tag', '-l']),
                 'Git tag should not change',
             ).resolves.toMatchObject(await gitTagResult);
         });
+    }
+});
+
+describe.concurrent(
+    'CLI should complete successfully if Git tag has been added',
+    () => {
+        interface Case {
+            cliArgs: readonly string[];
+            expected: (version: string) => Partial<Awaited<ExecaChildProcess>>;
+        }
+
+        const cases: Record<string, Case> = {
+            normal: {
+                cliArgs: [],
+                expected: () => ({
+                    stderr: '',
+                }),
+            },
+            'with verbose output': {
+                cliArgs: ['--verbose'],
+                expected: (version) => ({
+                    stderr: [
+                        '',
+                        `> #git tag v${version} -m ${version}`,
+                        `  # tag 'v${version}' already exists`,
+                        '',
+                    ].join('\n'),
+                }),
+            },
+            'with dry-run': {
+                cliArgs: ['--dry-run'],
+                expected: (version) => ({
+                    stderr: [
+                        'Dry Run enabled',
+                        '',
+                        `> #git tag v${version} -m ${version}`,
+                        `  # tag 'v${version}' already exists`,
+                        '',
+                    ].join('\n'),
+                }),
+            },
+        };
+        for (const [testName, { cliArgs, expected }] of Object.entries(cases)) {
+            // eslint-disable-next-line vitest/no-done-callback
+            test(testName, async (ctx) => {
+                const { exec, version } = await initGit(tmpDir(ctx), {
+                    execDefaultEnv: { COREPACK_HOME },
+                });
+                await exec(['git', 'tag', `v${version}`]);
+
+                const gitTagResult = exec(['git', 'tag', '-l']).then(
+                    ({ stdout, stderr }) => ({ stdout, stderr }),
+                );
+                await expect(
+                    gitTagResult,
+                    `Git tag 'v${version}' should exist`,
+                ).resolves.toStrictEqual({
+                    stdout: `v${version}`,
+                    stderr: '',
+                });
+                await expect(
+                    exec(['git', 'tag', `v${version}`]),
+                    'Overwriting tags with git cli should fail',
+                ).rejects.toMatchObject({
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                    stderr: expect.stringContaining(
+                        `tag 'v${version}' already exists`,
+                    ),
+                });
+
+                await expect(
+                    exec([CLI_PATH, ...cliArgs]),
+                    'CLI should exits successfully',
+                ).resolves.toMatchObject({
+                    stdout: '',
+                    stderr: '',
+                    ...expected(version),
+                });
+
+                await expect(
+                    exec(['git', 'tag', '-l']),
+                    'Git tag should not change',
+                ).resolves.toMatchObject(await gitTagResult);
+            });
+        }
     },
 );
 
 test.concurrent(
     'CLI should fail if Git tag exists on different commits',
-    async () => {
-        const { exec, version } = await initGit(
-            tmpDir('CLI should fail if Git tag exists on different commits'),
-            { execDefaultEnv: { COREPACK_HOME } },
-        );
+    // eslint-disable-next-line vitest/no-done-callback
+    async (ctx) => {
+        const { exec, version } = await initGit(tmpDir(ctx), {
+            execDefaultEnv: { COREPACK_HOME },
+        });
 
         await exec(['git', 'tag', `v${version}`]);
         await exec(['git', 'commit', '--allow-empty', '-m', 'Second commit']);
@@ -269,13 +271,11 @@ test.concurrent(
 
 test.concurrent(
     'CLI push flag should fail if there is no remote repository',
-    async () => {
-        const { exec, version } = await initGit(
-            tmpDir(
-                'CLI push flag should fail if there is no remote repository',
-            ),
-            { execDefaultEnv: { COREPACK_HOME } },
-        );
+    // eslint-disable-next-line vitest/no-done-callback
+    async (ctx) => {
+        const { exec, version } = await initGit(tmpDir(ctx), {
+            execDefaultEnv: { COREPACK_HOME },
+        });
 
         await expect(
             exec(['git', 'push', '--dry-run', 'origin', 'HEAD']),
@@ -317,81 +317,81 @@ describe.concurrent('CLI should add and push Git tag', () => {
         expected: (version: string) => Partial<Awaited<ExecaChildProcess>>;
     }
 
-    test.each(
-        Object.entries<Case>({
-            normal: {
-                cliArgs: [],
-                expected: () => ({ stderr: '' }),
-            },
-            'with verbose output': {
-                cliArgs: ['--verbose'],
-                expected: (version) => ({
-                    stderr: [
-                        '',
-                        `> git tag v${version} -m ${version}`,
-                        `> git push origin v${version}`,
-                        '',
-                    ].join('\n'),
-                }),
-            },
-        }),
-    )('%s', async (testName, { cliArgs, expected }) => {
-        const {
-            exec,
-            version,
-            remote: { tagList },
-        } = await initGit(tmpDir('CLI should add and push Git tag', testName), {
-            execDefaultEnv: { COREPACK_HOME },
-            useRemoteRepo: true,
+    const cases: Record<string, Case> = {
+        normal: {
+            cliArgs: [],
+            expected: () => ({ stderr: '' }),
+        },
+        'with verbose output': {
+            cliArgs: ['--verbose'],
+            expected: (version) => ({
+                stderr: [
+                    '',
+                    `> git tag v${version} -m ${version}`,
+                    `> git push origin v${version}`,
+                    '',
+                ].join('\n'),
+            }),
+        },
+    };
+    for (const [testName, { cliArgs, expected }] of Object.entries(cases)) {
+        // eslint-disable-next-line vitest/no-done-callback
+        test(testName, async (ctx) => {
+            const {
+                exec,
+                version,
+                remote: { tagList },
+            } = await initGit(tmpDir(ctx), {
+                execDefaultEnv: { COREPACK_HOME },
+                useRemoteRepo: true,
+            });
+
+            await expect(
+                exec(['git', 'push', '--dry-run', 'origin', 'HEAD']),
+                'Git push should success',
+            ).resolves.toSatisfy(() => true);
+
+            await expect(
+                exec([CLI_PATH, '--push', ...cliArgs]),
+                'CLI should exits successfully',
+            ).resolves.toMatchObject({
+                stdout: '',
+                stderr: '',
+                ...expected(version),
+            });
+
+            await expect(
+                exec([
+                    'git',
+                    'for-each-ref',
+                    '--format=%(objecttype) %(refname)',
+                    'refs/tags',
+                ]),
+                `Git annotated tag 'v${version}' should be added`,
+            ).resolves.toMatchObject({
+                stdout: `tag refs/tags/v${version}`,
+            });
+
+            expect(
+                tagList,
+                `Git tag 'v${version}' should have been pushed`,
+            ).toStrictEqual([`v${version}`]);
         });
-
-        await expect(
-            exec(['git', 'push', '--dry-run', 'origin', 'HEAD']),
-            'Git push should success',
-        ).resolves.toSatisfy(() => true);
-
-        await expect(
-            exec([CLI_PATH, '--push', ...cliArgs]),
-            'CLI should exits successfully',
-        ).resolves.toMatchObject({
-            stdout: '',
-            stderr: '',
-            ...expected(version),
-        });
-
-        await expect(
-            exec([
-                'git',
-                'for-each-ref',
-                '--format=%(objecttype) %(refname)',
-                'refs/tags',
-            ]),
-            `Git annotated tag 'v${version}' should be added`,
-        ).resolves.toMatchObject({
-            stdout: `tag refs/tags/v${version}`,
-        });
-
-        expect(
-            tagList,
-            `Git tag 'v${version}' should have been pushed`,
-        ).toStrictEqual([`v${version}`]);
-    });
+    }
 });
 
 test.concurrent(
     'CLI should not add and not push Git tag with dry-run',
-    async () => {
+    // eslint-disable-next-line vitest/no-done-callback
+    async (ctx) => {
         const {
             exec,
             version,
             remote: { tagList },
-        } = await initGit(
-            tmpDir('CLI should not add and not push Git tag with dry-run'),
-            {
-                execDefaultEnv: { COREPACK_HOME },
-                useRemoteRepo: true,
-            },
-        );
+        } = await initGit(tmpDir(ctx), {
+            execDefaultEnv: { COREPACK_HOME },
+            useRemoteRepo: true,
+        });
 
         const gitTagResult = exec(['git', 'tag', '-l']).then(
             ({ stdout, stderr }) => ({ stdout, stderr }),
@@ -428,12 +428,13 @@ test.concurrent(
     },
 );
 
-test.concurrent('CLI should add and push single Git tag', async () => {
+// eslint-disable-next-line vitest/no-done-callback
+test.concurrent('CLI should add and push single Git tag', async (ctx) => {
     const {
         exec,
         version,
         remote: { tagList },
-    } = await initGit(tmpDir('CLI should add and push single Git tag'), {
+    } = await initGit(tmpDir(ctx), {
         execDefaultEnv: { COREPACK_HOME },
         useRemoteRepo: true,
     });
@@ -501,41 +502,43 @@ describe.concurrent.each(
             ].join('\n'),
         },
     }),
-)('CLI should to display %s', (testName, { optionList, expected }) => {
-    test.each(optionList)('%s', async (option) => {
-        const { exec } = await initGit(
-            tmpDir(`CLI should to display`, testName, option),
-            { execDefaultEnv: { COREPACK_HOME } },
-        );
+)('CLI should to display %s', (_, { optionList, expected }) => {
+    for (const option of optionList) {
+        // eslint-disable-next-line vitest/no-done-callback
+        test(option, async (ctx) => {
+            const { exec } = await initGit(tmpDir(ctx), {
+                execDefaultEnv: { COREPACK_HOME },
+            });
 
-        const gitTagResult = exec(['git', 'tag', '-l']).then(
-            ({ stdout, stderr }) => ({ stdout, stderr }),
-        );
-        await expect(
-            gitTagResult,
-            'Git tag should not exist yet',
-        ).resolves.toStrictEqual({ stdout: '', stderr: '' });
+            const gitTagResult = exec(['git', 'tag', '-l']).then(
+                ({ stdout, stderr }) => ({ stdout, stderr }),
+            );
+            await expect(
+                gitTagResult,
+                'Git tag should not exist yet',
+            ).resolves.toStrictEqual({ stdout: '', stderr: '' });
 
-        await expect(
-            exec([CLI_PATH, option]),
-            'CLI should exits successfully',
-        ).resolves.toMatchObject({
-            stdout: expected,
-            stderr: '',
+            await expect(
+                exec([CLI_PATH, option]),
+                'CLI should exits successfully',
+            ).resolves.toMatchObject({
+                stdout: expected,
+                stderr: '',
+            });
+
+            await expect(
+                exec(['git', 'tag', '-l']),
+                'Git tag should not change',
+            ).resolves.toMatchObject(await gitTagResult);
         });
-
-        await expect(
-            exec(['git', 'tag', '-l']),
-            'Git tag should not change',
-        ).resolves.toMatchObject(await gitTagResult);
-    });
+    }
 });
 
-test.concurrent('CLI should not work with unknown options', async () => {
-    const { exec } = await initGit(
-        tmpDir('CLI should not work with unknown options'),
-        { execDefaultEnv: { COREPACK_HOME } },
-    );
+// eslint-disable-next-line vitest/no-done-callback
+test.concurrent('CLI should not work with unknown options', async (ctx) => {
+    const { exec } = await initGit(tmpDir(ctx), {
+        execDefaultEnv: { COREPACK_HOME },
+    });
 
     const gitTagResult = exec(['git', 'tag', '-l']).then(
         ({ stdout, stderr }) => ({ stdout, stderr }),
@@ -578,7 +581,7 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
         configFile: '.npmrc' | '.yarnrc';
     }
 
-    const simpleTestCases = Object.entries<Case>({
+    const simpleTestCases: Record<string, Case> = {
         npm: {
             pkgJson: {
                 packageManager: corepackPackageManager.latestNpm,
@@ -608,45 +611,27 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
             },
             configFile: '.yarnrc',
         },
-    }).concat(
-        corepackPackageManager.pnpmList.map<[string, Case]>(
-            (packageManager) => {
-                const major = Number(
-                    /^pnpm@(\d+)/.exec(packageManager)?.[1] ?? '0',
-                );
-                return [
-                    corepackPackageManager.omitPmHash(packageManager),
-                    {
-                        pkgJson: {
-                            packageManager,
-                        },
-                        commad: {
-                            version: ['pnpm', '--version'],
-                            getPrefix: [
-                                'pnpm',
-                                'config',
-                                'get',
-                                'tag-version-prefix',
-                            ],
-                            execCli:
-                                major >= 6
-                                    ? ['pnpm', 'exec', PKG_DATA.name]
-                                    : ['pnpx', '--no-install', PKG_DATA.name],
-                            setNewVersion: (newVersion) => [
-                                'pnpm',
-                                'version',
-                                newVersion,
-                            ],
-                        },
-                        configFile: '.npmrc',
-                    },
-                ];
+    };
+    for (const packageManager of corepackPackageManager.pnpmList) {
+        const major = Number(/^pnpm@(\d+)/.exec(packageManager)?.[1] ?? '0');
+        simpleTestCases[corepackPackageManager.omitPmHash(packageManager)] = {
+            pkgJson: {
+                packageManager,
             },
-        ),
-    );
-    const fullTestCases = simpleTestCases.flatMap<
-        readonly [testName: string, caseItem: Case]
-    >(([testName, caseItem]) => {
+            commad: {
+                version: ['pnpm', '--version'],
+                getPrefix: ['pnpm', 'config', 'get', 'tag-version-prefix'],
+                execCli:
+                    major >= 6
+                        ? ['pnpm', 'exec', PKG_DATA.name]
+                        : ['pnpx', '--no-install', PKG_DATA.name],
+                setNewVersion: (newVersion) => ['pnpm', 'version', newVersion],
+            },
+            configFile: '.npmrc',
+        };
+    }
+    const fullTestCases: Record<string, Case> = {};
+    for (const [testName, caseItem] of Object.entries(simpleTestCases)) {
         const toTestName = (
             testName: string,
             execCliCommand: readonly string[],
@@ -698,19 +683,23 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
                 },
             },
         ];
-        return caseList.map((caseItem) => [
-            toTestName(testName, caseItem.commad.execCli, caseItem.pkgJson),
-            caseItem,
-        ]);
-    });
+        for (const caseItem of caseList) {
+            const newTestName = toTestName(
+                testName,
+                caseItem.commad.execCli,
+                caseItem.pkgJson,
+            );
+            fullTestCases[newTestName] = caseItem;
+        }
+    }
 
     const defaultPrefix = 'v';
     const testFn =
-        (customPrefix: string | undefined, uniqueNameList: string[] = []) =>
-        async (
-            testName: string,
+        (
+            customPrefix: string | undefined,
             { pkgJson, configFile, commad }: Case,
-        ): Promise<void> => {
+        ) =>
+        async (ctx: vitest.TestContext): Promise<void> => {
             const configValue: Record<typeof configFile, string> | undefined =
                 typeof customPrefix === 'string'
                     ? {
@@ -737,19 +726,12 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
                 process.platform === 'win32'
                     ? { APPDATA: process.env['APPDATA'] }
                     : {};
-            const { exec, gitDirpath, version } = await initGit(
-                tmpDir(
-                    'CLI should add Git tag with customized tag prefix',
-                    ...uniqueNameList,
-                    testName,
-                ),
-                {
-                    execDefaultEnv: {
-                        ...(packageManager?.type === 'pnpm' ? pnpmEnv : {}),
-                        COREPACK_HOME,
-                    },
+            const { exec, gitDirpath, version } = await initGit(tmpDir(ctx), {
+                execDefaultEnv: {
+                    ...(packageManager?.type === 'pnpm' ? pnpmEnv : {}),
+                    COREPACK_HOME,
                 },
-            );
+            });
             const pnpmConfig =
                 packageManager?.type !== 'pnpm'
                     ? undefined
@@ -819,7 +801,6 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
                           ),
                       ]
                     : []),
-                // eslint-disable-next-line vitest/no-conditional-in-test
                 pkgJson
                     ? fs.writeFile(
                           path.join(gitDirpath, 'package.json'),
@@ -928,19 +909,19 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
             });
         };
 
-    test.each(fullTestCases)('%s', testFn('my-awesome-pkg-v'));
+    for (const [testName, testCase] of Object.entries(fullTestCases)) {
+        test(testName, testFn('my-awesome-pkg-v', testCase));
+    }
 
     describe.concurrent('allow empty string prefix', () => {
-        test.each(simpleTestCases)(
-            '%s',
-            testFn('', ['allow empty string prefix']),
-        );
+        for (const [testName, testCase] of Object.entries(simpleTestCases)) {
+            test(testName, testFn('', testCase));
+        }
     });
 
     describe.concurrent('default prefix should be "v"', () => {
-        test.each(simpleTestCases)(
-            '%s',
-            testFn(undefined, ['default prefix should be "v"']),
-        );
+        for (const [testName, testCase] of Object.entries(simpleTestCases)) {
+            test(testName, testFn(undefined, testCase));
+        }
     });
 });

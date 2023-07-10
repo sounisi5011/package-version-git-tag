@@ -156,6 +156,7 @@ Because it is the minimum version available for Vitest.
 * [#200] - Migrate from AVA to Vitest
 * [#214] - Refactoring test code
 * [#233] - All tests that run the CLI should set the `COREPACK_HOME` environment variable to use the test-specific Corepack installation directory
+* [#234] - Get the test name from the test context
 
 ### Others
 
@@ -221,6 +222,7 @@ Because it is the minimum version available for Vitest.
 [#228]: https://github.com/sounisi5011/package-version-git-tag/pull/228
 [#230]: https://github.com/sounisi5011/package-version-git-tag/pull/230
 [#233]: https://github.com/sounisi5011/package-version-git-tag/pull/233
+[#234]: https://github.com/sounisi5011/package-version-git-tag/pull/234
 
 ## [3.0.0] (2020-06-02 UTC)
 

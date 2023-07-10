@@ -1,5 +1,4 @@
 import isPromise from 'is-promise';
-import type * as vitest from 'vitest';
 
 export function getRandomInt(min: number, max: number): number {
     min = Math.ceil(min);
@@ -86,11 +85,4 @@ export async function retryAsync<
             throw error;
         }
     }
-}
-
-export function getTestNameList(
-    meta: Readonly<vitest.Test | vitest.Suite> | undefined,
-): string[] {
-    if (!meta) return [];
-    return getTestNameList(meta.suite).concat(meta.name);
 }

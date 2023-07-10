@@ -13,7 +13,7 @@ import { getPackageManagerData } from '../../src/utils/detect-package-manager.js
 import type { PackageManagerData } from '../../src/utils/detect-package-manager/types.js';
 import { COREPACK_HOME, TINY_NPM_PACKAGE } from '../helpers/const.js';
 import * as corepackPackageManager from '../helpers/corepack-package-managers.js';
-import { getTestNameList, retryAsync, valueFinally } from '../helpers/index.js';
+import { retryAsync, valueFinally } from '../helpers/index.js';
 import { tmpDir } from '../helpers/tmp.js';
 
 // Remove all environment variables set by npm
@@ -462,7 +462,6 @@ describe(`detect package manager using the "packageManager" field in "package.js
         (error: unknown): null => {
             if ((error as Record<string, unknown> | null)?.['code'] === code)
                 return null;
-            // eslint-disable-next-line @typescript-eslint/no-throw-literal
             throw error;
         };
 
@@ -513,9 +512,7 @@ describe(`detect package manager using the "packageManager" field in "package.js
                 corepackPackageManager.omitPmHash(packageManager),
                 // eslint-disable-next-line vitest/no-done-callback
                 async (ctx) => {
-                    const virtualTestDirpath = tmpDir(
-                        ...getTestNameList(ctx.meta),
-                    );
+                    const virtualTestDirpath = tmpDir(ctx);
                     const [
                         { nodeModulesDirOnly: actualTestDirpath },
                         oldInstalledDir,
@@ -600,9 +597,7 @@ describe(`detect package manager using the "packageManager" field in "package.js
                 corepackPackageManager.omitPmHash(packageManager),
                 // eslint-disable-next-line vitest/no-done-callback
                 async (ctx) => {
-                    const virtualTestDirpath = tmpDir(
-                        ...getTestNameList(ctx.meta),
-                    );
+                    const virtualTestDirpath = tmpDir(ctx);
                     const [{ lockfiles: actualTestDirpath }, oldInstalledDir] =
                         await Promise.all([
                             createInstalledDir({
