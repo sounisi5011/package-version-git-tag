@@ -14,7 +14,7 @@ import PKG_DATA from '../package.json';
 import { COREPACK_HOME, PROJECT_ROOT, TEST_TMP_DIR } from './helpers/const.js';
 import * as corepackPackageManager from './helpers/corepack-package-managers.js';
 import { initGit } from './helpers/git.js';
-import { getTestNameList, retryAsync } from './helpers/index.js';
+import { retryAsync } from './helpers/index.js';
 import { tmpDir } from './helpers/tmp.js';
 
 const CLI_DIR = path.resolve(TEST_TMP_DIR, '.cli');
@@ -84,10 +84,9 @@ describe.concurrent('CLI should add Git tag', () => {
     };
     for (const [testName, { cliArgs, expected }] of Object.entries(cases)) {
         test(testName, async (ctx) => {
-            const { exec, version } = await initGit(
-                tmpDir(...getTestNameList(ctx.meta)),
-                { execDefaultEnv: { COREPACK_HOME } },
-            );
+            const { exec, version } = await initGit(tmpDir(ctx), {
+                execDefaultEnv: { COREPACK_HOME },
+            });
 
             await expect(
                 exec(['git', 'tag', '-l']),
@@ -121,10 +120,9 @@ describe.concurrent('CLI should add Git tag', () => {
 describe.concurrent('CLI should not add Git tag with dry-run', () => {
     for (const option of ['-n', '--dry-run']) {
         test(option, async (ctx) => {
-            const { exec, version } = await initGit(
-                tmpDir(...getTestNameList(ctx.meta)),
-                { execDefaultEnv: { COREPACK_HOME } },
-            );
+            const { exec, version } = await initGit(tmpDir(ctx), {
+                execDefaultEnv: { COREPACK_HOME },
+            });
 
             const gitTagResult = exec(['git', 'tag', '-l']).then(
                 ({ stdout, stderr }) => ({ stdout, stderr }),
@@ -196,10 +194,9 @@ describe.concurrent(
         };
         for (const [testName, { cliArgs, expected }] of Object.entries(cases)) {
             test(testName, async (ctx) => {
-                const { exec, version } = await initGit(
-                    tmpDir(...getTestNameList(ctx.meta)),
-                    { execDefaultEnv: { COREPACK_HOME } },
-                );
+                const { exec, version } = await initGit(tmpDir(ctx), {
+                    execDefaultEnv: { COREPACK_HOME },
+                });
                 await exec(['git', 'tag', `v${version}`]);
 
                 const gitTagResult = exec(['git', 'tag', '-l']).then(
@@ -243,10 +240,9 @@ describe.concurrent(
 test.concurrent(
     'CLI should fail if Git tag exists on different commits',
     async (ctx) => {
-        const { exec, version } = await initGit(
-            tmpDir(...getTestNameList(ctx.meta)),
-            { execDefaultEnv: { COREPACK_HOME } },
-        );
+        const { exec, version } = await initGit(tmpDir(ctx), {
+            execDefaultEnv: { COREPACK_HOME },
+        });
 
         await exec(['git', 'tag', `v${version}`]);
         await exec(['git', 'commit', '--allow-empty', '-m', 'Second commit']);
@@ -272,10 +268,9 @@ test.concurrent(
 test.concurrent(
     'CLI push flag should fail if there is no remote repository',
     async (ctx) => {
-        const { exec, version } = await initGit(
-            tmpDir(...getTestNameList(ctx.meta)),
-            { execDefaultEnv: { COREPACK_HOME } },
-        );
+        const { exec, version } = await initGit(tmpDir(ctx), {
+            execDefaultEnv: { COREPACK_HOME },
+        });
 
         await expect(
             exec(['git', 'push', '--dry-run', 'origin', 'HEAD']),
@@ -340,7 +335,7 @@ describe.concurrent('CLI should add and push Git tag', () => {
                 exec,
                 version,
                 remote: { tagList },
-            } = await initGit(tmpDir(...getTestNameList(ctx.meta)), {
+            } = await initGit(tmpDir(ctx), {
                 execDefaultEnv: { COREPACK_HOME },
                 useRemoteRepo: true,
             });
@@ -386,7 +381,7 @@ test.concurrent(
             exec,
             version,
             remote: { tagList },
-        } = await initGit(tmpDir(...getTestNameList(ctx.meta)), {
+        } = await initGit(tmpDir(ctx), {
             execDefaultEnv: { COREPACK_HOME },
             useRemoteRepo: true,
         });
@@ -431,7 +426,7 @@ test.concurrent('CLI should add and push single Git tag', async (ctx) => {
         exec,
         version,
         remote: { tagList },
-    } = await initGit(tmpDir(...getTestNameList(ctx.meta)), {
+    } = await initGit(tmpDir(ctx), {
         execDefaultEnv: { COREPACK_HOME },
         useRemoteRepo: true,
     });
@@ -502,10 +497,9 @@ describe.concurrent.each(
 )('CLI should to display %s', (_, { optionList, expected }) => {
     for (const option of optionList) {
         test(option, async (ctx) => {
-            const { exec } = await initGit(
-                tmpDir(...getTestNameList(ctx.meta)),
-                { execDefaultEnv: { COREPACK_HOME } },
-            );
+            const { exec } = await initGit(tmpDir(ctx), {
+                execDefaultEnv: { COREPACK_HOME },
+            });
 
             const gitTagResult = exec(['git', 'tag', '-l']).then(
                 ({ stdout, stderr }) => ({ stdout, stderr }),
@@ -532,7 +526,7 @@ describe.concurrent.each(
 });
 
 test.concurrent('CLI should not work with unknown options', async (ctx) => {
-    const { exec } = await initGit(tmpDir(...getTestNameList(ctx.meta)), {
+    const { exec } = await initGit(tmpDir(ctx), {
         execDefaultEnv: { COREPACK_HOME },
     });
 
@@ -722,15 +716,12 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
                 process.platform === 'win32'
                     ? { APPDATA: process.env['APPDATA'] }
                     : {};
-            const { exec, gitDirpath, version } = await initGit(
-                tmpDir(...getTestNameList(ctx.meta)),
-                {
-                    execDefaultEnv: {
-                        ...(packageManager?.type === 'pnpm' ? pnpmEnv : {}),
-                        COREPACK_HOME,
-                    },
+            const { exec, gitDirpath, version } = await initGit(tmpDir(ctx), {
+                execDefaultEnv: {
+                    ...(packageManager?.type === 'pnpm' ? pnpmEnv : {}),
+                    COREPACK_HOME,
                 },
-            );
+            });
             const pnpmConfig =
                 packageManager?.type !== 'pnpm'
                     ? undefined
