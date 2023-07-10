@@ -63,7 +63,7 @@ describe.concurrent('CLI should add Git tag', () => {
         expected: (version: string) => Partial<Awaited<ExecaChildProcess>>;
     }
 
-    const cases = Object.entries<Case>({
+    const cases: Record<string, Case> = {
         normal: {
             cliArgs: [],
             expected: () => ({
@@ -81,8 +81,8 @@ describe.concurrent('CLI should add Git tag', () => {
                 ].join('\n'),
             }),
         },
-    });
-    for (const [testName, { cliArgs, expected }] of cases) {
+    };
+    for (const [testName, { cliArgs, expected }] of Object.entries(cases)) {
         test(testName, async (ctx) => {
             const { exec, version } = await initGit(
                 tmpDir(...getTestNameList(ctx.meta)),
@@ -163,7 +163,7 @@ describe.concurrent(
             expected: (version: string) => Partial<Awaited<ExecaChildProcess>>;
         }
 
-        const cases = Object.entries<Case>({
+        const cases: Record<string, Case> = {
             normal: {
                 cliArgs: [],
                 expected: () => ({
@@ -193,8 +193,8 @@ describe.concurrent(
                     ].join('\n'),
                 }),
             },
-        });
-        for (const [testName, { cliArgs, expected }] of cases) {
+        };
+        for (const [testName, { cliArgs, expected }] of Object.entries(cases)) {
             test(testName, async (ctx) => {
                 const { exec, version } = await initGit(
                     tmpDir(...getTestNameList(ctx.meta)),
@@ -317,7 +317,7 @@ describe.concurrent('CLI should add and push Git tag', () => {
         expected: (version: string) => Partial<Awaited<ExecaChildProcess>>;
     }
 
-    const cases = Object.entries<Case>({
+    const cases: Record<string, Case> = {
         normal: {
             cliArgs: [],
             expected: () => ({ stderr: '' }),
@@ -333,8 +333,8 @@ describe.concurrent('CLI should add and push Git tag', () => {
                 ].join('\n'),
             }),
         },
-    });
-    for (const [testName, { cliArgs, expected }] of cases) {
+    };
+    for (const [testName, { cliArgs, expected }] of Object.entries(cases)) {
         test(testName, async (ctx) => {
             const {
                 exec,
@@ -577,7 +577,7 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
         configFile: '.npmrc' | '.yarnrc';
     }
 
-    const simpleTestCases = Object.entries<Case>({
+    const simpleTestCases: Record<string, Case> = {
         npm: {
             pkgJson: {
                 packageManager: corepackPackageManager.latestNpm,
@@ -607,45 +607,27 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
             },
             configFile: '.yarnrc',
         },
-    }).concat(
-        corepackPackageManager.pnpmList.map<[string, Case]>(
-            (packageManager) => {
-                const major = Number(
-                    /^pnpm@(\d+)/.exec(packageManager)?.[1] ?? '0',
-                );
-                return [
-                    corepackPackageManager.omitPmHash(packageManager),
-                    {
-                        pkgJson: {
-                            packageManager,
-                        },
-                        commad: {
-                            version: ['pnpm', '--version'],
-                            getPrefix: [
-                                'pnpm',
-                                'config',
-                                'get',
-                                'tag-version-prefix',
-                            ],
-                            execCli:
-                                major >= 6
-                                    ? ['pnpm', 'exec', PKG_DATA.name]
-                                    : ['pnpx', '--no-install', PKG_DATA.name],
-                            setNewVersion: (newVersion) => [
-                                'pnpm',
-                                'version',
-                                newVersion,
-                            ],
-                        },
-                        configFile: '.npmrc',
-                    },
-                ];
+    };
+    for (const packageManager of corepackPackageManager.pnpmList) {
+        const major = Number(/^pnpm@(\d+)/.exec(packageManager)?.[1] ?? '0');
+        simpleTestCases[corepackPackageManager.omitPmHash(packageManager)] = {
+            pkgJson: {
+                packageManager,
             },
-        ),
-    );
-    const fullTestCases = simpleTestCases.flatMap<
-        readonly [testName: string, caseItem: Case]
-    >(([testName, caseItem]) => {
+            commad: {
+                version: ['pnpm', '--version'],
+                getPrefix: ['pnpm', 'config', 'get', 'tag-version-prefix'],
+                execCli:
+                    major >= 6
+                        ? ['pnpm', 'exec', PKG_DATA.name]
+                        : ['pnpx', '--no-install', PKG_DATA.name],
+                setNewVersion: (newVersion) => ['pnpm', 'version', newVersion],
+            },
+            configFile: '.npmrc',
+        };
+    }
+    const fullTestCases: Record<string, Case> = {};
+    for (const [testName, caseItem] of Object.entries(simpleTestCases)) {
         const toTestName = (
             testName: string,
             execCliCommand: readonly string[],
@@ -697,11 +679,15 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
                 },
             },
         ];
-        return caseList.map((caseItem) => [
-            toTestName(testName, caseItem.commad.execCli, caseItem.pkgJson),
-            caseItem,
-        ]);
-    });
+        for (const caseItem of caseList) {
+            const newTestName = toTestName(
+                testName,
+                caseItem.commad.execCli,
+                caseItem.pkgJson,
+            );
+            fullTestCases[newTestName] = caseItem;
+        }
+    }
 
     const defaultPrefix = 'v';
     const testFn =
@@ -923,18 +909,18 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
             });
         };
 
-    for (const [testName, testCase] of fullTestCases) {
+    for (const [testName, testCase] of Object.entries(fullTestCases)) {
         test(testName, testFn('my-awesome-pkg-v', testCase));
     }
 
     describe.concurrent('allow empty string prefix', () => {
-        for (const [testName, testCase] of simpleTestCases) {
+        for (const [testName, testCase] of Object.entries(simpleTestCases)) {
             test(testName, testFn('', testCase));
         }
     });
 
     describe.concurrent('default prefix should be "v"', () => {
-        for (const [testName, testCase] of simpleTestCases) {
+        for (const [testName, testCase] of Object.entries(simpleTestCases)) {
             test(testName, testFn(undefined, testCase));
         }
     });
