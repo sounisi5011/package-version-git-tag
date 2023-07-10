@@ -462,7 +462,6 @@ describe(`detect package manager using the "packageManager" field in "package.js
         (error: unknown): null => {
             if ((error as Record<string, unknown> | null)?.['code'] === code)
                 return null;
-            // eslint-disable-next-line @typescript-eslint/no-throw-literal
             throw error;
         };
 

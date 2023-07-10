@@ -83,6 +83,7 @@ describe.concurrent('CLI should add Git tag', () => {
         },
     };
     for (const [testName, { cliArgs, expected }] of Object.entries(cases)) {
+        // eslint-disable-next-line vitest/no-done-callback
         test(testName, async (ctx) => {
             const { exec, version } = await initGit(tmpDir(ctx), {
                 execDefaultEnv: { COREPACK_HOME },
@@ -119,6 +120,7 @@ describe.concurrent('CLI should add Git tag', () => {
 
 describe.concurrent('CLI should not add Git tag with dry-run', () => {
     for (const option of ['-n', '--dry-run']) {
+        // eslint-disable-next-line vitest/no-done-callback
         test(option, async (ctx) => {
             const { exec, version } = await initGit(tmpDir(ctx), {
                 execDefaultEnv: { COREPACK_HOME },
@@ -193,6 +195,7 @@ describe.concurrent(
             },
         };
         for (const [testName, { cliArgs, expected }] of Object.entries(cases)) {
+            // eslint-disable-next-line vitest/no-done-callback
             test(testName, async (ctx) => {
                 const { exec, version } = await initGit(tmpDir(ctx), {
                     execDefaultEnv: { COREPACK_HOME },
@@ -239,6 +242,7 @@ describe.concurrent(
 
 test.concurrent(
     'CLI should fail if Git tag exists on different commits',
+    // eslint-disable-next-line vitest/no-done-callback
     async (ctx) => {
         const { exec, version } = await initGit(tmpDir(ctx), {
             execDefaultEnv: { COREPACK_HOME },
@@ -267,6 +271,7 @@ test.concurrent(
 
 test.concurrent(
     'CLI push flag should fail if there is no remote repository',
+    // eslint-disable-next-line vitest/no-done-callback
     async (ctx) => {
         const { exec, version } = await initGit(tmpDir(ctx), {
             execDefaultEnv: { COREPACK_HOME },
@@ -330,6 +335,7 @@ describe.concurrent('CLI should add and push Git tag', () => {
         },
     };
     for (const [testName, { cliArgs, expected }] of Object.entries(cases)) {
+        // eslint-disable-next-line vitest/no-done-callback
         test(testName, async (ctx) => {
             const {
                 exec,
@@ -376,6 +382,7 @@ describe.concurrent('CLI should add and push Git tag', () => {
 
 test.concurrent(
     'CLI should not add and not push Git tag with dry-run',
+    // eslint-disable-next-line vitest/no-done-callback
     async (ctx) => {
         const {
             exec,
@@ -421,6 +428,7 @@ test.concurrent(
     },
 );
 
+// eslint-disable-next-line vitest/no-done-callback
 test.concurrent('CLI should add and push single Git tag', async (ctx) => {
     const {
         exec,
@@ -496,6 +504,7 @@ describe.concurrent.each(
     }),
 )('CLI should to display %s', (_, { optionList, expected }) => {
     for (const option of optionList) {
+        // eslint-disable-next-line vitest/no-done-callback
         test(option, async (ctx) => {
             const { exec } = await initGit(tmpDir(ctx), {
                 execDefaultEnv: { COREPACK_HOME },
@@ -525,6 +534,7 @@ describe.concurrent.each(
     }
 });
 
+// eslint-disable-next-line vitest/no-done-callback
 test.concurrent('CLI should not work with unknown options', async (ctx) => {
     const { exec } = await initGit(tmpDir(ctx), {
         execDefaultEnv: { COREPACK_HOME },
@@ -791,7 +801,6 @@ describe.concurrent('CLI should add Git tag with customized tag prefix', () => {
                           ),
                       ]
                     : []),
-                // eslint-disable-next-line vitest/no-conditional-in-test
                 pkgJson
                     ? fs.writeFile(
                           path.join(gitDirpath, 'package.json'),
