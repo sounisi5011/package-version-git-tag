@@ -53,7 +53,7 @@ tasks:
     cmds:
       # Note: The "--report-unused-disable-directives" option was intentionally omitted for this command.
       #       The "--report-unused-disable-directives" option and the "--fix" option together will automatically remove old directive comments.
-      #       However, this may leave empty lines.
+      #       However, the line from which the comment was removed remains intact, and Prettier may not remove this line.
       #       For this reason, we remove old directive comments manually.
       - eslint {{- if .ESLINT_EXT }} --ext '{{ .ESLINT_EXT }}' {{- end }} --fix ./
 
