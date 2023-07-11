@@ -39,7 +39,6 @@ export default async function (
              * Note: The try...catch statement does not catch the error for the http/https module.
              * @see https://github.com/expressjs/express/issues/2856#issuecomment-172566787
              */
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
             repos.server?.on('error', reject);
         })
             .then(() => {
