@@ -185,6 +185,7 @@ Because it is the minimum version available for Vitest.
 * [#226] - Ensure that scripts in the "Get the diff from the latest commit where the GitHub Actions succeeded" step finish successfully even if the `context.payload.pull_request` is undefined
 * [#227] - Migrate from CommonJS to ESM
 * [#228] - Reduce package size
+* [#235] - Remove unused directive comments for ESLint
 
 [#182]: https://github.com/sounisi5011/package-version-git-tag/pull/182
 [#183]: https://github.com/sounisi5011/package-version-git-tag/pull/183
@@ -223,6 +224,7 @@ Because it is the minimum version available for Vitest.
 [#230]: https://github.com/sounisi5011/package-version-git-tag/pull/230
 [#233]: https://github.com/sounisi5011/package-version-git-tag/pull/233
 [#234]: https://github.com/sounisi5011/package-version-git-tag/pull/234
+[#235]: https://github.com/sounisi5011/package-version-git-tag/pull/235
 
 ## [3.0.0] (2020-06-02 UTC)
 
