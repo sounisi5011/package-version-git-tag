@@ -35,7 +35,7 @@ jobs:
             git fetch --no-tags --prune --no-recurse-submodules --depth=1 origin "${refspec#refs/heads/}"
           done
 
-      - uses: FantasticFiasco/action-update-license-year@v2
+      - uses: FantasticFiasco/action-update-license-year@v3
         with:
           # Use personal access token instead of GITHUB_TOKEN to execute CI for pull requests.
           # see https://docs.github.com/en/actions/learn-github-actions/events-that-trigger-workflows#triggering-new-workflows-using-a-personal-access-token
