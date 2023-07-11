@@ -18,7 +18,6 @@ interface InitGitOptions {
     execDefaultEnv?: NodeJS.ProcessEnv | undefined;
 }
 
-/* eslint-disable import/export */
 export async function initGit(
     dirpath: string,
     options: InitGitOptions & {
