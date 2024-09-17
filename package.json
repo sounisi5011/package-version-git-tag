@@ -46,7 +46,7 @@
   "devDependencies": {
     "@go-task/cli": "3.27.1",
     "@sindresorhus/slugify": "2.2.0",
-    "@sounisi5011/readme-generator": "github:sounisi5011/readme-generator#semver:0.0.2",
+    "@sounisi5011/readme-generator": "github:sounisi5011/readme-generator#semver:v0.0.6",
     "@tsconfig/node14": "1.0.3",
     "@types/cross-spawn": "6.0.2",
     "@types/mock-fs": "4.13.1",
