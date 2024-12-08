@@ -193,7 +193,7 @@ jobs:
           echo "pnpm-store-path=$(pnpm store path --silent)" >> "${GITHUB_ENV}"
 
       - name: Cache pnpm
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           key: node-cache-${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
           path: ${{ env.pnpm-store-path }}
@@ -461,7 +461,7 @@ jobs:
 
       - name: Cache pnpm
         if: ${{ env.run-test }}
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           key: node-cache-${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
           path: ${{ env.pnpm-store-path }}
