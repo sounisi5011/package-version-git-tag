@@ -61,7 +61,7 @@ jobs:
       latest-commit-diff: ${{ steps.latest-commit-diff.outputs.result }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - id: detector
         uses: sounisi5011/npm-packages@actions/get-nodejs-versions-array-v0
       - name: Get the diff from the latest commit where the GitHub Actions succeeded
@@ -164,7 +164,7 @@ jobs:
     needs: if-run-ci
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Reconfigure git to use HTTP authentication
         # see https://stackoverflow.com/a/69634516
@@ -248,7 +248,7 @@ jobs:
           if ('/' in diff_files) or (0 < len(diff_files - ignore_files - {''})):
             export_var('run-test', '1')
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         if: ${{ env.run-test }}
 
       - name: Reconfigure git to use HTTP authentication
