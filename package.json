@@ -48,7 +48,7 @@
     "@sindresorhus/slugify": "2.2.0",
     "@sounisi5011/readme-generator": "github:sounisi5011/readme-generator#semver:0.0.2",
     "@tsconfig/node14": "1.0.3",
-    "@types/cross-spawn": "6.0.2",
+    "@types/cross-spawn": "6.0.6",
     "@types/mock-fs": "4.13.1",
     "@types/node": "14.18.37",
     "@types/semver": "7.3.13",
